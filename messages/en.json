@@ -1,0 +1,23 @@
+{
+  "Navbar": {
+    "home": "Home",
+    "consulting": "Consulting",
+    "training": "Training",
+    "about": "About",
+    "ourTeam": "Our Team",
+    "myAccount": "My Account",
+    "menu": "Menu",
+    "menuDescription": "Use the menu to navigate the site",
+    "dashboard":"Dashboard",
+    "changePassword":"Change Password",
+    "logout":"Logout",
+    "newApplication":"Join Our Team"
+
+    
+  },
+  "stats": {
+    "projects": "Projects Completed",
+    "clients": "Clients Served",
+    "experience": "Years of Experience"
+  }
+}

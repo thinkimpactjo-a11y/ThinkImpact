@@ -1,0 +1,21 @@
+{
+  "Navbar": {
+    "home": "الرئيسية",
+    "consulting": "الاستشارات",
+    "training": "التدريب",
+    "about": "من نحن",
+    "ourTeam": "فريق العمل",
+    "myAccount":"حسابي",
+    "menu": "القائمة",
+    "menuDescription": "استخدم القائمة للتنقل داخل الموقع",
+     "dashboard":"واجة التحكم",
+    "changePassword":"تغير كلمة المرور",
+    "logout":"تسجيل خروج",
+    "newApplication":"انضم إلى فريقنا"
+  },
+  "stats": {
+    "projects": "المشاريع المكتملة",
+    "clients": "العملاء",
+    "experience": "سنوات الخبرة"
+  }
+}
