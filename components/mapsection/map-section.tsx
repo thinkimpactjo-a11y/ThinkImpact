@@ -1,5 +1,5 @@
 "use client";
-
+import map from "@/public/images/map.png"
 import React, { useState, useEffect } from "react";
 import {
   ComposableMap,
@@ -124,9 +124,9 @@ export default function MapSection() {
 
       {isMobile ? (
         <Image
-          src="/path-to-your-image.jpg"
+          src={map}
           alt={isArabic ? "خريطة الدول العربية" : "Arabic countries map"}
-          className="w-4/5 h-auto object-contain"
+          className="w-4/5 h-auto object-contain mt-20"
           width={800}
           height={600}
         />
