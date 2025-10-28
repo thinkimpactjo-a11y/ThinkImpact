@@ -35,6 +35,10 @@ export default async function Home() {
         </section>
 
         <section className="relative z-10 w-full">
+          <InteractiveMap />
+        </section>
+
+        <section className="relative z-10 w-full">
           <PosterTwo data={data} />
         </section>
 
