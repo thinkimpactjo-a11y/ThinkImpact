@@ -46,12 +46,15 @@ function ResetPasswordPage() {
     setLoading(true);
 
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_APP_URL}/api/auth/reset-password`, {
-        token,
-        newPassword: form.password,
-      });
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/reset-password`,
+        {
+          token,
+          newPassword: form.password,
+        }
+      );
       setMessage("Password updated successfully. Redirecting to Login Page...");
-      setTimeout(() => router.push("/admin/login"), 2000);
+      setTimeout(() => router.push("/login"), 2000);
     } catch (err) {
       const axiosError = err as AxiosError<{ message: string }>;
       setError(axiosError.response?.data?.message || "Something went wrong.");
@@ -71,7 +74,10 @@ function ResetPasswordPage() {
         </h1>
 
         <div className="relative mb-5">
-          <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900">
+          <label
+            htmlFor="password"
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
             Password
           </label>
           <input
@@ -89,12 +95,19 @@ function ResetPasswordPage() {
             onClick={() => setShowPassword(!showPassword)}
             className="absolute top-8/12 right-3 -translate-y-1/2 text-gray-500"
           >
-            {showPassword ? <EyeIcon className="h-5 w-5" /> : <EyeSlashIcon className="h-5 w-5" />}
+            {showPassword ? (
+              <EyeIcon className="h-5 w-5" />
+            ) : (
+              <EyeSlashIcon className="h-5 w-5" />
+            )}
           </button>
         </div>
 
         <div className="relative mb-5">
-          <label htmlFor="confirmPassword" className="block mb-2 text-sm font-medium text-gray-900">
+          <label
+            htmlFor="confirmPassword"
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
             Confirm Password
           </label>
           <input

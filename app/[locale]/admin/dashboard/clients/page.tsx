@@ -36,7 +36,7 @@ export default async function ClientsTable() {
 
         {/* If no Clients */}
         {clients.length === 0 ? (
-          <div className="w-full text-center py-10 text-gray-500 text-lg min-w-[80vw]">
+          <div className="w-full text-center py-10 text-gray-500 text-lg min-w-[70vw]">
             No Clients found. Please add a new Client.
           </div>
         ) : (

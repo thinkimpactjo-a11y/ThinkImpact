@@ -32,7 +32,7 @@ export default async function UsersTable() {
         </h2>
       </div>
 {banners.length === 0 ? (
-        <div className="w-full text-center py-10 text-gray-500 text-lg min-w-[80vw]">
+        <div className="w-full text-center py-10 text-gray-500 text-lg min-w-[70vw]">
           No banners found. Please add a new banner.
         </div>
       ) : (  <div className="w-full overflow-x-auto border border-gray-300 rounded-2xl p-2">

@@ -33,58 +33,69 @@ export default async function trainingTable() {
             A list of your Training.
           </h2>
         </div>
-
-        {/* Table container */}
-        <div className="w-full overflow-x-auto border border-gray-300 rounded-2xl p-2">
-          <div className="min-w-[75vw]">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead className="hidden xl:table-cell">Description</TableHead>
-                  <TableHead></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {training.map((ele, i) => (
-                  <TableRow key={i}>
-                    <TableCell className="text-xs sm:text-base">{ele.name_en}</TableCell>
-
-                    {/* Description */}
-                    <TableCell className="text-xs sm:text-base hidden xl:table-cell">
-                      {ele.description_en?.substring(0, 50)}...
-                    </TableCell>
-
-                    {/* Edit & Delete Icons */}
-                    <TableCell>
-                      <div className="flex items-center gap-[5px]">
-                        {/* Edit Icon */}
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Link href={`/admin/dashboard/training/${ele.id}`}>
-                                <SquarePen className="w-5 h-5 text-[#125892] cursor-pointer hover:text-[#0f4473]" />
-                              </Link>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" align="center">
-                              <p>Edit</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-
-                        {/* Delete Icon */}
-                        <DeleteTrainingButton
-                          trainingId={ele.id ?? ""}
-                          deleteAction={deleteTraining}
-                        />
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+        {training.length === 0 ? (
+          <div className="w-full text-center py-10 text-gray-500 text-lg min-w-[70vw]">
+            No banners found. Please add a new banner.
           </div>
-        </div>
+        ) : (
+          <div className="w-full overflow-x-auto border border-gray-300 rounded-2xl p-2">
+            <div className="min-w-[75vw]">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead className="hidden xl:table-cell">
+                      Description
+                    </TableHead>
+                    <TableHead></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {training.map((ele, i) => (
+                    <TableRow key={i}>
+                      <TableCell className="text-xs sm:text-base">
+                        {ele.name_en}
+                      </TableCell>
+
+                      {/* Description */}
+                      <TableCell className="text-xs sm:text-base hidden xl:table-cell">
+                        {ele.description_en?.substring(0, 50)}...
+                      </TableCell>
+
+                      {/* Edit & Delete Icons */}
+                      <TableCell>
+                        <div className="flex items-center gap-[5px]">
+                          {/* Edit Icon */}
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Link
+                                  href={`/admin/dashboard/training/${ele.id}`}
+                                >
+                                  <SquarePen className="w-5 h-5 text-[#125892] cursor-pointer hover:text-[#0f4473]" />
+                                </Link>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" align="center">
+                                <p>Edit</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+
+                          {/* Delete Icon */}
+                          <DeleteTrainingButton
+                            trainingId={ele.id ?? ""}
+                            deleteAction={deleteTraining}
+                          />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        )}
+        {/* Table container */}
 
         {/* Add Button under the table */}
         <div className="w-full flex justify-end mt-4">

@@ -1,12 +1,9 @@
 "use server";
 
-
-
 import { newBanner } from "@/types";
 import pool from "../index";
 
 export const addNewBanner = async (newBanner: newBanner) => {
-  
   const result = await pool.query(
     "insert into banners (alt, description_en, description_ar, image) values ($1,$2,$3,$4)",
     [
