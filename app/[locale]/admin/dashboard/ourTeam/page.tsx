@@ -1,6 +1,8 @@
 import Head from "next/head";
 import { getAllMembers } from "@/app/models/db/lib/services/outTeam";
 import DragDropClients from "@/components/ourTeam/dragDropOurTeam";
+import Link from "next/link";
+import { Plus } from "lucide-react";
 
 export default async function membersTable() {
   const members = await getAllMembers();
@@ -22,6 +24,16 @@ export default async function membersTable() {
         ) : (
           <DragDropClients members={members} />
         )}
+
+        <div className="flex justify-end mt-4  w-full">
+          <Link
+            href="/admin/dashboard/ourTeam/newMember"
+            className="bg-[#125892] hover:bg-[#0f4473] text-white px-5 py-3 rounded-md flex items-center gap-2"
+          >
+            <Plus className="w-5 h-5" />
+            Add
+          </Link>
+        </div>
       </main>
     </>
   );

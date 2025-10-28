@@ -168,15 +168,7 @@ export default function DragDropOurteam({ members: initialMembers }: Props) {
             {isPending ? `Loading...` : "Save Order"}
           </button>
         </div>
-        <div className="flex justify-end mt-4">
-          <Link
-            href="/admin/dashboard/ourTeam/newMember"
-            className="bg-[#125892] hover:bg-[#0f4473] text-white px-5 py-3 rounded-md flex items-center gap-2"
-          >
-            <Plus className="w-5 h-5" />
-            Add
-          </Link>
-        </div>
+      
       </div>
 
       {toast && (

@@ -36,7 +36,7 @@ export default async function UsersTable() {
           No banners found. Please add a new banner.
         </div>
       ) : (  <div className="w-full overflow-x-auto border border-gray-300 rounded-2xl p-2">
-        <div className="min-w-[80vw]">
+        <div className="min-w-[70vw]">
           <Table>
             <TableHeader>
               <TableRow>
