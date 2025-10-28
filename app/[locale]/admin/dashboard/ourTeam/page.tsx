@@ -18,7 +18,7 @@ export default async function membersTable() {
         </div>
 
         {members.length === 0 ? (
-          <div className="w-full text-center py-10 text-gray-500 text-lg min-w-[75vw]">
+          <div className="w-full text-center py-10 text-gray-500 text-lg min-w-[70vw]">
             No Members found. Please add a new Member.
           </div>
         ) : (

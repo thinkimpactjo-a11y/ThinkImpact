@@ -29,7 +29,7 @@ import { deleteMember } from "@/app/[locale]/admin/dashboard/ourTeam/(fetch)/del
 import DeleteMemberButton from "./deleteMemberButton";
 import { updateMemberOrder } from "@/app/[locale]/admin/dashboard/ourTeam/(fetch)/updateMemberOrder";
 import { useRouter } from "next/navigation";
-import Image from 'next/image';
+import Image from "next/image";
 
 interface Props {
   members: newMemberDragAndDrop[];
@@ -95,8 +95,12 @@ export default function DragDropOurteam({ members: initialMembers }: Props) {
         </TableCell>
 
         <TableCell className="text-xs sm:text-base">{member.name_en}</TableCell>
-        <TableCell className="text-xs sm:text-base hidden xl:table-cell">{member.position_en}</TableCell>
-        <TableCell className="text-xs sm:text-base text-center">{member.main ? "Yes" : "No"}</TableCell>
+        <TableCell className="text-xs sm:text-base hidden xl:table-cell">
+          {member.position_en}
+        </TableCell>
+        <TableCell className="text-xs sm:text-base text-center">
+          {member.main ? "Yes" : "No"}
+        </TableCell>
         <TableCell className="flex justify-center">
           <Image
             src={member.image ?? ""}
@@ -106,7 +110,9 @@ export default function DragDropOurteam({ members: initialMembers }: Props) {
             height={80}
           />
         </TableCell>
-        <TableCell className="text-xs sm:text-base text-center">{member.display_order ?? "-"}</TableCell>
+        <TableCell className="text-xs sm:text-base text-center">
+          {member.display_order ?? "-"}
+        </TableCell>
 
         <TableCell>
           <div className="flex items-center gap-1">
@@ -123,7 +129,10 @@ export default function DragDropOurteam({ members: initialMembers }: Props) {
               </Tooltip>
             </TooltipProvider>
 
-            <DeleteMemberButton memberId={member.id} deleteAction={deleteMember} />
+            <DeleteMemberButton
+              memberId={member.id}
+              deleteAction={deleteMember}
+            />
           </div>
         </TableCell>
       </TableRow>
@@ -133,15 +142,23 @@ export default function DragDropOurteam({ members: initialMembers }: Props) {
   return (
     <div>
       <div className="w-full overflow-x-auto border border-gray-300 rounded-2xl p-2 flex justify-center">
-        <div className="min-w-[70vw] md:min-w-[78vw]">
-          <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <SortableContext items={members} strategy={verticalListSortingStrategy}>
+        <div className="min-w-[70vw] md:min-w-[70vw]">
+          <DndContext
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={members}
+              strategy={verticalListSortingStrategy}
+            >
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead></TableHead>
                     <TableHead>Name</TableHead>
-                    <TableHead className="hidden xl:table-cell">Position</TableHead>
+                    <TableHead className="hidden xl:table-cell">
+                      Position
+                    </TableHead>
                     <TableHead className="text-center">Main Member</TableHead>
                     <TableHead className="text-center">Image</TableHead>
                     <TableHead className="text-center">Sequence</TableHead>
@@ -168,7 +185,6 @@ export default function DragDropOurteam({ members: initialMembers }: Props) {
             {isPending ? `Loading...` : "Save Order"}
           </button>
         </div>
-      
       </div>
 
       {toast && (
