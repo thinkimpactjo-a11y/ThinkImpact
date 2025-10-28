@@ -37,7 +37,7 @@ export default async function AboutPage({ params }: PageProps) {
         <BannerSection banners={banners} locale={locale} />
         <IntroSection locale={locale} />
         <MissionVisionValues locale={locale} />
-        <ClientsCarousel clients={clients} locale={locale} />
+        {clients.length>0?<ClientsCarousel clients={clients} locale={locale} />:null}
         <OurMethodology locale={locale} />
       </main>
     </>
