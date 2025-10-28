@@ -1,9 +1,15 @@
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
-  siteUrl: process.env.NEXT_PUBLIC_APP_URL || 'https://thinkimpactjo.com',
-  generateRobotsTxt: true, // (optional) generate robots.txt
-  changefreq: 'daily',      // default change frequency
-  priority: 0.7,            // default priority
-  sitemapSize: 5000,        // number of URLs per sitemap file
-  exclude: ['/admin/dashboard', '/admin/login','/admin/register'], // exclude admin pages if needed
+  siteUrl: "https://thinkimpactjo.com",
+  generateRobotsTxt: true, // Generate robots.txt automatically
+  changefreq: "daily", // How often pages are likely to change
+  priority: 0.7, // Default priority for all pages
+  sitemapSize: 5000, // Max number of URLs per sitemap file
+  exclude: ["/admin/dashboard", "/admin/login", "/admin/register"],
+  robotsTxtOptions: {
+    policies: [
+      { userAgent: "*", allow: "/" },
+      { userAgent: "*", disallow: ["/admin/"] },
+    ],
+  },
 };
