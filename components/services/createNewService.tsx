@@ -38,16 +38,24 @@ export default function CreateNewCategory({ action, categories }: Props) {
     image: "",
   });
 
-  const [formErrors, setFormErrors] = useState<Partial<Record<keyof newService, string>>>({});
+  const [formErrors, setFormErrors] = useState<
+    Partial<Record<keyof newService, string>>
+  >({});
   const [isPending, startTransition] = useTransition();
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-    setFormErrors({ ...formErrors, [e.target.name]: "" }); // clear error on change
+    setFormErrors({ ...formErrors, [e.target.name]: "" });
   };
 
-  const handleUploadComplete = (url: string) => setForm({ ...form, image: url });
+  const handleUploadComplete = (url: string) =>
+    setForm({ ...form, image: url });
 
   const handleUploadError = (error: Error) => {
     console.error(error);
@@ -60,14 +68,13 @@ export default function CreateNewCategory({ action, categories }: Props) {
   const handleFormSubmit = () => {
     startTransition(async () => {
       try {
-        // Reset errors
         setFormErrors({});
 
-        // Validate the service form
         newServiceSchema.parse(form);
 
-        // Validate the selected category
-        const selectedCategory = categories.find(c => c.id === form.category_id);
+        const selectedCategory = categories.find(
+          (c) => c.id === form.category_id
+        );
         if (!selectedCategory) throw new Error("Category not found");
         categorySchema.parse(selectedCategory);
 
@@ -78,18 +85,27 @@ export default function CreateNewCategory({ action, categories }: Props) {
           setToast(null);
           router.replace("/admin/dashboard/services");
         }, 1500);
-      } catch (error: any) {
+      } catch (error: unknown) {
         if (error instanceof z.ZodError) {
-          // Map Zod errors to formErrors state
           const fieldErrors: Partial<Record<keyof newService, string>> = {};
-          error.issues.forEach(err => {
+          error.issues.forEach((err) => {
             const field = err.path[0] as keyof newService;
             fieldErrors[field] = err.message;
           });
           setFormErrors(fieldErrors);
+        } else if (error instanceof Error) {
+          console.error(error);
+          setToast({
+            message: error.message || "Failed to add Service.",
+            type: "error",
+          });
+          setTimeout(() => setToast(null), 3000);
         } else {
           console.error(error);
-          setToast({ message: error.message || "Failed to add Service.", type: "error" });
+          setToast({
+            message: "An unknown error occurred.",
+            type: "error",
+          });
           setTimeout(() => setToast(null), 3000);
         }
       }
@@ -97,7 +113,9 @@ export default function CreateNewCategory({ action, categories }: Props) {
   };
 
   const renderError = (field: keyof newService) =>
-    formErrors[field] ? <p className="text-red-500 text-sm mt-1">{formErrors[field]}</p> : null;
+    formErrors[field] ? (
+      <p className="text-red-500 text-sm mt-1">{formErrors[field]}</p>
+    ) : null;
 
   return (
     <main className="ml-3 xl:ml-7 mb-7">
@@ -106,13 +124,18 @@ export default function CreateNewCategory({ action, categories }: Props) {
       </div>
 
       <form
-        onSubmit={(e) => { e.preventDefault(); handleFormSubmit(); }}
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleFormSubmit();
+        }}
         className="h-full w-full lg:w-[70vw] flex flex-col gap-5"
       >
         <Card className="w-full h-full">
           <CardHeader>
             <CardTitle>New Service Details</CardTitle>
-            <CardDescription>Fill out the required fields below to create a new Service.</CardDescription>
+            <CardDescription>
+              Fill out the required fields below to create a new Service.
+            </CardDescription>
           </CardHeader>
 
           <CardContent className="flex flex-col items-start gap-5 mb-7">
@@ -124,7 +147,10 @@ export default function CreateNewCategory({ action, categories }: Props) {
               }}
             >
               <SelectTrigger className="w-[80vw] md:w-[75vw] lg:w-[55vw] xl:w-[20vw] border border-black text-black">
-                <SelectValue placeholder="Select category" className=" placeholder:text-black" />
+                <SelectValue
+                  placeholder="Select category"
+                  className="placeholder:text-black"
+                />
               </SelectTrigger>
               <SelectContent>
                 {categories.map((category, i) => (
@@ -170,7 +196,8 @@ export default function CreateNewCategory({ action, categories }: Props) {
 
             <div className="flex flex-col">
               <label className="text-base text-black mb-1">
-                <span className="text-red-500 text-sm">*</span> English Description
+                <span className="text-red-500 text-sm">*</span> English
+                Description
               </label>
               <textarea
                 name="description_en"
@@ -184,7 +211,8 @@ export default function CreateNewCategory({ action, categories }: Props) {
 
             <div className="flex flex-col">
               <label className="text-base text-black mb-1">
-                <span className="text-red-500 text-sm">*</span> Arabic Description
+                <span className="text-red-500 text-sm">*</span> Arabic
+                Description
               </label>
               <textarea
                 name="description_ar"

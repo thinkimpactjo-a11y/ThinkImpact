@@ -1,6 +1,7 @@
 "use client";
 
 import { newSetting } from "@/types";
+import Image from "next/image";
 import ImageUploader from "@/components/imageUpload";
 import {
   Card,
@@ -99,7 +100,7 @@ function EditSettingForm({ setting, action }: prop) {
     setTimeout(() => setToast(null), 3000);
   };
 
-  const handleVideoUploadComplete = (res: any) => {
+  const handleVideoUploadComplete = (res: { url: string }[] | null) => {
     setIsUploading(false);
     if (res && res[0]) {
       setForm({ ...form, value_en: res[0].url });
@@ -149,7 +150,6 @@ function EditSettingForm({ setting, action }: prop) {
               value={form.value_en}
               onChange={handleInputChange}
               className={`${commonClass} ${extraStyles}`}
-           
               required
             />
           </div>
@@ -164,7 +164,6 @@ function EditSettingForm({ setting, action }: prop) {
               onChange={handleInputChange}
               className={`${commonClass} ${extraStyles}`}
               dir="rtl"
-              
               required
             />
           </div>
@@ -200,61 +199,62 @@ function EditSettingForm({ setting, action }: prop) {
             onDelete={() => setForm({ ...form, value_en: "" })}
           />
           {form.value_en && (
-            <img
-              src={form.value_en}
-              alt="Uploaded image"
-              className="mt-2 max-h-[200px] object-contain"
-            />
+         
+            
+      
+            <Image   src={form.value_en}
+            alt="Uploaded image"
+            className="mt-2 max-h-[200px] object-contain"/>
           )}
         </div>
       );
     }
 
-// In your renderValueInput function, modify the video section:
-
-if (selectedOption.type === "video") {
-  return (
-    <div className="flex flex-col gap-2 w-full md:w-[70vw] lg:w-[50vw]">
-      <label className="text-base font-medium text-gray-700">
-        Upload Video <span className="text-red-500">*</span>
-      </label>
-      <UploadDropzone<OurFileRouter, "settings">
-        endpoint="settings"
-        onUploadBegin={() => {
-          setIsUploading(true);
-          setToast(null);
-        }}
-        onClientUploadComplete={handleVideoUploadComplete}
-        onUploadError={() => handleUploadError("video")}
-        appearance={{
-          container: "flex flex-col items-center justify-center h-64 w-full text-center p-4 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50 transition-colors",
-          button: "bg-[#0f4473] hover:bg-[#236dae] text-white rounded-md px-4 py-2 mt-3 transition-colors", // Modified this line
-          label: "text-gray-500",
-        }}
-        content={{
-          label: ({ isDragActive }) => (
-            <div className="flex flex-col items-center">
-              <div className="text-sm font-semibold">
-                {isDragActive ? "Drop the video" : "Drop video or click to browse"}
-              </div>
-              <div className="text-xs text-gray-400 mt-1">
-                Allowed: video files (Max Size: 64MB)
-              </div>
-            </div>
-          ),
-          allowedContent: null,
-        }}
-      />
-      {form.value_en && (
-        <video
-          controls
-          src={form.value_en}
-          className="w-full rounded-lg border border-gray-300 mt-2"
-        />
-      )}
-    </div>
-  );
-}
+    if (selectedOption.type === "video") {
+      return (
+        <div className="flex flex-col gap-2 w-full md:w-[70vw] lg:w-[50vw]">
+          <label className="text-base font-medium text-gray-700">
+            Upload Video <span className="text-red-500">*</span>
+          </label>
+          <UploadDropzone<OurFileRouter, "settings">
+            endpoint="settings"
+            onUploadBegin={() => {
+              setIsUploading(true);
+              setToast(null);
+            }}
+            onClientUploadComplete={handleVideoUploadComplete}
+            onUploadError={() => handleUploadError("video")}
+            appearance={{
+              container:
+                "flex flex-col items-center justify-center h-64 w-full text-center p-4 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50 transition-colors",
+              button:
+                "bg-[#0f4473] hover:bg-[#236dae] text-white rounded-md px-4 py-2 mt-3 transition-colors",
+              label: "text-gray-500",
+            }}
+            content={{
+              label: ({ isDragActive }) => (
+                <div className="flex flex-col items-center">
+                  <div className="text-sm font-semibold">
+                    {isDragActive ? "Drop the video" : "Drop video or click to browse"}
+                  </div>
+                  <div className="text-xs text-gray-400 mt-1">
+                    Allowed: video files (Max Size: 64MB)
+                  </div>
+                </div>
+              ),
+              allowedContent: null,
+            }}
+          />
+          {form.value_en && (
+            <video
+              controls
+              src={form.value_en}
+              className="w-full rounded-lg border border-gray-300 mt-2"
+            />
+          )}
+        </div>
+      );
+    }
 
     return null;
   };
@@ -280,7 +280,6 @@ if (selectedOption.type === "video") {
           </CardHeader>
 
           <CardContent className="flex flex-col gap-5">
-            {/* Setting Key */}
             <div className="flex flex-col gap-2">
               <label className="text-base font-medium text-gray-700">Setting Key</label>
               <Select value={form.key_name_en} disabled>
@@ -288,20 +287,16 @@ if (selectedOption.type === "video") {
                   <SelectValue placeholder={form.key_name_en} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={form.key_name_en ?? ""}>
-                    {form.key_name_en}
-                  </SelectItem>
+                  <SelectItem value={form.key_name_en ?? ""}>{form.key_name_en}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Value */}
             <div className="flex flex-col gap-2">
               <label className="text-base font-medium text-gray-700">Value</label>
               {renderValueInput()}
             </div>
 
-            {/* Buttons */}
             <div className="flex gap-3 mt-4 justify-end">
               <button
                 type="button"
@@ -322,7 +317,6 @@ if (selectedOption.type === "video") {
         </Card>
       </form>
 
-      {/* Toast */}
       {toast && (
         <div
           className={`fixed bottom-5 right-5 z-50 px-5 py-3 rounded-lg shadow-lg text-white font-medium transition-all duration-300 ${

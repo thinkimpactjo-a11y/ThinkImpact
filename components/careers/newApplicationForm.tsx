@@ -13,7 +13,6 @@ import {
 import { useRouter } from "next/navigation";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-import { z } from "zod";
 import { getNewCareerSchema } from "@/types/zod/newCareerSchema";
 
 interface prop {
@@ -39,7 +38,8 @@ function NewApplicationForm({ action, locale }: prop) {
     message: string;
     type: "success" | "error";
   } | null>(null);
-const isDark = document.documentElement.classList.contains("dark");
+
+  const isDark = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -57,8 +57,11 @@ const isDark = document.documentElement.classList.contains("dark");
 
     if (!validation.success) {
       const fieldErrors: Record<string, string> = {};
-      validation.error.errors.forEach((err) => {
-        if (err.path[0]) fieldErrors[err.path[0]] = err.message;
+      validation.error.issues.forEach((err) => {
+        const key = err.path[0];
+        if (typeof key === "string") {
+          fieldErrors[key] = err.message;
+        }
       });
       setErrors(fieldErrors);
       return;
@@ -145,7 +148,7 @@ const isDark = document.documentElement.classList.contains("dark");
                 <input
                   type="text"
                   name="first_name"
-                  value={form.first_name ?? ""}
+                  value={form.first_name}
                   onChange={handleInputChange}
                   className={`border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00ADEE] dark:border-gray-500 dark:bg-gray-200 dark:text-black dark:border bg-white ${
                     errors.first_name ? "border-red-500" : "border-gray-300"
@@ -167,7 +170,7 @@ const isDark = document.documentElement.classList.contains("dark");
                 <input
                   type="text"
                   name="last_name"
-                  value={form.last_name ?? ""}
+                  value={form.last_name}
                   onChange={handleInputChange}
                   className={`border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00ADEE] dark:border-gray-500 dark:bg-gray-200 dark:text-black dark:border bg-white ${
                     errors.last_name ? "border-red-500" : "border-gray-300"
@@ -192,7 +195,7 @@ const isDark = document.documentElement.classList.contains("dark");
                 <input
                   type="email"
                   name="email"
-                  value={form.email ?? ""}
+                  value={form.email}
                   onChange={handleInputChange}
                   className={`border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00ADEE] dark:border-gray-500 dark:bg-gray-200 dark:text-black dark:border bg-white ${
                     errors.email ? "border-red-500" : "border-gray-300"
@@ -214,7 +217,7 @@ const isDark = document.documentElement.classList.contains("dark");
                 <input
                   type="text"
                   name="city"
-                  value={form.city ?? ""}
+                  value={form.city}
                   onChange={handleInputChange}
                   className={`border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00ADEE] dark:border-gray-500 dark:bg-gray-200 dark:text-black dark:border bg-white ${
                     errors.city ? "border-red-500" : "border-gray-300"
@@ -228,55 +231,52 @@ const isDark = document.documentElement.classList.contains("dark");
               </div>
             </div>
 
-             {/* Phone Number */}
- <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div className="flex flex-col">
-              <label className="text-sm font-semibold text-gray-700 mb-1 dark:text-white">
-                <span className="text-red-500">*</span>{" "}
-                {isArabic ? "رقم الهاتف" : "Phone Number"}
-              </label>
-          <PhoneInput
-  country={"jo"}
-  value={form.phone_number ?? ""}
-  onChange={(value: string) =>
-    setForm({ ...form, phone_number: value })
-  }
-  inputStyle={{
-    width: "100%",
-    padding: "0.5rem 0.75rem 0.5rem 3rem",
-    borderRadius: "0.375rem",
-    border: isDark ? "1px solid #6B7280" : "1px solid #D1D5DB",
-    outline: "none",
-    textAlign: "left",
-    height: "2.5rem",
-    backgroundColor: isDark ? "#E5E7EB" : "#fff",
-    color: isDark ? "#000" : "#000", // ensures dark text even if empty
-  }}
-  buttonStyle={{
-    position: "absolute",
-    top: 0,
-    left: 0,
-    height: "100%",
-    borderRadius: "0.375rem 0 0 0.375rem",
-    border: isDark ? "1px solid #6B7280" : "1px solid #D1D5DB",
-    backgroundColor: isDark ? "#E5E7EB" : "#fff",
-  }}
-  containerStyle={{
-    width: "100%",
-    direction: "ltr",
-  }}
-  enableSearch
-/>
-
-              {errors.phone_number && (
-                <span className="text-red-500 text-sm mt-1">
-                  {errors.phone_number}
-                </span>
-              )}
+            {/* Phone Number */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="flex flex-col">
+                <label className="text-sm font-semibold text-gray-700 mb-1 dark:text-white">
+                  <span className="text-red-500">*</span>{" "}
+                  {isArabic ? "رقم الهاتف" : "Phone Number"}
+                </label>
+                <PhoneInput
+                  country={"jo"}
+                  value={form.phone_number}
+                  onChange={(value: string) =>
+                    setForm({ ...form, phone_number: value })
+                  }
+                  inputStyle={{
+                    width: "100%",
+                    padding: "0.5rem 0.75rem 0.5rem 3rem",
+                    borderRadius: "0.375rem",
+                    border: isDark ? "1px solid #6B7280" : "1px solid #D1D5DB",
+                    outline: "none",
+                    textAlign: "left",
+                    height: "2.5rem",
+                    backgroundColor: isDark ? "#E5E7EB" : "#fff",
+                    color: isDark ? "#000" : "#000",
+                  }}
+                  buttonStyle={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    height: "100%",
+                    borderRadius: "0.375rem 0 0 0.375rem",
+                    border: isDark ? "1px solid #6B7280" : "1px solid #D1D5DB",
+                    backgroundColor: isDark ? "#E5E7EB" : "#fff",
+                  }}
+                  containerStyle={{
+                    width: "100%",
+                    direction: "ltr",
+                  }}
+                  enableSearch
+                />
+                {errors.phone_number && (
+                  <span className="text-red-500 text-sm mt-1">
+                    {errors.phone_number}
+                  </span>
+                )}
+              </div>
             </div>
- </div>
-           
-          
 
             {/* CV Upload */}
             <div className="flex flex-col w-full max-w-md">

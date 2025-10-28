@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { newServiceSchema } from "@/types/zod/serviceSchema"; // Use your service Zod schema
+import { newServiceSchema } from "@/types/zod/serviceSchema";
 import { categorySchema } from "@/types/zod/consultingSchema";
 import { z } from "zod";
 
@@ -59,24 +59,18 @@ function EditServiceForm({ service, action, categories }: Prop) {
   const handleFormSubmit = () => {
     startTransition(async () => {
       try {
-        setFormErrors({}); // Reset errors
-
-        // Validate service form
+        setFormErrors({});
         newServiceSchema.parse(form);
-
-        // Validate category
         const selectedCategory = categories.find(c => c.id === form.category_id);
         if (!selectedCategory) throw new Error("Category not found");
         categorySchema.parse(selectedCategory);
-
         await action(form);
-
         setToast({ message: "Service updated successfully!", type: "success" });
         setTimeout(() => {
           setToast(null);
           router.replace("/admin/dashboard/services");
         }, 1500);
-      } catch (error: any) {
+      } catch (error: unknown) {
         if (error instanceof z.ZodError) {
           const fieldErrors: Partial<Record<keyof editService, string>> = {};
           error.issues.forEach(err => {
@@ -84,10 +78,12 @@ function EditServiceForm({ service, action, categories }: Prop) {
             fieldErrors[field] = err.message;
           });
           setFormErrors(fieldErrors);
-        } else {
+        } else if (error instanceof Error) {
           setToast({ message: error.message || "Failed to update Service.", type: "error" });
-          setTimeout(() => setToast(null), 3000);
+        } else {
+          setToast({ message: "An unknown error occurred.", type: "error" });
         }
+        setTimeout(() => setToast(null), 3000);
       }
     });
   };

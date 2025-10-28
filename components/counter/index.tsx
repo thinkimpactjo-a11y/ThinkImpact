@@ -25,25 +25,25 @@ type DataProp = {
 const StatCard = ({ label, count, suffix = "" }: StatCardProps) => {
   const [current, setCurrent] = useState(0);
   const cardRef = useRef<HTMLDivElement>(null);
-  const hasAnimated = useRef(false); // لتشغيل الانيميشن مرة واحدة فقط
+  const hasAnimated = useRef(false);
 
   useEffect(() => {
+    const card = cardRef.current;
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting && !hasAnimated.current) {
             hasAnimated.current = true;
 
-            // GSAP animation عند الوصول
-            if (cardRef.current) {
+            if (card) {
               gsap.fromTo(
-                cardRef.current,
+                card,
                 { y: 50, opacity: 0 },
                 { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" }
               );
             }
 
-            // Counter animation عند الوصول
             const duration = 1200;
             const stepTime = Math.max(Math.floor(duration / count), 20);
 
@@ -60,13 +60,13 @@ const StatCard = ({ label, count, suffix = "" }: StatCardProps) => {
           }
         });
       },
-      { threshold: 0.3 } // يبدأ لما يظهر 30% من العنصر
+      { threshold: 0.3 }
     );
 
-    if (cardRef.current) observer.observe(cardRef.current);
+    if (card) observer.observe(card);
 
     return () => {
-      if (cardRef.current) observer.unobserve(cardRef.current);
+      if (card) observer.unobserve(card);
     };
   }, [count]);
 
@@ -101,8 +101,18 @@ export const Counter = ({ data }: DataProp) => {
   );
 
   const stats: Stat[] = [
-    { labelEn: "Clients", labelAr: "عملاء", count: Number(numberOfClients?.value_en), suffix: "+" },
-    { labelEn: "Projects", labelAr: "مشاريع", count: Number(numberOfProjects?.value_en), suffix: "+" },
+    {
+      labelEn: "Clients",
+      labelAr: "عملاء",
+      count: Number(numberOfClients?.value_en),
+      suffix: "+",
+    },
+    {
+      labelEn: "Projects",
+      labelAr: "مشاريع",
+      count: Number(numberOfProjects?.value_en),
+      suffix: "+",
+    },
     { labelEn: "Years of Experience", labelAr: "سنوات الخبرة", count: 10, suffix: "+" },
   ];
 

@@ -21,15 +21,11 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { newSetting } from "@/types";
-
-// validation
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-// Adjust this import path to wherever your schema lives
 import { newSettingSchema } from "@/types/zod/settingsSchema";
 
-// extend schema to allow optional id (your component expects id on the type)
 const formSchema = z.object({ id: z.string().optional() }).merge(newSettingSchema);
 export type FormSchema = z.infer<typeof formSchema>;
 
@@ -46,67 +42,30 @@ interface Props {
   options?: Option[];
 }
 
-export default function CreateNewSetting({
-  action,
-  existingKeys = [],
-  options,
-}: Props) {
+export default function CreateNewSetting({ action, existingKeys = [], options }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [toast, setToast] = useState<{
-    message: string;
-    type: "success" | "error";
-  } | null>(null);
-
-  // separate uploading states for en/ar (we only use en for non-text types)
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [isUploadingEn, setIsUploadingEn] = useState(false);
   const [isUploadingAr, setIsUploadingAr] = useState(false);
 
-  // Default options
   const defaultOptions: Option[] = [
-    {
-      value: "number_of_clients",
-      label: "Number Of Clients",
-      type: "number",
-      placeholder: "e.g. 42",
-    },
-    {
-      value: "number_of_projects",
-      label: "Number Of Projects",
-      type: "number",
-      placeholder: "e.g. 120",
-    },
+    { value: "number_of_clients", label: "Number Of Clients", type: "number", placeholder: "e.g. 42" },
+    { value: "number_of_projects", label: "Number Of Projects", type: "number", placeholder: "e.g. 120" },
     { value: "home_video", label: "Video In Home Page", type: "video" },
     { value: "text_home_video", label: "Text On Video In Home Page", type: "text" },
     { value: "part_one_header", label: "Header In Part One", type: "text" },
-    {
-      value: "part_one_description",
-      label: "Description In Part One",
-      type: "textarea",
-    },
+    { value: "part_one_description", label: "Description In Part One", type: "textarea" },
     { value: "part_one_image", label: "Image In Part One", type: "image" },
     { value: "part_two_header", label: "Header In Part Two", type: "text" },
-    {
-      value: "part_two_description",
-      label: "Description In Part Two",
-      type: "textarea",
-    },
+    { value: "part_two_description", label: "Description In Part Two", type: "textarea" },
     { value: "part_two_image", label: "Image In Part Two", type: "image" },
     { value: "about_page_text", label: "Text In About Page", type: "textarea" },
   ];
 
   const availableOptions = options ?? defaultOptions;
 
-  // react-hook-form
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    clearErrors,
-    setError,
-    formState: { errors, isSubmitting },
-  } = useForm<FormSchema>({
+  const { register, handleSubmit, setValue, watch, clearErrors, setError, formState: { errors, isSubmitting } } = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       id: "",
@@ -120,16 +79,14 @@ export default function CreateNewSetting({
   const watchedKey = watch("key_name_en");
   const watchedValueEn = watch("value_en");
 
-  // When key changes, reset both values (and Arabic key name)
   useEffect(() => {
     setValue("value_en", "");
     setValue("value_ar", "");
     setValue("key_name_ar", "");
     clearErrors();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [watchedKey]);
+  }, [watchedKey, setValue, clearErrors]);
+  
 
-  // EN upload handlers (update react-hook-form values)
   const handleImageUploadedEn = (url: string) => {
     setIsUploadingEn(false);
     setValue("value_en", url, { shouldValidate: true });
@@ -139,10 +96,10 @@ export default function CreateNewSetting({
     setToast({ message: "Image upload failed. Please try again.", type: "error" });
     setTimeout(() => setToast(null), 3000);
   };
-  const handleVideoUploadCompleteEn = (res: any) => {
+  const handleVideoUploadCompleteEn = (res: { url: string }[]) => {
     setIsUploadingEn(false);
     if (res && res[0]) {
-      setValue("value_en", res[0].url as string, { shouldValidate: true });
+      setValue("value_en", res[0].url, { shouldValidate: true });
     } else {
       setToast({ message: "Video upload failed. No file returned.", type: "error" });
       setTimeout(() => setToast(null), 3000);
@@ -154,9 +111,7 @@ export default function CreateNewSetting({
     setTimeout(() => setToast(null), 3000);
   };
 
-
   const onSubmit = async (data: FormSchema) => {
-    // client-side uniqueness check for key
     if (existingKeys.includes(data.key_name_en)) {
       setError("key_name_en", { message: "This key already exists" });
       return;
@@ -164,7 +119,6 @@ export default function CreateNewSetting({
 
     startTransition(async () => {
       try {
-        // ensure everything saved as string
         const payload: newSetting = {
           id: data.id ?? "",
           key_name_en: String(data.key_name_en ?? ""),
@@ -187,51 +141,32 @@ export default function CreateNewSetting({
     });
   };
 
-  // compute selected option once so EN and AR renderers use same info
   const selected = availableOptions.find((o) => o.value === watchedKey);
-
-  // unified width classes for both EN and AR inputs
   const inputWidthClass = "w-[90vw] md:w-[75vw] lg:w-[55vw] xl:w-[30vw]";
   const textareaWidthClass = "w-[90vw] md:w-[75vw] lg:w-[65vw] xl:w-[40vw]";
 
-  // render EN input
   const renderValueInput = () => {
-    if (!selected) {
-      return <div className="text-sm text-gray-500">Choose a key above to enter the appropriate value.</div>;
-    }
+    if (!selected) return <div className="text-sm text-gray-500">Choose a key above to enter the appropriate value.</div>;
 
     switch (selected.type) {
       case "text":
         return (
           <>
-            <input
-              type="text"
-              {...register("value_en")}
-              className={`border px-2 py-1 rounded border-black bg-white ${inputWidthClass} h-[5vh] text-black`}
-              placeholder={selected.placeholder ?? ""}
-            />
+            <input type="text" {...register("value_en")} className={`border px-2 py-1 rounded border-black bg-white ${inputWidthClass} h-[5vh] text-black`} placeholder={selected.placeholder ?? ""} />
             {errors.value_en && <p className="text-red-500 text-sm mt-1">{errors.value_en.message}</p>}
           </>
         );
       case "number":
         return (
           <>
-            <input
-              type="number"
-              {...register("value_en")}
-              className={`border px-2 py-1 rounded border-black bg-white ${inputWidthClass} h-[5vh] text-black`}
-              placeholder={selected.placeholder ?? ""}
-            />
+            <input type="number" {...register("value_en")} className={`border px-2 py-1 rounded border-black bg-white ${inputWidthClass} h-[5vh] text-black`} placeholder={selected.placeholder ?? ""} />
             {errors.value_en && <p className="text-red-500 text-sm mt-1">{errors.value_en.message}</p>}
           </>
         );
       case "textarea":
         return (
           <>
-            <textarea
-              {...register("value_en")}
-              className={`border px-2 py-1 rounded border-black bg-white ${textareaWidthClass} h-[15vh] text-black`}
-            />
+            <textarea {...register("value_en")} className={`border px-2 py-1 rounded border-black bg-white ${textareaWidthClass} h-[15vh] text-black`} />
             {errors.value_en && <p className="text-red-500 text-sm mt-1">{errors.value_en.message}</p>}
           </>
         );
@@ -241,19 +176,13 @@ export default function CreateNewSetting({
             <ImageUploader
               endpoint="banners"
               initialImageUrl={watchedValueEn ?? null}
-              onUploadComplete={(url) => handleImageUploadedEn(url)}
-              onUploadError={(err) => handleImageUploadErrorEn(err)}
+              onUploadComplete={handleImageUploadedEn}
+              onUploadError={handleImageUploadErrorEn}
               onDelete={() => setValue("value_en", "", { shouldValidate: true })}
             />
             {watchedValueEn && (
               <div className="mt-2">
-                <Image
-                  src={watchedValueEn as string}
-                  alt="preview"
-                  width={400}
-                  height={220}
-                  className="object-cover rounded-lg border border-gray-300"
-                />
+                <Image src={watchedValueEn} alt="preview" width={400} height={220} className="object-cover rounded-lg border border-gray-300" />
               </div>
             )}
             {errors.value_en && <p className="text-red-500 text-sm mt-1">{errors.value_en.message}</p>}
@@ -268,21 +197,17 @@ export default function CreateNewSetting({
                 setIsUploadingEn(true);
                 setToast(null);
               }}
-              onClientUploadComplete={(res) => handleVideoUploadCompleteEn(res)}
-              onUploadError={() => handleVideoUploadErrorEn()}
+              onClientUploadComplete={handleVideoUploadCompleteEn}
+              onUploadError={handleVideoUploadErrorEn}
               appearance={{
-                container:
-                  "flex flex-col items-center justify-center h-64 " +
-                  `${inputWidthClass} text-center p-4 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50 transition-colors`,
+                container: `flex flex-col items-center justify-center h-64 ${inputWidthClass} text-center p-4 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50 transition-colors`,
                 button: "bg-[#125892] text-white rounded-md px-4 py-2 mt-3",
                 label: "text-gray-500",
               }}
               content={{
                 label: ({ isDragActive }) => (
                   <div className="flex flex-col items-center">
-                    <div className="text-sm font-semibold">
-                      {isDragActive ? "Drop the video" : "Drop video or click to browse"}
-                    </div>
+                    <div className="text-sm font-semibold">{isDragActive ? "Drop the video" : "Drop video or click to browse"}</div>
                     <div className="text-xs text-gray-400 mt-1">Allowed: video files (Max Size: 64MB)</div>
                   </div>
                 ),

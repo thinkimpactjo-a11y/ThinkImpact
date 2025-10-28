@@ -72,7 +72,7 @@ export default function EditClientForm({ client, action }: Props) {
     } catch (error) {
       if (error instanceof z.ZodError) {
         const fieldErrors: Record<string, string> = {};
-        error.errors.forEach((err) => {
+        error.issues.forEach((err) => {
           if (err.path[0]) fieldErrors[err.path[0] as string] = err.message;
         });
         setErrors(fieldErrors);

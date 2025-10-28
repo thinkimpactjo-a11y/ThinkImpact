@@ -5,7 +5,7 @@ import Image from "next/image";
 import Logo from "@/public/images/whitelogo.png";
 import type { newCategory, newTraining } from "@/types";
 import { Mail, Phone } from "lucide-react";
-import { SiFacebook, SiLinkedin, SiYoutube, SiInstagram } from "react-icons/si";
+import { SiFacebook, SiLinkedin, SiYoutube, SiInstagram,SiX } from "react-icons/si";
 type Props = {
   categories: newCategory[];
   trainingData: newTraining[];
@@ -178,7 +178,7 @@ export default function Footer({ categories, trainingData, locale }: Props) {
                     target="_blank"
                     className="hover:text-gray-300 transition-colors"
                   >
-                    <span className="text-white text-2xl">X</span>
+                     <SiX size={27} />
                   </Link>
                   <Link
                     href={youtubeUrl}

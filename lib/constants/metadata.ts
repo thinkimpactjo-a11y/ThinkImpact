@@ -3,10 +3,10 @@ import { env } from "process";
 
 export const AppName = env.NEXT_PUBLIC_APP_NAME || "Think Impact";
 
-export const APP_DESCRIPTION =
-  "Think Impact offers trusted consulting, performance monitoring, and professional training services to help organizations in the MENA region achieve strategic growth, digital transformation, and measurable impact.";
+export const APP_DESCRIPTION =env.NEXT_PUBLIC_APP_DESCRIPTION
+;
 
-const SERVER_URL = env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+const SERVER_URL = env.NEXT_PUBLIC_APP_URL || "http://thinkimpactjo.com";
 
 // Common keywords that appear across multiple pages
 export const COMMON_KEYWORDS = [

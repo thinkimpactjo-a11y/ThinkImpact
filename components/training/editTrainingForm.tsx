@@ -10,14 +10,14 @@ import {
 import React, { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
-import {newTrainingSchema} from "@/types/zod/trainingSchema"
+import { newTrainingSchema } from "@/types/zod/trainingSchema";
 
 interface Prop {
   training: newTraining;
   action: (data: newTraining) => Promise<void>;
 }
 
-function editCategoryForm({ training, action }: Prop) {
+function EditCategoryForm({ training, action }: Prop) {
   const router = useRouter();
   const [form, setForm] = useState<newTraining>({
     id: training.id ?? "",
@@ -25,7 +25,7 @@ function editCategoryForm({ training, action }: Prop) {
     name_ar: training.name_ar ?? "",
     description_en: training.description_en ?? "",
     description_ar: training.description_ar ?? "",
-    slug:training.slug??""
+    slug: training.slug ?? "",
   });
 
   const [errors, setErrors] = useState<Partial<Record<keyof newTraining, string>>>({});
@@ -34,39 +34,36 @@ function editCategoryForm({ training, action }: Prop) {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-    setErrors({ ...errors, [e.target.name]: "" }); // Clear error on input change
+    setErrors({ ...errors, [e.target.name]: "" });
   };
 
   const handleFormSubmit = () => {
     startTransition(async () => {
       try {
-        // Validate the form with Zod
+        // Validate the form
         newTrainingSchema.parse(form);
-        setErrors({}); // Clear previous errors
+        setErrors({});
 
         await action(form);
+
         setToast({ message: "Training updated successfully!", type: "success" });
         setTimeout(() => {
           setToast(null);
           router.replace("/admin/dashboard/training");
         }, 1500);
-      } catch (err: any)  {
-              if (err instanceof z.ZodError) {
-                const zodError = err as z.ZodError<typeof form>;
-                const fieldErrors: Partial<Record<keyof newTraining, string>> = {};
-      
-                zodError.issues.forEach((e) => {
-                  if (e.path[0])
-                    fieldErrors[e.path[0] as keyof newTraining] = e.message;
-                });
-      
-                setErrors(fieldErrors);
-              } else {
-                console.error(err);
-                setToast({ message: "Failed to add Training.", type: "error" });
-                setTimeout(() => setToast(null), 3000);
-              }
-            }
+      } catch (err: unknown) {
+        if (err instanceof z.ZodError) {
+          const fieldErrors: Partial<Record<keyof newTraining, string>> = {};
+          err.issues.forEach((issue) => {
+            if (issue.path[0]) fieldErrors[issue.path[0] as keyof newTraining] = issue.message;
+          });
+          setErrors(fieldErrors);
+        } else {
+          console.error(err);
+          setToast({ message: "Failed to update Training.", type: "error" });
+          setTimeout(() => setToast(null), 3000);
+        }
+      }
     });
   };
 
@@ -93,8 +90,7 @@ function editCategoryForm({ training, action }: Prop) {
           <CardContent className="flex flex-col items-start gap-5 mb-7">
             <div className="flex flex-col">
               <label className="text-base text-black mb-1">
-                <span className="text-red-500 text-sm">*</span> Slug (Auto
-                Generated)
+                <span className="text-red-500 text-sm">*</span> Slug (Auto Generated)
               </label>
               <input
                 type="text"
@@ -104,11 +100,11 @@ function editCategoryForm({ training, action }: Prop) {
                   .replace(/&/g, "and")
                   .replace(/[^a-z0-9]+/g, "-")
                   .replace(/^-+|-+$/g, "")}
-                onChange={handleInputChange}
-               
+                readOnly
                 className="border px-2 py-1 rounded cursor-not-allowed border-black bg-gray-100 w-[80vw] md:w-[75vw] lg:w-[65vw] xl:w-[19vw] h-[5vh] text-black"
               />
             </div>
+
             <div className="flex flex-col lg:flex lg:flex-row lg:justify-start gap-7">
               <div className="flex flex-col">
                 <label className="text-base text-black mb-1">
@@ -119,9 +115,7 @@ function editCategoryForm({ training, action }: Prop) {
                   name="name_en"
                   value={form.name_en}
                   onChange={handleInputChange}
-                  className={`border px-2 py-1 rounded w-[80vw] md:w-[75vw] lg:w-[55vw] xl:w-[19vw] h-[5vh] text-black ${
-                    errors.name_en ? "border-red-500" : "border-black"
-                  }`}
+                  className={`border px-2 py-1 rounded w-[80vw] md:w-[75vw] lg:w-[55vw] xl:w-[19vw] h-[5vh] text-black ${errors.name_en ? "border-red-500" : "border-black"}`}
                 />
                 {errors.name_en && <span className="text-red-500 text-sm mt-1">{errors.name_en}</span>}
               </div>
@@ -135,9 +129,7 @@ function editCategoryForm({ training, action }: Prop) {
                   name="name_ar"
                   value={form.name_ar}
                   onChange={handleInputChange}
-                  className={`border px-2 py-1 rounded w-[80vw] md:w-[75vw] lg:w-[55vw] xl:w-[19vw] h-[5vh] text-black ${
-                    errors.name_ar ? "border-red-500" : "border-black"
-                  }`}
+                  className={`border px-2 py-1 rounded w-[80vw] md:w-[75vw] lg:w-[55vw] xl:w-[19vw] h-[5vh] text-black ${errors.name_ar ? "border-red-500" : "border-black"}`}
                 />
                 {errors.name_ar && <span className="text-red-500 text-sm mt-1">{errors.name_ar}</span>}
               </div>
@@ -151,9 +143,7 @@ function editCategoryForm({ training, action }: Prop) {
                 name="description_en"
                 value={form.description_en}
                 onChange={handleInputChange}
-                className={`border px-2 py-1 rounded w-[80vw] md:w-[75vw] lg:w-[65vw] xl:w-[40vw] h-[15vh] text-black ${
-                  errors.description_en ? "border-red-500" : "border-black"
-                }`}
+                className={`border px-2 py-1 rounded w-[80vw] md:w-[75vw] lg:w-[65vw] xl:w-[40vw] h-[15vh] text-black ${errors.description_en ? "border-red-500" : "border-black"}`}
               />
               {errors.description_en && <span className="text-red-500 text-sm mt-1">{errors.description_en}</span>}
             </div>
@@ -166,9 +156,7 @@ function editCategoryForm({ training, action }: Prop) {
                 name="description_ar"
                 value={form.description_ar}
                 onChange={handleInputChange}
-                className={`border px-2 py-1 rounded w-[80vw] md:w-[75vw] lg:w-[65vw] xl:w-[40vw] h-[15vh] text-black ${
-                  errors.description_ar ? "border-red-500" : "border-black"
-                }`}
+                className={`border px-2 py-1 rounded w-[80vw] md:w-[75vw] lg:w-[65vw] xl:w-[40vw] h-[15vh] text-black ${errors.description_ar ? "border-red-500" : "border-black"}`}
               />
               {errors.description_ar && <span className="text-red-500 text-sm mt-1">{errors.description_ar}</span>}
             </div>
@@ -197,9 +185,7 @@ function editCategoryForm({ training, action }: Prop) {
 
       {toast && (
         <div
-          className={`fixed bottom-5 right-5 z-50 px-5 py-3 rounded-lg shadow-lg text-white font-medium transition-all duration-300 ${
-            toast.type === "success" ? "bg-green-600" : "bg-red-600"
-          }`}
+          className={`fixed bottom-5 right-5 z-50 px-5 py-3 rounded-lg shadow-lg text-white font-medium transition-all duration-300 ${toast.type === "success" ? "bg-green-600" : "bg-red-600"}`}
         >
           {toast.message}
         </div>
@@ -208,4 +194,4 @@ function editCategoryForm({ training, action }: Prop) {
   );
 }
 
-export default editCategoryForm;
+export default EditCategoryForm;

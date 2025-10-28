@@ -47,29 +47,20 @@ export default function CreateNewTraining({ action }: Props) {
     slug: "",
   });
 
-  const [errors, setErrors] = useState<
-    Partial<Record<keyof newTraining, string>>
-  >({});
+  const [errors, setErrors] = useState<Partial<Record<keyof newTraining, string>>>({});
   const [isPending, startTransition] = useTransition();
-  const [toast, setToast] = useState<{
-    message: string;
-    type: "success" | "error";
-  } | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-    setErrors({ ...errors, [e.target.name]: "" }); // clear error on input change
+    setErrors({ ...errors, [e.target.name]: "" });
   };
 
   const handleFormSubmit = () => {
     startTransition(async () => {
       try {
-        // Validate the form
         newTrainingSchema.parse(form);
-        setErrors({}); // clear previous errors
-
+        setErrors({});
         await action({ ...form });
 
         setToast({ message: "Training added successfully!", type: "success" });
@@ -77,16 +68,13 @@ export default function CreateNewTraining({ action }: Props) {
           setToast(null);
           router.replace("/admin/dashboard/training");
         }, 1500);
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (err instanceof z.ZodError) {
           const zodError = err as z.ZodError<typeof form>;
           const fieldErrors: Partial<Record<keyof newTraining, string>> = {};
-
           zodError.issues.forEach((e) => {
-            if (e.path[0])
-              fieldErrors[e.path[0] as keyof newTraining] = e.message;
+            if (e.path[0]) fieldErrors[e.path[0] as keyof newTraining] = e.message;
           });
-
           setErrors(fieldErrors);
         } else {
           console.error(err);
@@ -121,8 +109,7 @@ export default function CreateNewTraining({ action }: Props) {
           <CardContent className="flex flex-col items-start gap-5 mb-7">
             <div className="flex flex-col">
               <label className="text-base text-black mb-1">
-                <span className="text-red-500 text-sm">*</span> Slug (Auto
-                Generated)
+                <span className="text-red-500 text-sm">*</span> Slug (Auto Generated)
               </label>
               <input
                 type="text"
@@ -150,9 +137,7 @@ export default function CreateNewTraining({ action }: Props) {
                   className="border px-2 py-1 rounded border-black bg-white w-[80vw] md:w-[75vw] lg:w-[55vw] xl:w-[19vw] h-[5vh] text-black"
                 />
                 {errors.name_en && (
-                  <span className="text-red-500 text-sm mt-1">
-                    {errors.name_en}
-                  </span>
+                  <span className="text-red-500 text-sm mt-1">{errors.name_en}</span>
                 )}
               </div>
 
@@ -168,17 +153,14 @@ export default function CreateNewTraining({ action }: Props) {
                   className="border px-2 py-1 rounded border-black bg-white w-[80vw] md:w-[75vw] lg:w-[55vw] xl:w-[19vw] h-[5vh] text-black"
                 />
                 {errors.name_ar && (
-                  <span className="text-red-500 text-sm mt-1">
-                    {errors.name_ar}
-                  </span>
+                  <span className="text-red-500 text-sm mt-1">{errors.name_ar}</span>
                 )}
               </div>
             </div>
 
             <div className="flex flex-col">
               <label className="text-base text-black mb-1">
-                <span className="text-red-500 text-sm">*</span> English
-                Description
+                <span className="text-red-500 text-sm">*</span> English Description
               </label>
               <textarea
                 name="description_en"
@@ -187,16 +169,13 @@ export default function CreateNewTraining({ action }: Props) {
                 className="border px-2 py-1 rounded border-black bg-white w-[80vw] md:w-[75vw] lg:w-[65vw] xl:w-[40vw] h-[15vh] text-black"
               />
               {errors.description_en && (
-                <span className="text-red-500 text-sm mt-1">
-                  {errors.description_en}
-                </span>
+                <span className="text-red-500 text-sm mt-1">{errors.description_en}</span>
               )}
             </div>
 
             <div className="flex flex-col">
               <label className="text-base text-black mb-1">
-                <span className="text-red-500 text-sm">*</span> Arabic
-                Description
+                <span className="text-red-500 text-sm">*</span> Arabic Description
               </label>
               <textarea
                 name="description_ar"
@@ -205,9 +184,7 @@ export default function CreateNewTraining({ action }: Props) {
                 className="border px-2 py-1 rounded border-black bg-white w-[80vw] md:w-[75vw] lg:w-[65vw] xl:w-[40vw] h-[15vh] text-black"
               />
               {errors.description_ar && (
-                <span className="text-red-500 text-sm mt-1">
-                  {errors.description_ar}
-                </span>
+                <span className="text-red-500 text-sm mt-1">{errors.description_ar}</span>
               )}
             </div>
 
