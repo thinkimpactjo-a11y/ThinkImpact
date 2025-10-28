@@ -1,5 +1,4 @@
-import Head from "next/head";
-import type { Metadata } from "next"
+import type { Metadata } from "next";
 
 import CounterSection from "@/components/CounterSection";
 import VideoSection from "@/components/video-section";
@@ -8,17 +7,15 @@ import { getAllcategories } from "@/app/models/db/lib/services/consulting";
 import InteractiveMap from "@/components/mapsection/map-section";
 import Poster from "@/components/poster/poster";
 import PosterTwo from "@/components/poster/posterTwo";
-import { PAGE_METADATA, createMetadata } from "@/lib/constants/metadata"
+import { PAGE_METADATA, createMetadata } from "@/lib/constants/metadata";
 
 import { getSettingsData } from "@/app/models/db/lib/services/settings";
 
-export const metadata: Metadata = createMetadata(PAGE_METADATA.home)
+export const metadata: Metadata = createMetadata(PAGE_METADATA.home);
 
 export default async function Home() {
   const categories = await getAllcategories();
   const data = await getSettingsData();
-
-
 
   return (
     <>
@@ -35,10 +32,6 @@ export default async function Home() {
 
         <section className="relative z-10 w-full">
           <Poster data={data} />
-        </section>
-
-        <section className="relative z-10 w-full">
-          <InteractiveMap />
         </section>
 
         <section className="relative z-10 w-full">
