@@ -65,7 +65,7 @@ export const PAGE_METADATA: Record<string, Metadata> = {
         "Think Impact provides trusted consulting, performance monitoring, and professional training services across the MENA region.",
       type: "website",
       images: [
-        { url: "/images/home-og.jpg", width: 1200, height: 630, alt: "Think Impact Home" },
+        { url: `${SERVER_URL}/logo-open-graph.png`, width: 1200, height: 630, alt: "Think Impact Home" },
       ],
     },
   },
@@ -81,7 +81,7 @@ export const PAGE_METADATA: Record<string, Metadata> = {
         "A multidisciplinary consulting and training firm in Jordan specializing in research, evaluation, and MEL frameworks.",
       type: "website",
       images: [
-        { url: "/images/about-og.jpg", width: 1200, height: 630, alt: "About Think Impact" },
+        { url: `${SERVER_URL}/logo-open-graph.png`, width: 1200, height: 630, alt: "About Think Impact" },
       ],
     },
   },
@@ -97,7 +97,7 @@ export const PAGE_METADATA: Record<string, Metadata> = {
         "Meet our multidisciplinary experts focusing on research, evaluation, and MEL frameworks for sustainable impact in MENA.",
       type: "website",
       images: [
-        { url: "/images/team-og.jpg", width: 1200, height: 630, alt: "Think Impact Team" },
+        { url: `${SERVER_URL}/logo-open-graph.png`, width: 1200, height: 630, alt: "Think Impact Team" },
       ],
     },
   },
@@ -113,7 +113,7 @@ export const PAGE_METADATA: Record<string, Metadata> = {
         "Explore career opportunities at Think Impact and contribute to development and humanitarian impact in the MENA region.",
       type: "website",
       images: [
-        { url: "/images/careers-og.jpg", width: 1200, height: 630, alt: "Think Impact Careers" },
+        { url: `${SERVER_URL}/logo-open-graph.png`, width: 1200, height: 630, alt: "Think Impact Careers" },
       ],
     },
   },
@@ -174,14 +174,14 @@ export const generateDynamicMetadata = {
         type: "website",
         siteName: "Think Impact",
         images: [
-          { url: `/images/${page.slug}-og.jpg`, width: 1200, height: 630, alt: page.name },
+          { url: `${SERVER_URL}/logo-open-graph.png`, width: 1200, height: 630, alt: page.name },
         ],
       },
       twitter: {
         card: "summary_large_image",
         title: `${page.name} | Think Impact`,
         description,
-        images: [`/images/${page.slug}-og.jpg`],
+        images: [`${SERVER_URL}/logo-open-graph.png`],
       },
     };
   },
@@ -194,13 +194,13 @@ export const baseMetadata: Metadata = {
     type: "website",
     locale: "en_US",
     siteName: "Think Impact",
-    images: [{ url: "/images/base-og.jpg", width: 1200, height: 630, alt: "Think Impact" }],
+    images: [{ url: `${SERVER_URL}/logo-open-graph.png`, width: 1200, height: 630, alt: "Think Impact" }],
   },
   twitter: {
     card: "summary_large_image",
     site: "@ThinkImpact",
     creator: "@ThinkImpact",
-    images: ["/images/base-og.jpg"],
+    images: [`${SERVER_URL}/logo-open-graph.png`],
   },
   robots: {
     index: true,
@@ -226,9 +226,9 @@ export const ROOT_METADATA: Metadata = {
     description: APP_DESCRIPTION,
     metadataBase: new URL(SERVER_URL),
     icons: {
-      icon: "/favicon.ico",           
-      shortcut: "/favicon.ico", 
-      apple: "/favicon.ico", 
+      icon: `${SERVER_URL}/favicon.ico`,           
+      shortcut: `${SERVER_URL}/favicon.ico`, 
+      apple: `${SERVER_URL}/favicon.ico`, 
     },
     openGraph: {
       type: "website",
@@ -237,7 +237,7 @@ export const ROOT_METADATA: Metadata = {
       description: APP_DESCRIPTION,
       siteName: "Think Impact",
       url: SERVER_URL,
-      images: [{ url: "/logo-open-graph.png", width: 1200, height: 630, alt: "Think Impact" }],
+      images: [{ url: `${SERVER_URL}/logo-open-graph.png`, width: 1200, height: 630, alt: "Think Impact" }],
     },
     twitter: {
       card: "summary_large_image",
@@ -245,7 +245,7 @@ export const ROOT_METADATA: Metadata = {
       creator: "@ThinkImpact",
       title: AppName,
       description: APP_DESCRIPTION,
-      images: ["logo-Twitter.png"],
+      images: [`${SERVER_URL}/logo-open-graph.png`],
     },
     robots: {
       index: true,
