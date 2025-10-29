@@ -226,9 +226,9 @@ export const ROOT_METADATA: Metadata = {
     description: APP_DESCRIPTION,
     metadataBase: new URL(SERVER_URL),
     icons: {
-      icon: "/images/logosidebar.png",           
-      shortcut: "/images/logosidebar.png", 
-      apple: "/images/logosidebar.png", 
+      icon: "/favicon.ico",           
+      shortcut: "/favicon.ico", 
+      apple: "/favicon.ico", 
     },
     openGraph: {
       type: "website",
@@ -237,7 +237,7 @@ export const ROOT_METADATA: Metadata = {
       description: APP_DESCRIPTION,
       siteName: "Think Impact",
       url: SERVER_URL,
-      images: [{ url: "/images/root-og.jpg", width: 1200, height: 630, alt: "Think Impact" }],
+      images: [{ url: "/logo-open-graph.png", width: 1200, height: 630, alt: "Think Impact" }],
     },
     twitter: {
       card: "summary_large_image",
@@ -245,7 +245,7 @@ export const ROOT_METADATA: Metadata = {
       creator: "@ThinkImpact",
       title: AppName,
       description: APP_DESCRIPTION,
-      images: ["/images/root-og.jpg"],
+      images: ["logo-Twitter.png"],
     },
     robots: {
       index: true,

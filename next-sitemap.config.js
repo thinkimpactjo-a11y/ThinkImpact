@@ -1,37 +1,40 @@
-/** @type {import('next-sitemap').IConfig} */
-module.exports = {
-  siteUrl: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+import { promises as fs } from 'fs';
+import path from 'path';
+
+const SITE_URL =  'http://localhost:3000';
+
+export default {
+  siteUrl: SITE_URL,
   generateRobotsTxt: true,
-  changefreq: "daily",
+  changefreq: 'daily',
   priority: 0.7,
   sitemapSize: 5000,
-  exclude: ["/admin/*"],
+  exclude: ['/admin/*'],
 
-  // ✅ Define routes manually until dynamic pages are generated from data
   additionalPaths: async (config) => {
     const staticPaths = [
-      "/", // Home page
-      "/about", // Example static pages
-      "/ourTeam",
-      "/training",
-      "/consulting",
-      "/newApplication",
-      "/newApplication",
-      "/login",
-      "/register",
+      '/', '/about', '/ourTeam', '/training', '/consulting',
+      '/newApplication', '/login', '/register',
     ];
 
-    return Promise.all(
-      staticPaths.map(async (path) => {
-        return await config.transform(config, path);
-      })
-    );
+    // Read exported slugs
+    const slugsPath = path.resolve(process.cwd(), 'data/slugs.json');
+    const slugsData = JSON.parse(await fs.readFile(slugsPath, 'utf-8'));
+
+    const dynamicPaths = [
+      ...slugsData.consulting.map(slug => `/consulting/${slug}`),
+      ...slugsData.training.map(slug => `/training/${slug}`),
+    ];
+
+    const allPaths = [...staticPaths, ...dynamicPaths];
+
+    return Promise.all(allPaths.map(path => config.transform(config, path)));
   },
 
   robotsTxtOptions: {
     policies: [
-      { userAgent: "*", allow: "/" },
-      { userAgent: "*", disallow: ["/admin/"] },
+      { userAgent: '*', allow: '/' },
+      { userAgent: '*', disallow: ['/admin/'] },
     ],
   },
 };

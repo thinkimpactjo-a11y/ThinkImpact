@@ -2,12 +2,14 @@
   "name": "thinkimpact",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "postbuild": "next-sitemap"
+     "postbuild": "npm run export-slugs && next-sitemap",
+    "export-slugs": "node scripts/export-slugs.js"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
