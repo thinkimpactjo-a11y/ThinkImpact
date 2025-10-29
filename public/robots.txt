@@ -2,8 +2,12 @@
 User-agent: *
 Allow: /
 
+# *
+User-agent: *
+Disallow: /admin/
+
 # Host
-Host: http://thinkimpactjo.com
+Host: http://localhost:3000
 
 # Sitemaps
-Sitemap: http://thinkimpactjo/sitemap.xml
+Sitemap: http://localhost:3000/sitemap.xml
