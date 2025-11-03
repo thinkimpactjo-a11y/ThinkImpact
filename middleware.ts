@@ -5,39 +5,46 @@ import { routing } from "@/i18n/routing";
 
 const handleI18nRouting = createMiddleware(routing);
 
-const protectedRoutes = ["/admin/dashboard", "/change-password"];
+
+const protectedRoutes = ["/admin/dashboard",  "/change-password"];
 const adminRoutes = ["/admin/dashboard"];
-const authRoutes = ["/admin/login", "/admin/register", "/forgot-password"];
+const authRoutes = ["/login", "/register", "/forgot-password"];
+
 
 export async function middleware(req: NextRequest) {
   const i18nResponse = handleI18nRouting(req);
-  if (i18nResponse?.redirected || i18nResponse?.headers.get("location")) {
-    return i18nResponse;
+  if (i18nResponse) {
+    if (i18nResponse.redirected || i18nResponse.headers.get("location")) {
+      return i18nResponse;
+    }
   }
 
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   const { nextUrl } = req;
+    const pathWithoutLocale = nextUrl.pathname.replace(/^\/(en|ar)/, "");
 
   const isLoggedIn = !!token;
   const role = token?.role;
 
-  const isAdminRoute = adminRoutes.includes(nextUrl.pathname);
-  const isProtectedRoute = protectedRoutes.includes(nextUrl.pathname);
-  const isAuthRoute = authRoutes.includes(nextUrl.pathname);
+ const isOnProtectedRoute = protectedRoutes.some(route => pathWithoutLocale.startsWith(route));
+const isAdminRoutes = adminRoutes.some(route => pathWithoutLocale.startsWith(route));
+const isOnAuthRoute = authRoutes.some(route => pathWithoutLocale.startsWith(route));
 
-  if (isAdminRoute) {
-    if (!isLoggedIn || role !== "admin") {
-      return NextResponse.redirect(new URL("/", req.url));
-    }
-  }
-  else if (isProtectedRoute && !isLoggedIn) {
-    const callbackURL = nextUrl.pathname + (nextUrl.search ?? "");
+  if (isOnProtectedRoute && !isLoggedIn) {
+    let callbackURL = nextUrl.pathname;
+    if (nextUrl.search) callbackURL += nextUrl.search;
+    const encodedCallbackURL = encodeURIComponent(callbackURL);
+
     return NextResponse.redirect(
-      new URL(`/?callbackURL=${encodeURIComponent(callbackURL)}`, req.url)
+      new URL(`/?callbackURL=${encodedCallbackURL}`, req.url)
     );
   }
 
-  if (isAuthRoute && isLoggedIn) {
+  if (isOnAuthRoute && isLoggedIn) {
+    return NextResponse.redirect(new URL("/", req.url));
+  }
+
+  if (isAdminRoutes && isLoggedIn && role !== "admin") {
     return NextResponse.redirect(new URL("/", req.url));
   }
 
