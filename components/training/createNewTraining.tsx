@@ -51,10 +51,29 @@ export default function CreateNewTraining({ action }: Props) {
   const [isPending, startTransition] = useTransition();
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-    setErrors({ ...errors, [e.target.name]: "" });
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+  
+    setForm(prev => {
+      const updatedForm = { ...prev, [name]: value };
+  
+     
+      if (name === "name_en") {
+        updatedForm.slug = value
+          .toLowerCase()
+          .replace(/&/g, "and")
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, "");
+      }
+  
+      return updatedForm;
+    });
+  
+    setErrors({ ...errors, [name]: "" });
   };
+  
 
   const handleFormSubmit = () => {
     startTransition(async () => {
@@ -107,21 +126,18 @@ export default function CreateNewTraining({ action }: Props) {
           </CardHeader>
 
           <CardContent className="flex flex-col items-start gap-5 mb-7">
-            <div className="flex flex-col">
+           <div className="flex flex-col">
               <label className="text-base text-black mb-1">
-                <span className="text-red-500 text-sm">*</span> Slug (Auto Generated)
+                <span className="text-red-500 text-sm">*</span> Slug (Auto
+                Generated)
               </label>
               <input
                 type="text"
                 name="slug"
-                value={form.name_en
-                  .toLowerCase()
-                  .replace(/&/g, "and")
-                  .replace(/[^a-z0-9]+/g, "-")
-                  .replace(/^-+|-+$/g, "")}
-                onChange={handleInputChange}
                 readOnly
-                className="border px-2 py-1 rounded border-black bg-gray-100 w-[80vw] md:w-[75vw] lg:w-[65vw] xl:w-[19vw] h-[5vh] text-black"
+                value={form.slug}
+                onChange={handleInputChange}
+                className="border px-2 py-1 rounded cursor-not-allowed border-black bg-gray-100 w-[80vw] md:w-[75vw] lg:w-[65vw] xl:w-[19vw] h-[5vh] text-black"
               />
             </div>
             <div className="flex flex-col lg:flex lg:flex-row lg:justify-start gap-7">

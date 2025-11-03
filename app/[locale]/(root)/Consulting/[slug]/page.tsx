@@ -65,6 +65,7 @@ export default async function ProductPage({ params }: PageProps) {
     locale === "ar" ? categoryData.category_name_ar : categoryData.category_name_en;
   const categoryDesc =
     locale === "ar" ? categoryData.description_ar : categoryData.description_en;
+    const category_logo= categoryData.category_logo
 
   return (
     <div className={`p-6 ${locale === "ar" ? "text-right" : "text-left"}`}>
@@ -86,6 +87,7 @@ export default async function ProductPage({ params }: PageProps) {
               key={service.id}
               title={serviceName}
               description={serviceDesc}
+              category_logo={category_logo??""}
             />
           );
         })}

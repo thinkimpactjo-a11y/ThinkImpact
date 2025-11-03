@@ -4,12 +4,13 @@ import { newTraining } from "@/types/index";
 
 export const addNewTraining = async (newTraining: newTraining) => {
   const result = await pool.query<newTraining>(
-    "insert into training (name_en, name_ar,description_en,description_ar) values ($1,$2,$3,$4) returning *",
+    "insert into training (name_en, name_ar,description_en,description_ar,slug) values ($1,$2,$3,$4,$5) returning *",
     [
       newTraining.name_en,
       newTraining.name_ar,
       newTraining.description_en,
       newTraining.description_ar,
+      newTraining.slug
     ]
   );
 
@@ -32,13 +33,14 @@ export const editTraining = async (
     return null;
   } else {
     const result = await pool.query<newTraining>(
-      " update training set name_en= coalesce ($2,name_en ), name_ar = coalesce ($3,name_ar ) ,description_en = coalesce ($4,description_en) ,description_ar = coalesce($5,description_ar) where id= $1 returning * ",
+      " update training set name_en= coalesce ($2,name_en ), name_ar = coalesce ($3,name_ar ) ,description_en = coalesce ($4,description_en) ,description_ar = coalesce($5,description_ar),slug = coalesce($6,slug) where id= $1 returning * ",
       [
         id,
         modifiedTraining.name_en,
         modifiedTraining.name_ar,
         modifiedTraining.description_en,
-        modifiedTraining.description_ar
+        modifiedTraining.description_ar,
+        modifiedTraining.slug
       ]
     );
     return result.rows;

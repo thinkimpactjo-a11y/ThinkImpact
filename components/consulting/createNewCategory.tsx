@@ -31,12 +31,34 @@ export default function CreateNewCategory({ action }: Props) {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isPending, startTransition] = useTransition();
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-    setErrors({ ...errors, [e.target.name]: "" }); 
-  };
+const handleInputChange = (
+  e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+) => {
+  const { name, value } = e.target;
+
+  setForm(prev => {
+    const updatedForm = { ...prev, [name]: value };
+
+   
+    if (name === "category_name_en") {
+      updatedForm.slug = value
+        .toLowerCase()
+        .replace(/&/g, "and")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+    }
+
+    return updatedForm;
+  });
+
+  setErrors({ ...errors, [name]: "" });
+};
+
 
   const handleUploadComplete = (url: string) => {
     setForm({ ...form, category_logo: url });
@@ -57,17 +79,16 @@ export default function CreateNewCategory({ action }: Props) {
       // ✅ validate using imported Zod schema
       const validation = categorySchema.safeParse(form);
 
-    if (!validation.success) {
-  const fieldErrors: Record<string, string> = {};
-  validation.error.issues.forEach((err) => {
-    if (err.path[0]) fieldErrors[String(err.path[0])] = err.message;
-  });
-  setErrors(fieldErrors);
-  setToast({ message: "Please fix the form errors.", type: "error" });
-  setTimeout(() => setToast(null), 3000);
-  return;
-}
-
+      if (!validation.success) {
+        const fieldErrors: Record<string, string> = {};
+        validation.error.issues.forEach((err) => {
+          if (err.path[0]) fieldErrors[String(err.path[0])] = err.message;
+        });
+        setErrors(fieldErrors);
+        setToast({ message: "Please fix the form errors.", type: "error" });
+        setTimeout(() => setToast(null), 3000);
+        return;
+      }
 
       try {
         await action({ ...form });
@@ -107,7 +128,7 @@ export default function CreateNewCategory({ action }: Props) {
 
           <CardContent className="flex flex-col items-start gap-5 mb-7">
             {/* Slug */}
-             <div className="flex flex-col">
+            <div className="flex flex-col">
               <label className="text-base text-black mb-1">
                 <span className="text-red-500 text-sm">*</span> Slug (Auto
                 Generated)
@@ -115,13 +136,8 @@ export default function CreateNewCategory({ action }: Props) {
               <input
                 type="text"
                 name="slug"
-                value={form.category_name_en
-                  .toLowerCase()
-                  .replace(/&/g, "and")
-                  .replace(/[^a-z0-9]+/g, "-")
-                  .replace(/^-+|-+$/g, "")}
+                value={form.slug}
                 onChange={handleInputChange}
-                
                 className="border px-2 py-1 rounded cursor-not-allowed border-black bg-gray-100 w-[80vw] md:w-[75vw] lg:w-[65vw] xl:w-[19vw] h-[5vh] text-black"
               />
             </div>
@@ -139,7 +155,9 @@ export default function CreateNewCategory({ action }: Props) {
                   className="border px-2 py-1 rounded border-black bg-white w-[80vw] md:w-[75vw] lg:w-[55vw] xl:w-[19vw] h-[5vh] text-black"
                 />
                 {errors.category_name_en && (
-                  <p className="text-red-500 text-sm">{errors.category_name_en}</p>
+                  <p className="text-red-500 text-sm">
+                    {errors.category_name_en}
+                  </p>
                 )}
               </div>
 
@@ -155,7 +173,9 @@ export default function CreateNewCategory({ action }: Props) {
                   className="border px-2 py-1 rounded border-black bg-white w-[80vw] md:w-[75vw] lg:w-[55vw] xl:w-[19vw] h-[5vh] text-black"
                 />
                 {errors.category_name_ar && (
-                  <p className="text-red-500 text-sm">{errors.category_name_ar}</p>
+                  <p className="text-red-500 text-sm">
+                    {errors.category_name_ar}
+                  </p>
                 )}
               </div>
             </div>
@@ -163,7 +183,8 @@ export default function CreateNewCategory({ action }: Props) {
             {/* Descriptions */}
             <div className="flex flex-col">
               <label className="text-base text-black mb-1">
-                <span className="text-red-500 text-sm">*</span> English Description
+                <span className="text-red-500 text-sm">*</span> English
+                Description
               </label>
               <textarea
                 name="description_en"
@@ -178,7 +199,8 @@ export default function CreateNewCategory({ action }: Props) {
 
             <div className="flex flex-col">
               <label className="text-base text-black mb-1">
-                <span className="text-red-500 text-sm">*</span> Arabic Description
+                <span className="text-red-500 text-sm">*</span> Arabic
+                Description
               </label>
               <textarea
                 name="description_ar"
