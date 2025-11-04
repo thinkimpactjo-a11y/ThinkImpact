@@ -35,7 +35,7 @@ const FlippingCard: React.FC<CardProps> = ({ title, description, category_logo }
         <h3
           className="inline-block text-center text-xl font-semibold text-white
                      drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]
-                     bg-black/20 backdrop-blur-sm rounded-md px-3 py-1"
+                      rounded-md px-3 py-1"
         >
           {title}
         </h3>
