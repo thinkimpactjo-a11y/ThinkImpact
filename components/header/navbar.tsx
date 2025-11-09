@@ -1,24 +1,22 @@
-import { getTranslations, getLocale } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/models/db/authOptions";
 import NavbarClient from "./NavbarClient";
-import { newCategory, newTraining } from "@/types"; // تأكد أنك تعرف أنواعك
+import { newCategory, newTraining } from "@/types";
 
 type Props = {
   categories: newCategory[];
   trainingData: newTraining[];
+  locale: string;
 };
 
-export default async function Navbar({ categories, trainingData }: Props) {
-  // جلب الجلسة والترجمات فقط
+export default async function Navbar({ categories, trainingData, locale }: Props) {
   const session = await getServerSession(authOptions);
   const t = await getTranslations("Navbar");
-  const locale = await getLocale();
 
   const isLoggedIn = !!session?.user;
   const isAdmin = session?.user?.role === "admin";
 
-  // تحضير الترجمات كنصوص جاهزة
   const translations = {
     home: t("home"),
     consulting: t("consulting"),

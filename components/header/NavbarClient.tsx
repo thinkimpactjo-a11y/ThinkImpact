@@ -19,18 +19,7 @@ type NavbarClientProps = {
   trainingData: newTraining[];
   isLoggedIn: boolean;
   isAdmin: boolean;
-  translations: {
-    home: string;
-    consulting: string;
-    training: string;
-    about: string;
-    ourTeam: string;
-    newApplication: string;
-    dashboard: string;
-    changePassword: string;
-    logout: string;
-    myAccount: string;
-  };
+  translations: Record<string, string>;
   locale: string;
 };
 
@@ -71,18 +60,8 @@ export default function NavbarClient({
       )),
     },
     { type: "link", href: "/about", label: translations.about, key: "about" },
-    {
-      type: "link",
-      href: "/ourTeam",
-      label: translations.ourTeam,
-      key: "ourTeam",
-    },
-    {
-      type: "link",
-      href: "/newApplication",
-      label: translations.newApplication,
-      key: "newApplication",
-    },
+    { type: "link", href: "/ourTeam", label: translations.ourTeam, key: "ourTeam" },
+    { type: "link", href: "/newApplication", label: translations.newApplication, key: "newApplication" },
   ];
 
   const accountContent: React.ReactElement[] = [];
@@ -106,9 +85,7 @@ export default function NavbarClient({
     <NavigationMenuLink asChild key="logout">
       <button
         onClick={() => signOut()}
-        className={`w-full text-left px-2 py-1 cursor-pointer ${
-          isArabic ? "text-right" : "text-left"
-        }`}
+        className={`w-full text-left px-2 py-1 cursor-pointer ${isArabic ? "text-right" : "text-left"}`}
       >
         {translations.logout}
       </button>
@@ -127,22 +104,14 @@ export default function NavbarClient({
   const finalMenu = isArabic ? [...menuItems].reverse() : menuItems;
 
   return (
-    <NavigationMenu
-      viewport={false}
-      className="text-[#00ADEE] focus:text-[#00ADEE]"
-      style={{ direction: isArabic ? "rtl" : "ltr" }}
-    >
+    <NavigationMenu viewport={false} className="text-[#00ADEE] focus:text-[#00ADEE]" style={{ direction: isArabic ? "rtl" : "ltr" }}>
       <NavigationMenuList className="flex-row">
         {finalMenu.map((item) => {
           if (item.type === "link") {
             return (
               <NavigationMenuItem key={item.key}>
                 <NavigationMenuLink asChild>
-                  <Link
-                    className={navigationMenuTriggerStyle()}
-                    href={item.href ?? "/"}
-                    locale={locale}
-                  >
+                  <Link className={navigationMenuTriggerStyle()} href={item.href ?? "/"} locale={locale}>
                     {item.label}
                   </Link>
                 </NavigationMenuLink>
@@ -152,11 +121,7 @@ export default function NavbarClient({
             return (
               <NavigationMenuItem key={item.key}>
                 <NavigationMenuTrigger>{item.label}</NavigationMenuTrigger>
-                <NavigationMenuContent
-                  className={`grid gap-3 p-4 md:w-[400px] lg:w-[250px] ${
-                    isArabic ? "text-right" : "text-left"
-                  }`}
-                >
+                <NavigationMenuContent className={`grid gap-3 p-4 md:w-[400px] lg:w-[250px] ${isArabic ? "text-right" : "text-left"}`}>
                   {item.content}
                 </NavigationMenuContent>
               </NavigationMenuItem>

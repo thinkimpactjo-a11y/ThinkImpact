@@ -23,6 +23,7 @@ import type { newCategory, newTraining } from "@/types";
 type Props = {
   categories: newCategory[];
   trainingData: newTraining[];
+  locale: string; 
 };
 
 export default function Menu({ categories, trainingData }: Props) {
