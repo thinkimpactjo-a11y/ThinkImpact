@@ -45,11 +45,12 @@ export function Banner({ banners, locale }: Props) {
                 <CardContent className="aspect-[20/8] p-0 m-0 relative overflow-hidden">
                   {/* Background image */}
                   <Image
-                    src={item.image ?? "/default-image.png"}
-                    alt={title}
-                    fill
-                    className="object-cover"
-                  />
+  src={item.image && item.image.trim() !== "" ? item.image : "/default-image.png"}
+  alt={title}
+  fill
+  className="object-cover"
+/>
+
 
                   {/* Gradient overlay that follows text side */}
                   <div
