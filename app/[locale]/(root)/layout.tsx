@@ -52,7 +52,7 @@ export default async function RootLayout({ children, params }: Props) {
               aria-label="Header"
               className="fixed w-full top-0 left-0 right-0 backdrop-blur-sm z-50 bg-white dark:bg-[#020618]"
             >
-              <Header />
+              <Header  locale={locale} />
             </section>
 
             <main className="flex-1">{children}</main>
