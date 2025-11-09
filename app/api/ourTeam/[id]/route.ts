@@ -94,7 +94,7 @@ export const DELETE = async (
         }
       }
     }
-  } catch (error) {
+  } catch (error) {    
     return NextResponse.json(
       { data: error, message: "Error in deleting The member" },
       { status: 500 }

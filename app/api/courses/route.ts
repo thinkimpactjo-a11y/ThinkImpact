@@ -28,6 +28,8 @@ export const POST = async (request: Request) => {
       }
     }
   } catch (error) {
+    console.log("error 333: ",error);
+    
     return NextResponse.json(
       { data: error, message: "Error in adding The course" },
       { status: 500 }

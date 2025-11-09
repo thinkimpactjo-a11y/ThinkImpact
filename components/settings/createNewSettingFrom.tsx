@@ -26,7 +26,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { newSettingSchema } from "@/types/zod/settingsSchema";
 
-const formSchema = z.object({ id: z.string().optional() }).merge(newSettingSchema);
+const formSchema = z
+  .object({ id: z.string().optional() })
+  .merge(newSettingSchema);
 export type FormSchema = z.infer<typeof formSchema>;
 
 interface Option {
@@ -42,30 +44,78 @@ interface Props {
   options?: Option[];
 }
 
-export default function CreateNewSetting({ action, existingKeys = [], options }: Props) {
+export default function CreateNewSetting({
+  action,
+  existingKeys = [],
+  options,
+}: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
   const [isUploadingEn, setIsUploadingEn] = useState(false);
   const [isUploadingAr, setIsUploadingAr] = useState(false);
 
   const defaultOptions: Option[] = [
-    { value: "number_of_clients", label: "Number Of Clients", type: "number", placeholder: "e.g. 42" },
-    { value: "number_of_projects", label: "Number Of Projects", type: "number", placeholder: "e.g. 120" },
+    {
+      value: "number_of_clients",
+      label: "Number Of Clients",
+      type: "number",
+      placeholder: "e.g. 42",
+    },
+    {
+      value: "number_of_projects",
+      label: "Number Of Projects",
+      type: "number",
+      placeholder: "e.g. 120",
+    },
     { value: "home_video", label: "Video In Home Page", type: "video" },
-    { value: "text_home_video", label: "Text On Video In Home Page", type: "text" },
+    {
+      value: "text_home_video",
+      label: "Text On Video In Home Page",
+      type: "text",
+    },
     { value: "part_one_header", label: "Header In Part One", type: "text" },
-    { value: "part_one_description", label: "Description In Part One", type: "textarea" },
+    {
+      value: "part_one_description",
+      label: "Description In Part One",
+      type: "textarea",
+    },
     { value: "part_one_image", label: "Image In Part One", type: "image" },
     { value: "part_two_header", label: "Header In Part Two", type: "text" },
-    { value: "part_two_description", label: "Description In Part Two", type: "textarea" },
+    {
+      value: "part_two_description",
+      label: "Description In Part Two",
+      type: "textarea",
+    },
     { value: "part_two_image", label: "Image In Part Two", type: "image" },
     { value: "about_page_text", label: "Text In About Page", type: "textarea" },
+    { value: "vision_in_about", label: "Vision", type: "textarea" },
+    { value: "mission_in_about", label: "Mission", type: "textarea" },
+    { value: "values_in_about", label: "Values", type: "textarea" },
+    { value: "our_methodology", label: "Our Methodology", type: "textarea" },
+    {
+      value: "what_we_stand_for",
+      label: "What We Stand For",
+      type: "textarea",
+    },
+    { value: "what_we_value", label: "What We Value", type: "textarea" },
+    { value: "why_we_are_here", label: "Why We’re Here", type: "textarea" },
   ];
 
   const availableOptions = options ?? defaultOptions;
 
-  const { register, handleSubmit, setValue, watch, clearErrors, setError, formState: { errors, isSubmitting } } = useForm<FormSchema>({
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    clearErrors,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       id: "",
@@ -85,7 +135,6 @@ export default function CreateNewSetting({ action, existingKeys = [], options }:
     setValue("key_name_ar", "");
     clearErrors();
   }, [watchedKey, setValue, clearErrors]);
-  
 
   const handleImageUploadedEn = (url: string) => {
     setIsUploadingEn(false);
@@ -93,7 +142,10 @@ export default function CreateNewSetting({ action, existingKeys = [], options }:
   };
   const handleImageUploadErrorEn = (err: Error) => {
     setIsUploadingEn(false);
-    setToast({ message: "Image upload failed. Please try again.", type: "error" });
+    setToast({
+      message: "Image upload failed. Please try again.",
+      type: "error",
+    });
     setTimeout(() => setToast(null), 3000);
   };
   const handleVideoUploadCompleteEn = (res: { url: string }[]) => {
@@ -101,13 +153,19 @@ export default function CreateNewSetting({ action, existingKeys = [], options }:
     if (res && res[0]) {
       setValue("value_en", res[0].url, { shouldValidate: true });
     } else {
-      setToast({ message: "Video upload failed. No file returned.", type: "error" });
+      setToast({
+        message: "Video upload failed. No file returned.",
+        type: "error",
+      });
       setTimeout(() => setToast(null), 3000);
     }
   };
   const handleVideoUploadErrorEn = () => {
     setIsUploadingEn(false);
-    setToast({ message: "Video upload failed. Please try again.", type: "error" });
+    setToast({
+      message: "Video upload failed. Please try again.",
+      type: "error",
+    });
     setTimeout(() => setToast(null), 3000);
   };
 
@@ -146,28 +204,58 @@ export default function CreateNewSetting({ action, existingKeys = [], options }:
   const textareaWidthClass = "w-[90vw] md:w-[75vw] lg:w-[65vw] xl:w-[40vw]";
 
   const renderValueInput = () => {
-    if (!selected) return <div className="text-sm text-gray-500">Choose a key above to enter the appropriate value.</div>;
+    if (!selected)
+      return (
+        <div className="text-sm text-gray-500">
+          Choose a key above to enter the appropriate value.
+        </div>
+      );
 
     switch (selected.type) {
       case "text":
         return (
           <>
-            <input type="text" {...register("value_en")} className={`border px-2 py-1 rounded border-black bg-white ${inputWidthClass} h-[5vh] text-black`} placeholder={selected.placeholder ?? ""} />
-            {errors.value_en && <p className="text-red-500 text-sm mt-1">{errors.value_en.message}</p>}
+            <input
+              type="text"
+              {...register("value_en")}
+              className={`border px-2 py-1 rounded border-black bg-white ${inputWidthClass} h-[5vh] text-black`}
+              placeholder={selected.placeholder ?? ""}
+            />
+            {errors.value_en && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.value_en.message}
+              </p>
+            )}
           </>
         );
       case "number":
         return (
           <>
-            <input type="number" {...register("value_en")} className={`border px-2 py-1 rounded border-black bg-white ${inputWidthClass} h-[5vh] text-black`} placeholder={selected.placeholder ?? ""} />
-            {errors.value_en && <p className="text-red-500 text-sm mt-1">{errors.value_en.message}</p>}
+            <input
+              type="number"
+              {...register("value_en")}
+              className={`border px-2 py-1 rounded border-black bg-white ${inputWidthClass} h-[5vh] text-black`}
+              placeholder={selected.placeholder ?? ""}
+            />
+            {errors.value_en && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.value_en.message}
+              </p>
+            )}
           </>
         );
       case "textarea":
         return (
           <>
-            <textarea {...register("value_en")} className={`border px-2 py-1 rounded border-black bg-white ${textareaWidthClass} h-[15vh] text-black`} />
-            {errors.value_en && <p className="text-red-500 text-sm mt-1">{errors.value_en.message}</p>}
+            <textarea
+              {...register("value_en")}
+              className={`border px-2 py-1 rounded border-black bg-white ${textareaWidthClass} h-[15vh] text-black`}
+            />
+            {errors.value_en && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.value_en.message}
+              </p>
+            )}
           </>
         );
       case "image":
@@ -178,14 +266,26 @@ export default function CreateNewSetting({ action, existingKeys = [], options }:
               initialImageUrl={watchedValueEn ?? null}
               onUploadComplete={handleImageUploadedEn}
               onUploadError={handleImageUploadErrorEn}
-              onDelete={() => setValue("value_en", "", { shouldValidate: true })}
+              onDelete={() =>
+                setValue("value_en", "", { shouldValidate: true })
+              }
             />
             {watchedValueEn && (
               <div className="mt-2">
-                <Image src={watchedValueEn} alt="preview" width={400} height={220} className="object-cover rounded-lg border border-gray-300" />
+                <Image
+                  src={watchedValueEn}
+                  alt="preview"
+                  width={400}
+                  height={220}
+                  className="object-cover rounded-lg border border-gray-300"
+                />
               </div>
             )}
-            {errors.value_en && <p className="text-red-500 text-sm mt-1">{errors.value_en.message}</p>}
+            {errors.value_en && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.value_en.message}
+              </p>
+            )}
           </div>
         );
       case "video":
@@ -207,8 +307,14 @@ export default function CreateNewSetting({ action, existingKeys = [], options }:
               content={{
                 label: ({ isDragActive }) => (
                   <div className="flex flex-col items-center">
-                    <div className="text-sm font-semibold">{isDragActive ? "Drop the video" : "Drop video or click to browse"}</div>
-                    <div className="text-xs text-gray-400 mt-1">Allowed: video files (Max Size: 64MB)</div>
+                    <div className="text-sm font-semibold">
+                      {isDragActive
+                        ? "Drop the video"
+                        : "Drop video or click to browse"}
+                    </div>
+                    <div className="text-xs text-gray-400 mt-1">
+                      Allowed: video files (Max Size: 64MB)
+                    </div>
                   </div>
                 ),
                 allowedContent: null,
@@ -223,7 +329,11 @@ export default function CreateNewSetting({ action, existingKeys = [], options }:
                 />
               </div>
             )}
-            {errors.value_en && <p className="text-red-500 text-sm mt-1">{errors.value_en.message}</p>}
+            {errors.value_en && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.value_en.message}
+              </p>
+            )}
           </div>
         );
       default:
@@ -234,7 +344,11 @@ export default function CreateNewSetting({ action, existingKeys = [], options }:
   // render AR input only for text and textarea types
   const renderArabicInput = () => {
     if (!selected) {
-      return <div className="text-sm text-gray-500">Choose a key above to enter the appropriate value for Arabic.</div>;
+      return (
+        <div className="text-sm text-gray-500">
+          Choose a key above to enter the appropriate value for Arabic.
+        </div>
+      );
     }
 
     if (selected.type === "text") {
@@ -247,7 +361,11 @@ export default function CreateNewSetting({ action, existingKeys = [], options }:
             className={`border px-2 py-1 rounded border-black bg-white ${inputWidthClass} h-[5vh] text-right`}
             placeholder={selected.placeholder ?? ""}
           />
-          {errors.value_ar && <p className="text-red-500 text-sm mt-1">{errors.value_ar.message}</p>}
+          {errors.value_ar && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.value_ar.message}
+            </p>
+          )}
         </>
       );
     }
@@ -260,7 +378,11 @@ export default function CreateNewSetting({ action, existingKeys = [], options }:
             {...register("value_ar")}
             className={`border px-2 py-1 rounded border-black bg-white ${textareaWidthClass} h-[15vh] text-right`}
           />
-          {errors.value_ar && <p className="text-red-500 text-sm mt-1">{errors.value_ar.message}</p>}
+          {errors.value_ar && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.value_ar.message}
+            </p>
+          )}
         </>
       );
     }
@@ -283,7 +405,8 @@ export default function CreateNewSetting({ action, existingKeys = [], options }:
           <CardHeader>
             <CardTitle>New Setting Details</CardTitle>
             <CardDescription>
-              Pick a setting key and provide its value (all values stored as strings).
+              Pick a setting key and provide its value (all values stored as
+              strings).
             </CardDescription>
           </CardHeader>
 
@@ -317,7 +440,11 @@ export default function CreateNewSetting({ action, existingKeys = [], options }:
                     ))}
                 </SelectContent>
               </Select>
-              {errors.key_name_en && <p className="text-red-500 text-sm mt-1">{errors.key_name_en.message}</p>}
+              {errors.key_name_en && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.key_name_en.message}
+                </p>
+              )}
             </div>
 
             {/* English value input */}
@@ -329,14 +456,16 @@ export default function CreateNewSetting({ action, existingKeys = [], options }:
             </div>
 
             {/* Arabic value input (only for text & textarea) */}
-            {selected && (selected.type === "text" || selected.type === "textarea") && (
-              <div className="flex flex-col mt-2">
-                <label className="text-base text-black mb-1">
-                  <span className="text-red-500 text-sm">*</span> Value (Arabic)
-                </label>
-                <div className="mt-1">{renderArabicInput()}</div>
-              </div>
-            )}
+            {selected &&
+              (selected.type === "text" || selected.type === "textarea") && (
+                <div className="flex flex-col mt-2">
+                  <label className="text-base text-black mb-1">
+                    <span className="text-red-500 text-sm">*</span> Value
+                    (Arabic)
+                  </label>
+                  <div className="mt-1">{renderArabicInput()}</div>
+                </div>
+              )}
 
             <div className="w-full flex justify-center mt-5">
               <div className="flex flex-row gap-3">
@@ -350,9 +479,15 @@ export default function CreateNewSetting({ action, existingKeys = [], options }:
                 <button
                   type="submit"
                   className="bg-[#125892] text-white px-4 py-2 rounded-md cursor-pointer hover:bg-[#0f4473]"
-                  disabled={isSubmitting || isPending || isUploadingEn || isUploadingAr}
+                  disabled={
+                    isSubmitting || isPending || isUploadingEn || isUploadingAr
+                  }
                 >
-                  {isPending ? "Adding..." : isUploadingEn || isUploadingAr ? "Uploading..." : "Add Setting"}
+                  {isPending
+                    ? "Adding..."
+                    : isUploadingEn || isUploadingAr
+                    ? "Uploading..."
+                    : "Add Setting"}
                 </button>
               </div>
             </div>

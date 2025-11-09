@@ -20,12 +20,7 @@ export default async function membersTable() {
         {members.length === 0 ? (
           <div className="w-full text-center py-10 text-gray-500 text-lg min-w-[70vw]">
             No Members found. Please add a new Member.
-          </div>
-        ) : (
-          <DragDropClients members={members} />
-        )}
-
-        <div className="flex justify-end mt-4  w-full">
+             <div className="flex justify-end mt-4  w-full">
           <Link
             href="/admin/dashboard/ourTeam/newMember"
             className="bg-[#125892] hover:bg-[#0f4473] text-white px-5 py-3 rounded-md flex items-center gap-2"
@@ -34,6 +29,12 @@ export default async function membersTable() {
             Add
           </Link>
         </div>
+          </div>
+        ) : (
+          <DragDropClients members={members} />
+        )}
+
+       
       </main>
     </>
   );

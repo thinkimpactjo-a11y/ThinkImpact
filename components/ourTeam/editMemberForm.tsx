@@ -31,7 +31,7 @@ export default function EditMemberForm({ member, action }: Props) {
     description_en: member.description_en ?? "",
     description_ar: member.description_ar ?? "",
     image: member.image ?? "",
-    main: member.main,
+    main: member.main??"",
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});

@@ -1,4 +1,3 @@
-import Head from "next/head";
 import React from "react";
 import { getMemberById } from "@/app/models/db/lib/services/outTeam";
 import { editMember } from "../(fetch)/editMember";

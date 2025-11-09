@@ -15,7 +15,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Plus, SquarePen, GripVertical } from "lucide-react";
+import {Plus,  SquarePen, GripVertical } from "lucide-react";
 import React, { useState, useTransition } from "react";
 import {
   arrayMove,
@@ -175,17 +175,23 @@ export default function DragDropOurteam({ members: initialMembers }: Props) {
           </DndContext>
         </div>
       </div>
+<div className="flex justify-end gap-2 mt-4">
+  <button
+    onClick={handleSaveOrder}
+    className="bg-[#125892] hover:bg-[#0f4473] text-white px-5 py-3 rounded-md cursor-pointer"
+  >
+    {isPending ? "Loading..." : "Save Order"}
+  </button>
 
-      <div className="flex flex-row justify-end gap-2">
-        <div className="flex justify-end mt-4 cursor-pointer">
-          <button
-            onClick={handleSaveOrder}
-            className="bg-[#125892] hover:bg-[#0f4473] text-white px-5 py-3 rounded-md cursor-pointer"
-          >
-            {isPending ? `Loading...` : "Save Order"}
-          </button>
-        </div>
-      </div>
+  <Link
+    href="/admin/dashboard/ourTeam/newMember"
+    className="bg-[#125892] hover:bg-[#0f4473] text-white px-5 py-3 rounded-md flex items-center gap-2"
+  >
+    <Plus className="w-5 h-5" />
+    Add
+  </Link>
+</div>
+
 
       {toast && (
         <div

@@ -8,7 +8,7 @@ export const routing = defineRouting({
   defaultLocale: 'en',
 
   // دوماً نضيف البريفكس بالـ URL
-  localePrefix: 'as-needed',
+  localePrefix: 'always',
 
   // تمكين اكتشاف اللغة تلقائياً من الكوكي أو الـ accept-language
   localeDetection: true,

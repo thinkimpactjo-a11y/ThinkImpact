@@ -64,6 +64,17 @@ const defaultOptions: Option[] = [
   },
   { value: "part_two_image", label: "Image In Part Two", type: "image" },
   { value: "about_page_text", label: "Text In About Page", type: "textarea" },
+  { value: "vision_in_about", label: "Vision", type: "textarea" },
+    { value: "mission_in_about", label: "Mission", type: "textarea" },
+    { value: "values_in_about", label: "Values", type: "textarea" },
+    { value: "our_methodology", label: "Our Methodology", type: "textarea" },
+    {
+      value: "what_we_stand_for",
+      label: "What We Stand For",
+      type: "textarea",
+    },
+    { value: "what_we_value", label: "What We Value", type: "textarea" },
+    { value: "why_we_are_here", label: "Why We’re Here", type: "textarea" },
 ];
 
 function EditSettingForm({ setting, action }: prop) {

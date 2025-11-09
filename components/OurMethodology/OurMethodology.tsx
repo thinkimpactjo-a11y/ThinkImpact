@@ -1,36 +1,66 @@
 "use client";
 
+import { newSetting } from "@/types";
+
 type Props = {
   locale: string;
+  settings:newSetting[]
 };
 
-export default function OurMethodology({ locale }: Props) {
+export default function OurMethodology({ locale,settings }: Props) {
   const isArabic = locale === "ar";
+
+  const englishStandForDescription= settings.find((ele,i)=>{
+    return ele.key_name_en==="what_we_stand_for"
+  })?.value_en
+
+   const arabicStandForDescription= settings.find((ele,i)=>{
+    return ele.key_name_en==="what_we_stand_for"
+  })?.value_ar
+
+   const englishWeValueDescription= settings.find((ele,i)=>{
+    return ele.key_name_en==="what_we_value"
+  })?.value_en
+
+
+   const arabicWeValueDescription= settings.find((ele,i)=>{
+    return ele.key_name_en==="what_we_value"
+  })?.value_ar
+
+
+     const englishWeHereDescription= settings.find((ele,i)=>{
+    return ele.key_name_en==="why_we_are_here"
+  })?.value_en
+
+
+   const arabicWeHereDescription= settings.find((ele,i)=>{
+    return ele.key_name_en==="why_we_are_here"
+  })?.value_ar
 
   const items = [
     {
       title_en: "What We Stand For",
       title_ar: "ما الذي نؤمن به",
       text_en:
-        "We are committed to getting you where you need to go and we’ll be with you every step of the way.",
+       englishStandForDescription,
       text_ar:
-        "نحن ملتزمون بمساعدتك للوصول إلى هدفك وسنكون معك في كل خطوة على الطريق.",
+       arabicStandForDescription,
     },
     {
       title_en: "What We Value",
       title_ar: "قيمنا",
       text_en:
-        "We believe success comes from working together to do good work and serve those around us.",
+       englishWeValueDescription,
       text_ar:
-        "نؤمن بأن النجاح يتحقق من خلال العمل الجماعي لتقديم عمل متميز وخدمة من حولنا.",
+       arabicWeValueDescription,
     },
     {
       title_en: "Why We’re Here",
       title_ar: "سبب وجودنا",
       text_en:
-        "We’re deeply committed to everything we do and it shows in the events we host, causes we support and awards we win.",
+       englishWeHereDescription,
       text_ar:
-        "نحن ملتزمون بعمق بكل ما نقوم به، ويظهر ذلك في الفعاليات التي ننظمها، والقضايا التي ندعمها، والجوائز التي نحصل عليها.",
+        arabicWeHereDescription,
     },
   ];
 
