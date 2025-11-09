@@ -2,7 +2,6 @@
 
 import { HiOutlineMenu } from "react-icons/hi";
 import React, { useState } from "react";
-import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { useSession, signOut } from "next-auth/react";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
@@ -17,13 +16,16 @@ import {
 } from "@/components/ui/sheet";
 
 import ModeToggle from "./modetoggle";
-import LanguageSwitcher from "@/components/header/languageSwitcher";
+import LanguageSwitcher from "./languageSwitcher";
 import type { newCategory, newTraining } from "@/types";
+
+// استخدم next/link العادي
+import NextLink from "next/link";
 
 type Props = {
   categories: newCategory[];
   trainingData: newTraining[];
-  locale: string; 
+  locale: string
 };
 
 export default function Menu({ categories, trainingData }: Props) {
@@ -63,34 +65,35 @@ export default function Menu({ categories, trainingData }: Props) {
             <div className="flex items-center mb-6 gap-3 w-full">
               {isArabic ? (
                 <>
-                  <ModeToggle  />
+                  <ModeToggle />
                   <LanguageSwitcher />
                 </>
               ) : (
                 <>
                   <LanguageSwitcher />
-                  <ModeToggle  />
+                  <ModeToggle />
                 </>
               )}
             </div>
 
             <nav className="flex flex-col space-y-4">
-              <Link href="/" onClick={handleLinkClick} className="text-lg font-semibold">
+              <NextLink href="/" locale={locale} onClick={handleLinkClick} className="text-lg font-semibold">
                 {t("home")}
-              </Link>
+              </NextLink>
 
               <div>
                 <div className="font-semibold">{t("consulting")}</div>
                 <div className="mt-2 flex flex-col space-y-2">
                   {categories.map((item) => (
-                    <Link
+                    <NextLink
                       key={item.slug}
                       href={`/Consulting/${item.slug}`}
+                      locale={locale}
                       onClick={handleLinkClick}
                       className="pl-4"
                     >
                       {getCategoryName(item)}
-                    </Link>
+                    </NextLink>
                   ))}
                 </div>
               </div>
@@ -99,64 +102,67 @@ export default function Menu({ categories, trainingData }: Props) {
                 <div className="font-semibold">{t("training")}</div>
                 <div className="mt-2 flex flex-col space-y-2">
                   {trainingData.map((item) => (
-                    <Link
+                    <NextLink
                       key={item.slug}
                       href={`/Training/${item.slug}`}
+                      locale={locale}
                       onClick={handleLinkClick}
                       className="pl-4"
                     >
                       {getTrainingName(item)}
-                    </Link>
+                    </NextLink>
                   ))}
                 </div>
               </div>
 
-              <Link href="/about" onClick={handleLinkClick} className="text-lg font-semibold">
+              <NextLink href="/about" locale={locale} onClick={handleLinkClick} className="text-lg font-semibold">
                 {t("about")}
-              </Link>
-              <Link
+              </NextLink>
+              <NextLink
                 href="/ourTeam"
+                locale={locale}
                 onClick={handleLinkClick}
                 className="text-lg font-semibold"
               >
                 {t("ourTeam")}
-              </Link>
-              <Link
+              </NextLink>
+              <NextLink
                 href="/newApplication"
+                locale={locale}
                 onClick={handleLinkClick}
                 className="text-lg font-semibold"
               >
                 {t("newApplication")}
-              </Link>
+              </NextLink>
 
               {isLoggedIn && (
                 <div>
                   <div className="font-semibold">{t("myAccount")}</div>
                   <div className="mt-2 flex flex-col space-y-2">
                     {isAdmin && (
-                      <Link
+                      <NextLink
                         href="/admin/dashboard"
+                        locale={locale}
                         onClick={handleLinkClick}
                         className="pl-4"
                       >
                         {t("dashboard")}
-                      </Link>
+                      </NextLink>
                     )}
-                    <Link
+                    <NextLink
                       href="/change-password"
+                      locale={locale}
                       onClick={handleLinkClick}
                       className="pl-4"
                     >
                       {t("changePassword")}
-                    </Link>
+                    </NextLink>
                     <button
                       onClick={() => {
                         signOut();
                         setOpen(false);
                       }}
-                      className={`pl-4 cursor-pointer ${
-                        isArabic ? "text-right" : "text-left"
-                      }`}
+                      className={`pl-4 cursor-pointer ${isArabic ? "text-right" : "text-left"}`}
                       type="button"
                     >
                       {t("logout")}

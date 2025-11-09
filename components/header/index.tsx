@@ -11,7 +11,6 @@ import { newCategory, newTraining } from "@/types";
 
 type Props = {
   locale: string;
-  
 };
 
 export default async function Header({ locale }: Props) {

@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
 import { signOut } from "next-auth/react";
 import {
   NavigationMenu,
@@ -13,6 +12,9 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { newCategory, newTraining } from "@/types";
+
+// استخدم Link من next-intl/navigation للحفاظ على locale
+import { Link } from "@/i18n/navigation";
 
 type NavbarClientProps = {
   categories: newCategory[];
@@ -41,7 +43,7 @@ export default function NavbarClient({
       key: "consulting",
       content: categories.map((item) => (
         <NavigationMenuLink asChild key={item.slug}>
-          <Link href={`/Consulting/${item.slug}`} locale={locale}>
+          <Link href={`/Consulting/${item.slug}`}>
             {isArabic ? item.category_name_ar : item.category_name_en}
           </Link>
         </NavigationMenuLink>
@@ -53,7 +55,7 @@ export default function NavbarClient({
       key: "training",
       content: trainingData.map((item) => (
         <NavigationMenuLink asChild key={item.slug}>
-          <Link href={`/Training/${item.slug}`} locale={locale}>
+          <Link href={`/Training/${item.slug}`}>
             {isArabic ? item.name_ar : item.name_en}
           </Link>
         </NavigationMenuLink>
@@ -69,18 +71,14 @@ export default function NavbarClient({
   if (isAdmin) {
     accountContent.push(
       <NavigationMenuLink asChild key="dashboard">
-        <Link href="/admin/dashboard" locale={locale}>
-          {translations.dashboard}
-        </Link>
+        <Link href="/admin/dashboard">{translations.dashboard}</Link>
       </NavigationMenuLink>
     );
   }
 
   accountContent.push(
     <NavigationMenuLink asChild key="changePassword">
-      <Link href="/change-password" locale={locale}>
-        {translations.changePassword}
-      </Link>
+      <Link href="/change-password">{translations.changePassword}</Link>
     </NavigationMenuLink>,
     <NavigationMenuLink asChild key="logout">
       <button
@@ -111,7 +109,7 @@ export default function NavbarClient({
             return (
               <NavigationMenuItem key={item.key}>
                 <NavigationMenuLink asChild>
-                  <Link className={navigationMenuTriggerStyle()} href={item.href ?? "/"} locale={locale}>
+                  <Link className={navigationMenuTriggerStyle()} href={item.href ?? "/"}>
                     {item.label}
                   </Link>
                 </NavigationMenuLink>
