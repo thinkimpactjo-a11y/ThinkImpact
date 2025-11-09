@@ -103,9 +103,9 @@ export default function Footer({ categories, trainingData, locale }: Props) {
                 </a>
               </li>
 
-              <li className="flex items-center gap-2">
+              <li className="flex items-center gap-2 ">
                 <Phone size={20} />
-                <a href={`tel:${contactPhone}`} className="hover:text-gray-300 transition-colors">
+                <a dir="ltr" href={`tel:${contactPhone}`} className="hover:text-gray-300 transition-colors">
                   {contactPhone}
                 </a>
               </li>
