@@ -17,17 +17,17 @@ interface ConsultingCardsProps {
   categories: newCategory[];
 }
 
-const allowedTitlesEn = ["Monitoring", "Evaluation", "Data Collection"];
-const allowedTitlesAr = ["المتابعة", "التقييم", "جمع البيانات"];
+const allowedTitlesEn = ["Monitoring", "Evaluation", "Data Collection and Outreach"];
+const allowedTitlesAr = ["الرصد والمتابعة", "التقييم", "جمع البيانات وحملات التوعية"];
 
 const iconMap = {
  
-  "المتابعة": <FiTrendingUp className="text-3xl text-[#125892] dark:text-white" />,
+  "الرصد والمتابعة": <FiTrendingUp className="text-3xl text-[#125892] dark:text-white" />,
   "التقييم": <FiBarChart2 className="text-3xl text-[#125892] dark:text-white" />,
-  "جمع البيانات": <FiDatabase className="text-3xl text-[#125892] dark:text-white" />,
+  "جمع البيانات وحملات التوعية": <FiDatabase className="text-3xl text-[#125892] dark:text-white" />,
   "Monitoring": <FiTrendingUp className="text-3xl text-[#125892] dark:text-white" />,
   "Evaluation": <FiBarChart2 className="text-3xl text-[#125892] dark:text-white" />,
-  "Data Collection": <FiDatabase className="text-3xl text-[#125892] dark:text-white" />,
+  "Data Collection and Outreach": <FiDatabase className="text-3xl text-[#125892] dark:text-white" />,
   
 };
 
