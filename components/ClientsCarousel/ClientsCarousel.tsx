@@ -25,7 +25,7 @@ export default function ClientsCarousel({ clients,locale }: Props) {
   return (
     <section className="flex flex-col justify-center items-center mt-20 w-full">
       <h1 className="text-center text-3xl md:text-5xl sm:text-4xl font-bold text-[#125892] mb-8">
-         {isArabic ? "عملاؤنا ":"OUR CLIENTS"} 
+         {isArabic ? "شركائنا  ":"Our Collaborations"} 
       </h1>
 
       <div className="w-full max-w-5xl cursor-pointer">

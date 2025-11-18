@@ -13,15 +13,20 @@ export const getNewCareerSchema = (isArabic: boolean) => {
     email: z
       .string()
       .min(1, isArabic ? "البريد الإلكتروني مطلوب" : "Email is required")
-      .email(isArabic ? "الرجاء إدخال بريد إلكتروني صالح" : "Please enter a valid email"),
+      .email(
+        isArabic
+          ? "الرجاء إدخال بريد إلكتروني صالح"
+          : "Please enter a valid email"
+      ),
 
-    city: z
-      .string()
-      .min(1, isArabic ? "الدولة مطلوبة" : "Country is required"),
+    city: z.string().min(1, isArabic ? "الدولة مطلوبة" : "Country is required"),
 
     phone_number: z
       .string()
       .min(8, isArabic ? "رقم الهاتف غير صالح" : "Invalid phone number"),
+    area_of_expertise: z
+      .string()
+      .min(1, isArabic ? "مجال الخبرة مطلوب" : "Area of expertise is required"),
 
     cv: z
       .string()

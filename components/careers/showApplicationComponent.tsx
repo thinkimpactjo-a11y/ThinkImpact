@@ -95,6 +95,7 @@ export default function ApplicationDetailsModal({
             <div className="p-6 space-y-4 text-sm text-gray-700 dark:text-gray-200">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Info label="Name" value={`${application.first_name ?? ""} ${application.last_name ?? ""}`} />
+                <Info label="Area Of Expertise" value={application.area_of_expertise} />
                 <Info label="Email" value={application.email} />
                 <Info label="Phone" value={application.phone_number} />
                 <Info label="Country" value={application.city} />
@@ -149,6 +150,8 @@ function Info({ label, value }: { label: string; value?: string | null }) {
 function getFileNameFromUrl(url: string) {
   try {
     const decoded = decodeURIComponent(url);
+    console.log("decoded: ",decoded);
+    
     const lastSegment = decoded.split("/").pop() ?? "";
     return lastSegment.split("?")[0];
   } catch {

@@ -10,6 +10,7 @@ export const newApplication = async (data: newCareer) => {
     body: JSON.stringify(data),
   });
 
+     
   if (!result.ok) throw new Error("Error in creating the application")
 
     revalidatePath("/newApplcation")

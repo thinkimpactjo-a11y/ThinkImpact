@@ -3,7 +3,6 @@
 import React from "react";
 import Image from "next/image";
 import { useLocale } from "next-intl";
-import postImage from "@/public/images/molto2.svg"
 import { newSetting } from "@/types";
 
 type DataProp = {

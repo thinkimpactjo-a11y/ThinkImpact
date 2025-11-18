@@ -23,7 +23,7 @@ export default function OtherMemberCard({ member, locale }: Props) {
 
   return (
     <div
-      className="flex flex-col items-center text-center bg-gray-100 border border-gray-200 rounded-2xl 
+      className="flex flex-col items-center text-center bg-gray-100 dark:bg-gray-700  border border-gray-200 rounded-2xl 
                  shadow-sm p-5 w-full  sm:w-[280px] md:w-[300px] lg:w-[320px] 
                  transition-all duration-300 hover:shadow-lg hover:-translate-y-2 cursor-pointer"
     >
@@ -38,12 +38,12 @@ export default function OtherMemberCard({ member, locale }: Props) {
       </div>
 
       {/* Text Content */}
-      <div className="flex flex-col items-center px-2">
-        <p className="text-lg md:text-xl font-semibold text-[#125892] mb-1">
+      <div className="flex flex-col items-center  px-2">
+        <p className="text-lg md:text-xl font-semibold text-[#125892] mb-1 ">
           {name}
         </p>
-        <p className="text-gray-600 text-sm md:text-base mb-3">{position}</p>
-        <p className="text-gray-500 text-sm md:text-[15px] leading-snug max-w-xs">
+        <p className="text-gray-600 text-sm md:text-base mb-3 dark:text-gray-200">{position}</p>
+        <p className="text-gray-500 text-sm md:text-[15px] leading-snug max-w-xs dark:text-gray-200">
           {shortDesc}{" "}
           {hasLongDesc && <MemberDialog member={member} locale={locale} />}
         </p>

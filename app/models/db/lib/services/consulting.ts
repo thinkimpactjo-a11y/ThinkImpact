@@ -1,14 +1,19 @@
-'use server';
+"use server";
 
 import pool from "../index";
 import { newCategory } from "@/types/index";
 
+export const addNewCategory = async (newCategory: newCategory) => {
+  const maxOrderResult = await pool.query<{ max_sort: number }>(
+    `SELECT COALESCE(MAX(sort_order), 0) AS max_sort FROM consulting`
+  );
 
-export const addNewGategory = async (newCategory: newCategory) => {
+  const nextSortOrder = maxOrderResult.rows[0].max_sort + 1;
+
   const result = await pool.query<newCategory>(
     `INSERT INTO consulting 
-      (category_name_en, category_name_ar, description_en, description_ar, category_logo, slug)
-     VALUES ($1, $2, $3, $4, $5,$6) 
+      (category_name_en, category_name_ar, description_en, description_ar, category_logo, slug, sort_order)
+     VALUES ($1, $2, $3, $4, $5, $6, $7) 
      RETURNING *`,
     [
       newCategory.category_name_en,
@@ -16,24 +21,28 @@ export const addNewGategory = async (newCategory: newCategory) => {
       newCategory.description_en,
       newCategory.description_ar,
       newCategory.category_logo,
-      newCategory.slug
+      newCategory.slug,
+      nextSortOrder,
     ]
+  );
+
+  return result.rows;
+};
+
+export const getAllcategories = async (): Promise<newCategory[]> => {
+  const result = await pool.query<newCategory>(
+    "SELECT * FROM consulting ORDER BY sort_order ASC"
   );
   return result.rows;
 };
-
-
-export const getAllcategories = async (): Promise<newCategory[]> => {
-  const result = await pool.query<newCategory>("SELECT * FROM consulting");
-  return result.rows;
-};
-
 
 export const editCategory = async (
   id: string,
   modifiedCategory: newCategory
 ) => {
-  const existing = await pool.query("SELECT * FROM consulting WHERE id=$1", [id]);
+  const existing = await pool.query("SELECT * FROM consulting WHERE id=$1", [
+    id,
+  ]);
 
   if (existing.rows.length === 0) return null;
 
@@ -53,34 +62,39 @@ export const editCategory = async (
       modifiedCategory.description_en,
       modifiedCategory.description_ar,
       modifiedCategory.category_logo,
-      modifiedCategory.slug
+      modifiedCategory.slug,
     ]
   );
 
   return result.rows;
 };
 
-
 export const deleteCategory = async (id: string) => {
-  const existing = await pool.query("SELECT * FROM consulting WHERE id=$1", [id]);
+  const existing = await pool.query("SELECT * FROM consulting WHERE id=$1", [
+    id,
+  ]);
 
   if (existing.rows.length === 0) return null;
 
-  const result = await pool.query("DELETE FROM consulting WHERE id=$1 RETURNING *", [id]);
-  return result.rows;
-};
-
-
-export const getCaregoryByslug  = async (slug: string) => {
-  const result = await pool.query<newCategory>(
-    "SELECT * FROM consulting WHERE slug=$1", [slug]
+  const result = await pool.query(
+    "DELETE FROM consulting WHERE id=$1 RETURNING *",
+    [id]
   );
   return result.rows;
 };
 
-export const getCaregoryById  = async (id: string) => {
+export const getCaregoryByslug = async (slug: string) => {
   const result = await pool.query<newCategory>(
-    "SELECT * FROM consulting WHERE id=$1", [id]
+    "SELECT * FROM consulting  WHERE slug=$1",
+    [slug]
+  );
+  return result.rows;
+};
+
+export const getCaregoryById = async (id: string) => {
+  const result = await pool.query<newCategory>(
+    "SELECT * FROM consulting  WHERE id=$1",
+    [id]
   );
   return result.rows;
 };

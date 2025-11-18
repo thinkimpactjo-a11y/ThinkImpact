@@ -3,7 +3,7 @@ import pool from "..";
 
 export const createNewApplication = async (application: newCareer) => {
   const result = await pool.query<newCareer>(
-    "insert into careers (first_name,last_name, email,phone_number,city,cv) values ($1,$2,$3,$4,$5,$6) returning *",
+    "insert into careers (first_name,last_name, email,phone_number,city,cv,area_of_expertise) values ($1,$2,$3,$4,$5,$6,$7) returning *",
     [
       application.first_name,
       application.last_name,
@@ -11,6 +11,7 @@ export const createNewApplication = async (application: newCareer) => {
       application.phone_number,
       application.city,
       application.cv,
+      application.area_of_expertise
     ]
   );
 

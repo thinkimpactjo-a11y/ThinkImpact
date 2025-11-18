@@ -240,7 +240,8 @@ export type newCareer= {
   city:string,
   phone_number:string | null,
   cv:string,
-  created_at?:Date
+  created_at?:Date,
+  area_of_expertise: string,
 }
 
 export type changePassword = {

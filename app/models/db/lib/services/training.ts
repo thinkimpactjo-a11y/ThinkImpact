@@ -3,22 +3,34 @@ import pool from "../index";
 import { newTraining } from "@/types/index";
 
 export const addNewTraining = async (newTraining: newTraining) => {
+ 
+  const maxOrderResult = await pool.query<{ max_sort: number }>(
+    `SELECT COALESCE(MAX(sort_order), 0) AS max_sort FROM training`
+  );
+
+  const nextSortOrder = maxOrderResult.rows[0].max_sort + 1;
+
   const result = await pool.query<newTraining>(
-    "insert into training (name_en, name_ar,description_en,description_ar,slug) values ($1,$2,$3,$4,$5) returning *",
+    `INSERT INTO training 
+      (name_en, name_ar, description_en, description_ar, slug, sort_order)
+     VALUES ($1, $2, $3, $4, $5, $6)
+     RETURNING *`,
     [
       newTraining.name_en,
       newTraining.name_ar,
       newTraining.description_en,
       newTraining.description_ar,
-      newTraining.slug
+      newTraining.slug,
+      nextSortOrder, 
     ]
   );
 
   return result.rows;
 };
 
+
 export const getAllTraining = async () => {
-  const result = await pool.query<newTraining>("select * from training");
+  const result = await pool.query<newTraining>("select * from training ORDER BY sort_order ASC");
   return result.rows;
 };
 
@@ -63,7 +75,7 @@ export const deleteTraining = async (id: string) => {
 
 export const getTrainingById  = async (id: string) => {
   const result = await pool.query<newTraining>(
-    "SELECT * FROM training WHERE id=$1", [id]
+    "SELECT * FROM training  WHERE id=$1", [id]
   );
   return result.rows;
 };
@@ -71,7 +83,7 @@ export const getTrainingById  = async (id: string) => {
 
 export const getTrainingBySlug  = async (slug: string) => {
   const result = await pool.query<newTraining>(
-    "SELECT * FROM training WHERE slug=$1", [slug]
+    "SELECT * FROM training  WHERE slug=$1", [slug]
   );
   return result.rows;
 };

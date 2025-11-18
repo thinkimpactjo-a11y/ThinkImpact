@@ -25,10 +25,12 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { newSettingSchema } from "@/types/zod/settingsSchema";
+import { ArrowLeft } from "lucide-react";
 
 const formSchema = z
   .object({ id: z.string().optional() })
   .merge(newSettingSchema);
+
 export type FormSchema = z.infer<typeof formSchema>;
 
 interface Option {
@@ -94,7 +96,23 @@ export default function CreateNewSetting({
     { value: "about_page_text", label: "Text In About Page", type: "textarea" },
     { value: "vision_in_about", label: "Vision", type: "textarea" },
     { value: "mission_in_about", label: "Mission", type: "textarea" },
-    { value: "values_in_about", label: "Values", type: "textarea" },
+
+    {
+      value: "value_one_in_about",
+      label: "First Value (About Page)",
+      type: "textarea",
+    },
+    {
+      value: "value_two_in_about",
+      label: "Second Value (About Page)",
+      type: "textarea",
+    },
+    {
+      value: "value_three_in_about",
+      label: "Third Value (About Page)",
+      type: "textarea",
+    },
+
     { value: "our_methodology", label: "Our Methodology", type: "textarea" },
     {
       value: "what_we_stand_for",
@@ -126,6 +144,35 @@ export default function CreateNewSetting({
     },
   });
 
+  const remainingOptions = availableOptions.filter(
+    (opt) => !existingKeys.includes(opt.value)
+  );
+
+  if (remainingOptions.length === 0) {
+    return (
+      <main className="ml-3 xl:ml-7 mb-7">
+        <div className="flex flex-col justify-start items-start w-[70vw] mb-7">
+          <h1 className="text-lg md:text-2xl font-bold">Add New Setting</h1>
+        </div>
+
+        <div className="text-gray-600 text-lg font-medium">
+          ✅ All settings have already been added. There are no more fields
+          available to create.
+        </div>
+
+       <div className="w-full flex justify-center my-5">
+  <button
+    onClick={() => router.push("/admin/dashboard/settings")}
+    className="bg-[#125892] text-white px-4 py-2 rounded-md cursor-pointer hover:bg-[#0f4473] transition mt-28"
+  >
+    Back to Settings
+  </button>
+</div>
+
+
+      </main>
+    );
+  }
   const watchedKey = watch("key_name_en");
   const watchedValueEn = watch("value_en");
 
@@ -140,7 +187,8 @@ export default function CreateNewSetting({
     setIsUploadingEn(false);
     setValue("value_en", url, { shouldValidate: true });
   };
-  const handleImageUploadErrorEn = (err: Error) => {
+
+  const handleImageUploadErrorEn = () => {
     setIsUploadingEn(false);
     setToast({
       message: "Image upload failed. Please try again.",
@@ -148,6 +196,7 @@ export default function CreateNewSetting({
     });
     setTimeout(() => setToast(null), 3000);
   };
+
   const handleVideoUploadCompleteEn = (res: { url: string }[]) => {
     setIsUploadingEn(false);
     if (res && res[0]) {
@@ -160,6 +209,7 @@ export default function CreateNewSetting({
       setTimeout(() => setToast(null), 3000);
     }
   };
+
   const handleVideoUploadErrorEn = () => {
     setIsUploadingEn(false);
     setToast({
@@ -228,6 +278,7 @@ export default function CreateNewSetting({
             )}
           </>
         );
+
       case "number":
         return (
           <>
@@ -244,6 +295,7 @@ export default function CreateNewSetting({
             )}
           </>
         );
+
       case "textarea":
         return (
           <>
@@ -258,6 +310,7 @@ export default function CreateNewSetting({
             )}
           </>
         );
+
       case "image":
         return (
           <div className="flex flex-col gap-2">
@@ -288,6 +341,7 @@ export default function CreateNewSetting({
             )}
           </div>
         );
+
       case "video":
         return (
           <div className="flex flex-col gap-2">
@@ -329,6 +383,7 @@ export default function CreateNewSetting({
                 />
               </div>
             )}
+
             {errors.value_en && (
               <p className="text-red-500 text-sm mt-1">
                 {errors.value_en.message}
@@ -336,12 +391,12 @@ export default function CreateNewSetting({
             )}
           </div>
         );
+
       default:
         return null;
     }
   };
 
-  // render AR input only for text and textarea types
   const renderArabicInput = () => {
     if (!selected) {
       return (
@@ -387,7 +442,6 @@ export default function CreateNewSetting({
       );
     }
 
-    // for number/image/video types we do NOT render an Arabic input
     return null;
   };
 
@@ -430,14 +484,13 @@ export default function CreateNewSetting({
                 <SelectTrigger className="w-[90vw] md:w-[70vw] lg:w-[50vw] xl:w-[30vw] border border-black text-black">
                   <SelectValue placeholder="Select setting key" />
                 </SelectTrigger>
+
                 <SelectContent>
-                  {availableOptions
-                    .filter((opt) => !existingKeys.includes(opt.value))
-                    .map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </SelectItem>
-                    ))}
+                  {remainingOptions.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               {errors.key_name_en && (
@@ -455,7 +508,7 @@ export default function CreateNewSetting({
               <div className="mt-1">{renderValueInput()}</div>
             </div>
 
-            {/* Arabic value input (only for text & textarea) */}
+            {/* Arabic value input */}
             {selected &&
               (selected.type === "text" || selected.type === "textarea") && (
                 <div className="flex flex-col mt-2">
@@ -476,6 +529,7 @@ export default function CreateNewSetting({
                 >
                   Cancel
                 </button>
+
                 <button
                   type="submit"
                   className="bg-[#125892] text-white px-4 py-2 rounded-md cursor-pointer hover:bg-[#0f4473]"

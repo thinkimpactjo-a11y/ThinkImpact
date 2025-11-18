@@ -38,7 +38,8 @@ export default function MemberDialog({ member, locale }: Props) {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto bg-white rounded-lg shadow-lg">
+      <DialogContent  className="max-w-lg max-h-[80vh] overflow-y-auto bg-white dark:bg-[#020618] rounded-lg shadow-lg 
+             [&>button]:text-black dark:[&>button]:text-white " >
         <DialogHeader>
           <div
             className={`flex items-center ${
@@ -52,12 +53,12 @@ export default function MemberDialog({ member, locale }: Props) {
           
             <div className="flex flex-col">
               <DialogTitle className="text-lg font-bold text-[#125892]">{name}</DialogTitle>
-              <DialogDescription className="text-gray-600">{position}</DialogDescription>
+              <DialogDescription className="text-gray-600 dark:text-gray-200">{position}</DialogDescription>
             </div>
           </div>
         </DialogHeader>
 
-        <div className="mt-4 whitespace-pre-line text-gray-700 text-sm">{description}</div>
+        <div className="mt-4 whitespace-pre-line text-gray-700 text-sm dark:text-gray-200">{description}</div>
       </DialogContent>
     </Dialog>
   );

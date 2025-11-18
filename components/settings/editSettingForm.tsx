@@ -66,7 +66,9 @@ const defaultOptions: Option[] = [
   { value: "about_page_text", label: "Text In About Page", type: "textarea" },
   { value: "vision_in_about", label: "Vision", type: "textarea" },
     { value: "mission_in_about", label: "Mission", type: "textarea" },
-    { value: "values_in_about", label: "Values", type: "textarea" },
+    { value: "value_one_in_about", label: "First Value (About Pge)", type: "textarea" },
+    { value: "value_two_in_about", label: "Second Value (About Pge)", type: "textarea" },
+    { value: "value_three_in_about", label: "Third Value (About Pge)", type: "textarea" },
     { value: "our_methodology", label: "Our Methodology", type: "textarea" },
     {
       value: "what_we_stand_for",

@@ -10,14 +10,8 @@ export const metadata: Metadata = createMetadata(PAGE_METADATA.ourTeam)
 export default async function Page() {
   const members = await getAllMembers();
 
-  const title = "Our Team - Think Impact";
-  const description =
-    "Meet the talented professionals behind Think Impact who deliver trusted consulting and training services.";
-
   return (
     <>
-  
-
       <OurTeamPage members={members || []} />
     </>
   );

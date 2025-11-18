@@ -1,5 +1,5 @@
 "use client";
-import map from "@/public/images/map.png"
+import map1 from "@/public/images/map1.png"
 import React, { useState, useEffect } from "react";
 import {
   ComposableMap,
@@ -41,39 +41,27 @@ const arabicCountries = [
 ];
 
 const highlightedCountries = [
-  "Bahrain",
   "Egypt",
   "Iraq",
   "Jordan",
-  "Kuwait",
   "Lebanon",
   "Morocco",
-  "Oman",
   "Israel",
   "West Bank",
-  "Qatar",
-  "Saudi Arabia",
-
+  "Sudan",
   "Syria",
-  "United Arab Emirates",
-  "Yemen",
 ];
 
 const countryNameMap: Record<string, { ar: string; en: string }> = {
-  Bahrain: { ar: "البحرين", en: "Bahrain" },
   Egypt: { ar: "مصر", en: "Egypt" },
   Iraq: { ar: "العراق", en: "Iraq" },
   Jordan: { ar: "الأردن", en: "Jordan" },
-  Kuwait: { ar: "الكويت", en: "Kuwait" },
   Lebanon: { ar: "لبنان", en: "Lebanon" },
   Morocco: { ar: "المغرب", en: "Morocco" },
-  Oman: { ar: "عمان", en: "Oman" },
   Israel: { ar: "فلسطين", en: "Palestine" },        
   "West Bank": { ar: "فلسطين", en: "Palestine" },  
-  "Saudi Arabia": { ar: "السعودية", en: "Saudi Arabia" },
   Syria: { ar: "سوريا", en: "Syria" },
-  "United Arab Emirates": { ar: "الإمارات", en: "United Arab Emirates" },
-  Yemen: { ar: "اليمن", en: "Yemen" },
+  Sudan:{ar: "ألسودان", en: "Sudan"}
 };
 
 type TooltipData = {
@@ -115,16 +103,16 @@ export default function MapSection() {
       } text-center`}
     >
       <h2
-        className={`font-bold text-[#125892] mb-6 ${
-          isMobile ? "text-xl" : "text-2xl"
+        className={`font-bold text-[#125892] mt-7 ${
+          isMobile ? "text-xl" : "text-4xl"
         }`}
       >
-        {isArabic ? "أين نحن متواجدون" : "Where We Are Present"}
+        {isArabic ? " أماكن عملنا في التنمية والتقييم" : "Countries of Operations"}
       </h2>
 
       {isMobile ? (
         <Image
-          src={map}
+          src={map1}
           alt={isArabic ? "خريطة الدول العربية" : "Arabic countries map"}
           className="w-4/5 h-auto object-contain mt-20"
           width={800}

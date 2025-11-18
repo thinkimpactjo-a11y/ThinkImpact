@@ -20,6 +20,8 @@ export const POST = async (request: Request) => {
       );
     }
   } catch (error) {
+    console.log("error: ",error);
+    
     return NextResponse.json(
       { data: error, message: "Error in adding the new Application" },
       { status: 500 }

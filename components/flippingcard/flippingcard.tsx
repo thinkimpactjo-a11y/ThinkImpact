@@ -4,10 +4,10 @@ import Image from "next/image";
 interface CardProps {
   title: string;
   description: string;
-  category_logo: string;
+  service_image: string;
 }
 
-const FlippingCard: React.FC<CardProps> = ({ title, description, category_logo }) => {
+const FlippingCard: React.FC<CardProps> = ({ title, description, service_image }) => {
   return (
     <div
       className="relative w-full max-w-sm aspect-[3/2] rounded-lg overflow-hidden
@@ -18,7 +18,7 @@ const FlippingCard: React.FC<CardProps> = ({ title, description, category_logo }
       <div className="absolute inset-0 w-full h-full">
         {/* next/image with fill + priority to preload */}
         <Image
-          src={category_logo}
+          src={service_image}
           alt={title}
           fill
           priority
@@ -49,7 +49,7 @@ const FlippingCard: React.FC<CardProps> = ({ title, description, category_logo }
                    group-hover:rotate-x-0
                    flex flex-col justify-center bg-[#0f4473] z-30"
       >
-        <p className="mt-2 text-sm lg:text-base leading-relaxed">{description}</p>
+        <p className="mt-2 text-sm lg:text-base leading-relaxed" dir="rtl">{description}</p>
       </div>
     </div>
   );

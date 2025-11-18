@@ -14,6 +14,14 @@ import { useRouter } from "next/navigation";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { getNewCareerSchema } from "@/types/zod/newCareerSchema";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+
 
 interface prop {
   action: (data: newCareer) => Promise<void>;
@@ -31,6 +39,7 @@ function NewApplicationForm({ action, locale }: prop) {
     city: "",
     phone_number: "",
     cv: "",
+    area_of_expertise: "",
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -39,9 +48,39 @@ function NewApplicationForm({ action, locale }: prop) {
     type: "success" | "error";
   } | null>(null);
 
-  const isDark = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
+  const isDark =
+    typeof document !== "undefined" &&
+    document.documentElement.classList.contains("dark");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+
+  const area_of_expertise_options = [
+    {
+      value: "Research, Monitoring, and Evaluation (M&E)",
+      label_en: "Research, Monitoring, and Evaluation (M&E)",
+      label_ar: "البحث والمراقبة والتقييم",
+    },
+    {
+      value: "Data Collection",
+      label_en: "Data Collection",
+      label_ar: "جمع البيانات",
+    },
+    {
+      value: "Data Analysis",
+      label_en: "Data Analysis",
+      label_ar: "تحليل البيانات",
+    },
+    {
+      value: "Project Management & Development",
+      label_en: "Project Management & Development",
+      label_ar: "إدارة وتطوير المشاريع",
+    },
+    {
+      value: "Capacity Building & Training",
+      label_en: "Capacity Building & Training",
+      label_ar: "بناء القدرات والتدريب",
+    },
+  ];
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -276,6 +315,56 @@ function NewApplicationForm({ action, locale }: prop) {
                   </span>
                 )}
               </div>
+
+              {/* Area of Expertise */}
+   <div className="flex flex-col">
+  <label className="text-sm font-semibold text-gray-700 mb-1 dark:text-white">
+    <span className="text-red-500">*</span>{" "}
+    {isArabic ? "مجال الخبرة" : "Area of Expertise"}
+  </label>
+
+  <Select
+  dir={isArabic ? "rtl" : "ltr"}
+    value={form.area_of_expertise}
+    onValueChange={(value) => {
+      setForm({ ...form, area_of_expertise: value });
+      if (errors.area_of_expertise) {
+        setErrors({ ...errors, area_of_expertise: "" });
+      }
+    }}
+    
+    
+  >
+    <SelectTrigger
+    
+  className={` w-full border px-3 py-5 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00ADEE] dark:border-gray-500 dark:bg-gray-200 dark:text-black dark:border
+    ${errors.area_of_expertise ? "border-red-500" : "border-gray-300"}
+  `}
+>
+<SelectValue
+        placeholder={
+          isArabic ? "اختر مجال الخبرة" : "Select Area of Expertise"
+        }
+      />
+    </SelectTrigger>
+
+    <SelectContent className="text-base">
+      {area_of_expertise_options.map((option, i) => (
+        <SelectItem key={i} value={option.value} className="text-base py-2">
+          {isArabic ? option.label_ar : option.label_en}
+        </SelectItem>
+      ))}
+    </SelectContent>
+  </Select>
+
+  {errors.area_of_expertise && (
+    <span className="text-red-500 text-sm mt-1">
+      {errors.area_of_expertise}
+    </span>
+  )}
+</div>
+
+
             </div>
 
             {/* CV Upload */}

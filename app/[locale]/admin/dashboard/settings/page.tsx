@@ -35,7 +35,7 @@ export default async function SettingsTable() {
                   <TableRow>
                     <TableHead>Setting Name</TableHead>
                     <TableHead className="hidden xl:table-cell">Setting Value</TableHead>
-                    <TableHead>Created At</TableHead>
+                    
                     <TableHead></TableHead>
                   </TableRow>
                 </TableHeader>
