@@ -144,6 +144,17 @@ export default function CreateNewSetting({
     },
   });
 
+   const watchedKey = watch("key_name_en");
+  const watchedValueEn = watch("value_en");
+
+  useEffect(() => {
+    setValue("value_en", "");
+    setValue("value_ar", "");
+    setValue("key_name_ar", "");
+    clearErrors();
+  }, [watchedKey, setValue, clearErrors]);
+
+
   const remainingOptions = availableOptions.filter(
     (opt) => !existingKeys.includes(opt.value)
   );
@@ -173,16 +184,7 @@ export default function CreateNewSetting({
       </main>
     );
   }
-  const watchedKey = watch("key_name_en");
-  const watchedValueEn = watch("value_en");
-
-  useEffect(() => {
-    setValue("value_en", "");
-    setValue("value_ar", "");
-    setValue("key_name_ar", "");
-    clearErrors();
-  }, [watchedKey, setValue, clearErrors]);
-
+ 
   const handleImageUploadedEn = (url: string) => {
     setIsUploadingEn(false);
     setValue("value_en", url, { shouldValidate: true });

@@ -1,5 +1,5 @@
 import {
-  addNewGategory,
+  addNewCategory,
   getAllcategories,
 } from "@/app/models/db/lib/services/consulting";
 import { NextResponse } from "next/server";
@@ -25,7 +25,7 @@ export const POST = async (request: Request) => {
         return NextResponse.json({ message: "Unauthorized" }, { status: 501 });
       } else {
         const body = await request.json();
-        const result = await addNewGategory(body);
+        const result = await addNewCategory(body);
         return NextResponse.json(
           { data: result, message: "The category has been added successfully" },
           { status: 201 }
