@@ -113,29 +113,29 @@ export default async function ProductPage({ params }: PageProps) {
 
         {/* ---------- Mobile (small screens) ---------- */}
         <div className="block md:hidden">
-          {/* ConsultingphoneCard is a client component (it uses "use client") */}
           <ConsultingphoneCard services={services} />
         </div>
       </div>
 
       {id === "evaluation" && (
         <div className="flex justify-center items-center text-2xl md:text-3xl lg:text-4xl font-semibold mt-10 text-[#125892]">
-          Evaluation Framework
+
+           {locale === "ar"?"إطار التقييم":"Evaluation Framework"}
         </div>
       )}
       {id === "monitoring" && (
         <div className="flex justify-center items-center text-2xl md:text-3xl lg:text-4xl font-semibold mt-10 text-[#125892]">
-          Monitoring Framework
+           {locale === "ar"?" إطار الرصد والمتابعة":"Monitoring Framework"}
         </div>
       )}
       {id === "data-quality-assessment-dqa" && (
         <div className="flex justify-center items-center text-2xl md:text-3xl lg:text-4xl font-semibold mt-10 text-[#125892]">
-          Data Quality Assessment Process
+          {locale === "ar"?"عملية تقييم جودة البيانات":"Data Quality Assessment Process"}
         </div>
       )}
       {id === "research" && (
         <div className="flex justify-center items-center text-2xl md:text-3xl lg:text-4xl font-semibold mt-10 text-[#125892]">
-          The Stages Of Research
+         {locale === "ar"? "مراحل البحث" :"The Stages Of Research"} 
         </div>
       )}
 
