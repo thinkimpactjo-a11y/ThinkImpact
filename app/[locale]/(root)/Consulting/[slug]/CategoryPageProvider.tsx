@@ -5,7 +5,7 @@ import {
 } from "@/app/models/db/lib/services/consulting";
 import { getServiceByCategoryId } from "@/app/models/db/lib/services/services";
 import { notFound } from "next/navigation";
-import CategoryPage from "./CategoryPage"; /
+import CategoryPage from "./CategoryPage"; 
 
 export async function generateStaticParams(): Promise<{ slug: string; locale: string }[]> {
   const categories = await getAllcategories();
