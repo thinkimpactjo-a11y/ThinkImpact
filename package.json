@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-     "postbuild": "npm run export-slugs && next-sitemap",
+    "postbuild": "npm run export-slugs && next-sitemap",
     "export-slugs": "node scripts/export-slugs.js"
   },
   "dependencies": {
@@ -73,8 +73,8 @@
     "@types/leaflet": "^1.9.21",
     "@types/node": "^20",
     "@types/pg": "^8.15.5",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@types/react": "^19.2.6",
+    "@types/react-dom": "^19.2.3",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
     "tailwindcss": "^4",

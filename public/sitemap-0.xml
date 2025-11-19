@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:mobile="http://www.google.com/schemas/sitemap-mobile/1.0" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
-<url><loc>http://localhost:3000</loc><lastmod>2025-10-29T09:32:33.993Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>http://localhost:3000/about</loc><lastmod>2025-10-29T09:32:33.993Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>http://localhost:3000/ourTeam</loc><lastmod>2025-10-29T09:32:33.993Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>http://localhost:3000/training</loc><lastmod>2025-10-29T09:32:33.993Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>http://localhost:3000/consulting</loc><lastmod>2025-10-29T09:32:33.993Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>http://localhost:3000/newApplication</loc><lastmod>2025-10-29T09:32:33.993Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>http://localhost:3000/login</loc><lastmod>2025-10-29T09:32:33.993Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>http://localhost:3000/register</loc><lastmod>2025-10-29T09:32:33.993Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>http://localhost:3000/consulting/test</loc><lastmod>2025-10-29T09:32:33.993Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>http://localhost:3000</loc><lastmod>2025-11-19T12:07:15.948Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>http://localhost:3000/about</loc><lastmod>2025-11-19T12:07:15.949Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>http://localhost:3000/ourTeam</loc><lastmod>2025-11-19T12:07:15.949Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>http://localhost:3000/training</loc><lastmod>2025-11-19T12:07:15.949Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>http://localhost:3000/consulting</loc><lastmod>2025-11-19T12:07:15.949Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>http://localhost:3000/newApplication</loc><lastmod>2025-11-19T12:07:15.949Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>http://localhost:3000/login</loc><lastmod>2025-11-19T12:07:15.949Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>http://localhost:3000/register</loc><lastmod>2025-11-19T12:07:15.949Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>http://localhost:3000/consulting/evaluation</loc><lastmod>2025-11-19T12:07:15.949Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>http://localhost:3000/consulting/research</loc><lastmod>2025-11-19T12:07:15.949Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>http://localhost:3000/consulting/data-collection-and-outreach</loc><lastmod>2025-11-19T12:07:15.949Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>http://localhost:3000/consulting/data-quality-assessment-dqa</loc><lastmod>2025-11-19T12:07:15.949Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>http://localhost:3000/consulting/monitoring</loc><lastmod>2025-11-19T12:07:15.949Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>http://localhost:3000/training/learning-programs</loc><lastmod>2025-11-19T12:07:15.949Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>http://localhost:3000/training/knowledge-sharing-initiatives</loc><lastmod>2025-11-19T12:07:15.949Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>http://localhost:3000/training/organisational-capacity-development</loc><lastmod>2025-11-19T12:07:15.949Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
 </urlset>

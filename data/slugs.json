@@ -1,6 +1,14 @@
 {
   "consulting": [
-    "test"
+    "evaluation",
+    "research",
+    "data-collection-and-outreach",
+    "data-quality-assessment-dqa",
+    "monitoring"
   ],
-  "training": []
+  "training": [
+    "learning-programs",
+    "knowledge-sharing-initiatives",
+    "organisational-capacity-development"
+  ]
 }

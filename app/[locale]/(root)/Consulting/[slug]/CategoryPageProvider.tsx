@@ -1,33 +1,32 @@
-// app/consulting/[slug]/CategoryPageProvider.tsx
 import {
   getAllcategories,
   getCaregoryByslug,
 } from "@/app/models/db/lib/services/consulting";
 import { getServiceByCategoryId } from "@/app/models/db/lib/services/services";
 import { notFound } from "next/navigation";
-import CategoryPage from "./CategoryPage"; // presentational component
+import CategoryPage from "./CategoryPage";
 
-// generateStaticParams returns plain objects
-export async function generateStaticParams(): Promise<{ slug: string; locale: string }[]> {
+export type RouteParams = { slug: string; locale: string };
+
+export async function generateStaticParams(): Promise<RouteParams[]> {
   const categories = await getAllcategories();
   const locales = ["en", "ar"];
-  const paths: { slug: string; locale: string }[] = [];
+  const paths: RouteParams[] = [];
 
   categories.forEach((cat) => {
-    if (!cat?.slug) return; // skip undefined slugs
+    if (!cat?.slug) return;
     locales.forEach((locale) => paths.push({ slug: cat.slug??"", locale }));
   });
 
   return paths;
 }
 
-// params is a plain object (NOT a Promise)
 export default async function CategoryPageProvider({
   params,
 }: {
-  params: { slug: string; locale: string };
+  params: Promise<RouteParams>;
 }) {
-  const { slug, locale } = params;
+  const { slug, locale } = await params;
 
   if (!slug) notFound();
 
