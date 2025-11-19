@@ -6,11 +6,12 @@ import CardsWrapper from "@/components/wrappers/card-wrapper";
 import ConsultingphoneCard from "@/components/ConsultingCards/ConsultingPhoneCard";
 import Image from "next/image";
 import Head from "next/head";
+import {  newCategory, newService } from "@/types";
 
 interface Props {
   locale: string;
-  categoryData: any;
-  services: any[];
+  categoryData: newCategory;
+  services: newService[];
   slug: string;
 }
 
