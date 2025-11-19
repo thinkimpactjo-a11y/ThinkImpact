@@ -26,7 +26,7 @@ export default function CategoryPage({ locale, categoryData, services, slug }: P
   const categoryDesc = locale === "ar" ? categoryData.description_ar : categoryData.description_en;
 
   return (
-    <div dir={locale === "ar" ? "rtl" : "ltr"}>
+    <div dir={locale === "ar" ? "rtl" : "ltr"} className="mt-20">
       <Head>
         <link rel="preload" as="image" href={categoryData.category_logo ?? ""} />
       </Head>

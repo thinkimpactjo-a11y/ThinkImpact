@@ -5,21 +5,23 @@ import {
 } from "@/app/models/db/lib/services/consulting";
 import { getServiceByCategoryId } from "@/app/models/db/lib/services/services";
 import { notFound } from "next/navigation";
-import CategoryPage from "./CategoryPage"; 
+import CategoryPage from "./CategoryPage"; // presentational component
 
+// generateStaticParams returns plain objects
 export async function generateStaticParams(): Promise<{ slug: string; locale: string }[]> {
   const categories = await getAllcategories();
   const locales = ["en", "ar"];
-
   const paths: { slug: string; locale: string }[] = [];
 
   categories.forEach((cat) => {
+    if (!cat?.slug) return; // skip undefined slugs
     locales.forEach((locale) => paths.push({ slug: cat.slug??"", locale }));
   });
 
   return paths;
 }
 
+// params is a plain object (NOT a Promise)
 export default async function CategoryPageProvider({
   params,
 }: {

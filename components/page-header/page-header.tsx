@@ -9,7 +9,7 @@ interface Props {
 
 export default function HeaderSection({ isArabic, data }: Props) {
   return (
-    <section className="w-full h-[60vh] relative">
+    <section className="w-full h-[60vh] relative ">
       <Image
         src={data.category_logo??""}
         alt={isArabic ? data.category_name_ar : data.category_name_en}
