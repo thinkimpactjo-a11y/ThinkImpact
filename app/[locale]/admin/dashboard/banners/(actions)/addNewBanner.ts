@@ -13,6 +13,7 @@ interface BannerData {
 export async function createBanner(data: BannerData) {
   const session = await getServerSession(authOptions);
   const token = session?.user.token;
+  
  console.log(session?.user.role)
   const result = await fetch(
     `${process.env.NEXT_PUBLIC_APP_URL}/api/banners`,

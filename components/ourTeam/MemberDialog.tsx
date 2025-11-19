@@ -31,7 +31,7 @@ export default function MemberDialog({ member, locale }: Props) {
         <Button
           variant="ghost"
           className={`p-0 underline underline-offset-2 cursor-pointer   ${
-            isArabic ? "text-[#125892] font-semibold text-sm" : "text-gray-900 font-semibold text-xs"
+            isArabic ? "text-gray-900 font-semibold text-sm" : "text-gray-900 font-semibold text-xs"
           }`}
         >
           {isArabic ? "اعرف المزيد" : "See More"}
