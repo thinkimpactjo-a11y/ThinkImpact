@@ -82,7 +82,7 @@ export default function Footer({ categories, trainingData, locale }: Props) {
               {(trainingData || []).map((item) => (
                 <li key={item.id}>
                   <Link
-                    href={`/Training/${item.id}`}
+                    href={`/Training/${item.slug}`}
                     className="transition-colors duration-300 text-white hover:text-gray-300"
                   >
                     {isArabic ? item.name_ar : item.name_en}
