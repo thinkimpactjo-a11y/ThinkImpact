@@ -61,7 +61,7 @@ const countryNameMap: Record<string, { ar: string; en: string }> = {
   Israel: { ar: "فلسطين", en: "Palestine" },        
   "West Bank": { ar: "فلسطين", en: "Palestine" },  
   Syria: { ar: "سوريا", en: "Syria" },
-  Sudan:{ar: "ألسودان", en: "Sudan"}
+  Sudan:{ar: "السودان", en: "Sudan"}
 };
 
 type TooltipData = {
