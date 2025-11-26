@@ -34,8 +34,6 @@ export default async function Navbar({ categories, trainingData, locale }: Props
     <NavbarClient
       categories={categories}
       trainingData={trainingData}
-      isLoggedIn={isLoggedIn}
-      isAdmin={isAdmin}
       translations={translations}
       locale={locale}
     />

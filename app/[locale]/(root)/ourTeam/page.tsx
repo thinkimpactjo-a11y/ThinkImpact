@@ -1,6 +1,5 @@
 // app/our-team/page.tsx
 import React from "react";
-import Head from "next/head";
 import { getAllMembers } from "@/app/models/db/lib/services/outTeam";
 import OurTeamPage from "@/components/ourTeam/OurTeamPage";
 import type { Metadata } from "next"
