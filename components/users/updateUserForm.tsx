@@ -9,6 +9,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import { signOut } from "next-auth/react";
+
+function getErrorMessage(error: unknown): string | null {
+  if (typeof error === "object" && error !== null && "message" in error) {
+    const msg = (error as { message?: unknown }).message;
+    return typeof msg === "string" ? msg : null;
+  }
+  return null;
+}
+
 interface Props {
   userId: string;
   userRole: string;
@@ -34,6 +44,16 @@ export default function UpdateRoleForm({ userId, userRole, action }: Props) {
 
         setTimeout(() => setToast(null), 3000);
       } catch (error) {
+         const message = getErrorMessage(error);
+                                        if (message === "SESSION_EXPIRED" || message === "UNAUTHENTICATED") {
+                                          setToast({ message: "Expired Session, Please Login", type: "error" });
+                                
+                                          setTimeout(() => {
+                                            signOut({ callbackUrl: "/login?reason=expired" });
+                                          }, 500);
+                                
+                                          return;
+                                        }
         setToast({ message: "Failed to update role.", type: "error" });
         setTimeout(() => setToast(null), 3000);
       }

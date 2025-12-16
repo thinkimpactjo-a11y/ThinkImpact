@@ -1,36 +1,45 @@
 "use server";
-import { getServerSession } from "next-auth";
-import { revalidatePath } from "next/cache";
-import { authOptions } from "@/app/models/db/authOptions";
 
-interface BannerData {
-  alt: string;
-  description_en: string;
-  description_ar: string;
-  image?: string | null;
-}
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/models/db/authOptions";
+import { revalidatePath } from "next/cache";
+
+const EXPIRE_SECONDS = 2 * 60; // 2 minutes
+
+type BannerData={ alt: string;
+    description_en: string;
+    description_ar: string;
+    image?: string | null;}
 
 export async function createBanner(data: BannerData) {
   const session = await getServerSession(authOptions);
-  const token = session?.user.token;
-  
- console.log(session?.user.role)
-  const result = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_URL}/api/banners`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(data)
-    }
-  );
-  console.log(data);
 
+  if (!session) {
+    throw new Error("UNAUTHENTICATED");
+  }
 
-  if (!result.ok) throw new Error("Failed to add Banner");
+  const nowSec = Math.floor(Date.now() / 1000);
+const loginAtSec = session.user.loginAt
+  ? Math.floor(new Date(session.user.loginAt).getTime() / 1000)
+  : null;
 
-  revalidatePath(`/dashboard/banners`);
-  return await result.json();
+  if (!loginAtSec || nowSec - loginAtSec > EXPIRE_SECONDS) {
+  throw new Error("SESSION_EXPIRED");
+}
+
+  const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/banners`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session.user.token}`,
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    throw new Error("FAILED_TO_ADD_BANNER");
+  }
+
+  revalidatePath("/admin/dashboard/banners");
+  return await res.json();
 }

@@ -14,7 +14,17 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {  Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
+
+import { signOut } from "next-auth/react";
+
+function getErrorMessage(error: unknown): string | null {
+  if (typeof error === "object" && error !== null && "message" in error) {
+    const msg = (error as { message?: unknown }).message;
+    return typeof msg === "string" ? msg : null;
+  }
+  return null;
+}
 export default function DeleteUserButton({
   userId,
   deleteAction,
@@ -22,17 +32,30 @@ export default function DeleteUserButton({
   userId: string;
   deleteAction: (id: string) => Promise<void>;
 }) {
-    const [open, setOpen] = useState<boolean>(false)
- const [loading, setLoading] = useState<boolean>(false);
+  const [open, setOpen] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
- const handleConfirm= async ()=>{
-    setLoading(true);
-    await deleteAction(userId); 
-    setLoading(false);
-    setOpen(false);
-    
- }
-    
+  const handleConfirm = async () => {
+    try {
+      setLoading(true);
+      await deleteAction(userId);
+      setLoading(false);
+      setOpen(false);
+    } catch (error) {
+      {
+        const message = getErrorMessage(error);
+        if (message === "SESSION_EXPIRED" || message === "UNAUTHENTICATED") {
+          setTimeout(() => {
+            signOut({ callbackUrl: "/login?reason=expired" });
+          }, 500);
+
+          return;
+        }
+        console.error(error);
+      }
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -58,7 +81,10 @@ export default function DeleteUserButton({
         </DialogHeader>
         <div className="mt-4 flex justify-end gap-2">
           <DialogTrigger asChild>
-            <button className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300" onClick={() => setOpen(false)}>
+            <button
+              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+              onClick={() => setOpen(false)}
+            >
               Cancel
             </button>
           </DialogTrigger>
@@ -68,7 +94,7 @@ export default function DeleteUserButton({
               className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
               onClick={handleConfirm}
             >
-               {loading ? "Deleting..." : "Confirm"}
+              {loading ? "Deleting..." : "Confirm"}
             </button>
           </form>
         </div>

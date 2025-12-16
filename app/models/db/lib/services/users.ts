@@ -59,6 +59,7 @@ export const login = async (userInfo: userInfo) => {
           user_id: dbUser.id,
           role: dbUser.role,
           name: dbUser.first_name,
+         
         },
         process.env.NEXTAUTH_SECRET as Secret,
         { expiresIn: "30d" }

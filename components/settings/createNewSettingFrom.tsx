@@ -27,6 +27,16 @@ import { useForm } from "react-hook-form";
 import { newSettingSchema } from "@/types/zod/settingsSchema";
 import { ArrowLeft } from "lucide-react";
 
+import { signOut } from "next-auth/react";
+
+function getErrorMessage(error: unknown): string | null {
+  if (typeof error === "object" && error !== null && "message" in error) {
+    const msg = (error as { message?: unknown }).message;
+    return typeof msg === "string" ? msg : null;
+  }
+  return null;
+}
+
 const formSchema = z
   .object({ id: z.string().optional() })
   .merge(newSettingSchema);
@@ -244,6 +254,16 @@ export default function CreateNewSetting({
           router.replace("/admin/dashboard/settings");
         }, 1500);
       } catch (err) {
+         const message = getErrorMessage(err);
+                                if (message === "SESSION_EXPIRED" || message === "UNAUTHENTICATED") {
+                                  setToast({ message: "Expired Session, Please Login", type: "error" });
+                        
+                                  setTimeout(() => {
+                                    signOut({ callbackUrl: "/login?reason=expired" });
+                                  }, 500);
+                        
+                                  return;
+                                }
         console.error(err);
         setToast({ message: "Failed to add Setting.", type: "error" });
         setTimeout(() => setToast(null), 3000);

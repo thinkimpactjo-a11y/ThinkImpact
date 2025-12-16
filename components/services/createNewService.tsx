@@ -21,6 +21,16 @@ import { newServiceSchema } from "@/types/zod/serviceSchema";
 import { categorySchema } from "@/types/zod/consultingSchema";
 import { z } from "zod";
 
+import { signOut } from "next-auth/react";
+
+function getErrorMessage(error: unknown): string | null {
+  if (typeof error === "object" && error !== null && "message" in error) {
+    const msg = (error as { message?: unknown }).message;
+    return typeof msg === "string" ? msg : null;
+  }
+  return null;
+}
+
 interface Props {
   action: (data: newService) => Promise<void>;
   categories: newCategory[];
@@ -86,6 +96,16 @@ export default function CreateNewCategory({ action, categories }: Props) {
           router.replace("/admin/dashboard/services");
         }, 1500);
       } catch (error: unknown) {
+         const message = getErrorMessage(error);
+                                if (message === "SESSION_EXPIRED" || message === "UNAUTHENTICATED") {
+                                  setToast({ message: "Expired Session, Please Login", type: "error" });
+                        
+                                  setTimeout(() => {
+                                    signOut({ callbackUrl: "/login?reason=expired" });
+                                  }, 500);
+                        
+                                  return;
+                                }
         if (error instanceof z.ZodError) {
           const fieldErrors: Partial<Record<keyof newService, string>> = {};
           error.issues.forEach((err) => {

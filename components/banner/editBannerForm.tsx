@@ -13,7 +13,7 @@ import React, { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { bannerSchema } from "@/types/zod/bannerSchema"; // ✅ import schema
-
+import { signOut } from "next-auth/react";
 interface Props {
   banner: newBanner;
   action: (data: {
@@ -24,7 +24,13 @@ interface Props {
     bannerId?: string;
   }) => Promise<void>;
 }
-
+function getErrorMessage(error: unknown): string | null {
+  if (typeof error === "object" && error !== null && "message" in error) {
+    const msg = (error as { message?: unknown }).message;
+    return typeof msg === "string" ? msg : null;
+  }
+  return null;
+}
 export default function EditBannerForm({ banner, action }: Props) {
   const router = useRouter();
 
@@ -74,6 +80,7 @@ export default function EditBannerForm({ banner, action }: Props) {
           router.replace("/admin/dashboard/banners");
         }, 1500);
       } catch (error) {
+        const message = getErrorMessage(error);
         if (error instanceof z.ZodError) {
           // ✅ Map field-specific errors
           const fieldErrors: Partial<Record<keyof newBanner, string>> = {};
@@ -83,7 +90,18 @@ export default function EditBannerForm({ banner, action }: Props) {
           });
           setErrors(fieldErrors);
           setToast({ message: "Please check the highlighted fields.", type: "error" });
-        } else {
+        }else if (
+                  message === "SESSION_EXPIRED" ||
+                  message === "UNAUTHENTICATED"
+                ) {
+                  setToast({ message: "Expired Session, Please Login", type: "error" });
+        
+                  setTimeout(() => {
+                    signOut({ callbackUrl: "/login?reason=expired" });
+                  }, 500);
+        
+                  return;
+                } else {
           console.error(error);
           setToast({ message: "Failed to update banner.", type: "error" });
         }

@@ -18,6 +18,15 @@ import {
 } from "@/components/ui/select";
 import { Plus, Trash2 } from "lucide-react";
 import ImageUploader from "@/components/imageUpload";
+import { signOut } from "next-auth/react";
+function getErrorMessage(error: unknown): string | null {
+  if (typeof error === "object" && error !== null && "message" in error) {
+    const msg = (error as { message?: unknown }).message;
+    return typeof msg === "string" ? msg : null;
+  }
+  return null;
+}
+
 
 interface Props {
   course: editCourse;
@@ -106,6 +115,16 @@ export default function EditServiceForm({ course, training, action }: Props) {
           router.replace("/admin/dashboard/courses");
         }, 1500);
       } catch (error) {
+         const message = getErrorMessage(error);
+                if (message === "SESSION_EXPIRED" || message === "UNAUTHENTICATED") {
+                  setToast({ message: "Expired Session, Please Login", type: "error" });
+        
+                  setTimeout(() => {
+                    signOut({ callbackUrl: "/login?reason=expired" });
+                  }, 500);
+        
+                  return;
+                }
         console.error(error);
         setToast({ message: "Failed to update Course.", type: "error" });
         setTimeout(() => setToast(null), 3000);

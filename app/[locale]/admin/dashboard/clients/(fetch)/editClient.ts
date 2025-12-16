@@ -1,25 +1,47 @@
-"use server"
+"use server";
+
 import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/models/db/authOptions";
 import { newClient } from "@/types";
 
+const EXPIRE_SECONDS = 15 * 24 * 60 * 60; // 15 days
+
 export async function editClient(data: newClient) {
-  
-const session = await getServerSession(authOptions);
-  const token = session?.user.token;
-  const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/clients/${data.id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`
-    },
-    body: JSON.stringify(data),
-  });
+  const session = await getServerSession(authOptions);
 
-  if (!res.ok) throw new Error("Failed to update Client");
+  // ❌ Not logged in
+  if (!session) {
+    throw new Error("UNAUTHENTICATED");
+  }
 
-  revalidatePath(`/dashboard/clients`);
+   const nowSec = Math.floor(Date.now() / 1000);
+const loginAtSec = session.user.loginAt
+  ? Math.floor(new Date(session.user.loginAt).getTime() / 1000)
+  : null;
 
-  return res.json();
+  if (!loginAtSec || nowSec - loginAtSec > EXPIRE_SECONDS) {
+  throw new Error("SESSION_EXPIRED");
+}
+  const token = session.user.token;
+
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_APP_URL}/api/clients/${data.id}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error("FAILED_TO_UPDATE_CLIENT");
+  }
+
+  revalidatePath("/dashboard/clients");
+
+  return await res.json();
 }

@@ -12,7 +12,15 @@ import {
 import React, { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { categorySchema } from "@/types/zod/consultingSchema"; 
+import { signOut } from "next-auth/react";
 
+function getErrorMessage(error: unknown): string | null {
+  if (typeof error === "object" && error !== null && "message" in error) {
+    const msg = (error as { message?: unknown }).message;
+    return typeof msg === "string" ? msg : null;
+  }
+  return null;
+}
 interface prop {
   category: newCategory;
   action: (data: newCategory) => Promise<void>;
@@ -101,10 +109,20 @@ function EditCategoryForm({ category, action }: prop) {
           router.replace("/admin/dashboard/consulting");
         }, 1500);
       } catch (error) {
-        console.error(error);
-        setToast({ message: "Failed to update Category.", type: "error" });
-        setTimeout(() => setToast(null), 3000);
-      }
+              const message = getErrorMessage(error);
+              if (message === "SESSION_EXPIRED" || message === "UNAUTHENTICATED") {
+                setToast({ message: "Expired Session, Please Login", type: "error" });
+      
+                setTimeout(() => {
+                  signOut({ callbackUrl: "/login?reason=expired" });
+                }, 500);
+      
+                return;
+              }
+              console.error(error);
+              setToast({ message: "Failed to add category.", type: "error" });
+              setTimeout(() => setToast(null), 3000);
+            }
     });
   };
 

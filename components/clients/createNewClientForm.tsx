@@ -12,9 +12,17 @@ import React, { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { newClientSchema } from "@/types/zod/clientsSchema";
-
+import { signOut } from "next-auth/react";
 interface Props {
   action: (data: newClient) => Promise<void>;
+}
+
+function getErrorMessage(error: unknown): string | null {
+  if (typeof error === "object" && error !== null && "message" in error) {
+    const msg = (error as { message?: unknown }).message;
+    return typeof msg === "string" ? msg : null;
+  }
+  return null;
 }
 
 export default function AddClientForm({ action }: Props) {
@@ -68,13 +76,25 @@ export default function AddClientForm({ action }: Props) {
         })
         .finally(() => startTransition(false));
     } catch (error) {
+      const message = getErrorMessage(error);
       if (error instanceof z.ZodError) {
         const fieldErrors: Record<string, string> = {};
         error.issues.forEach((err) => {
           if (err.path[0]) fieldErrors[err.path[0] as string] = err.message;
         });
         setErrors(fieldErrors);
-      } else {
+      }else if (
+                        message === "SESSION_EXPIRED" ||
+                        message === "UNAUTHENTICATED"
+                      ) {
+                        setToast({ message: "Expired Session, Please Login", type: "error" });
+              
+                        setTimeout(() => {
+                          signOut({ callbackUrl: "/login?reason=expired" });
+                        }, 500);
+              
+                        return;
+                      } else {
         setToast({ message: "Failed to add Client.", type: "error" });
       }
       setTimeout(() => setToast(null), 3000);

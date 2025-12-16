@@ -11,7 +11,8 @@ import {
 import React, { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
-import { bannerSchema } from "@/types/zod/bannerSchema"; // ✅ import schema
+import { bannerSchema } from "@/types/zod/bannerSchema";
+import { signOut } from "next-auth/react";
 
 interface Props {
   action: (data: {
@@ -20,6 +21,14 @@ interface Props {
     description_ar: string;
     image?: string | null;
   }) => Promise<void>;
+}
+
+function getErrorMessage(error: unknown): string | null {
+  if (typeof error === "object" && error !== null && "message" in error) {
+    const msg = (error as { message?: unknown }).message;
+    return typeof msg === "string" ? msg : null;
+  }
+  return null;
 }
 
 export default function AddBannerForm({ action }: Props) {
@@ -33,9 +42,14 @@ export default function AddBannerForm({ action }: Props) {
 
   const [errors, setErrors] = useState<Record<string, string>>({}); // ✅ store validation errors
   const [isPending, startTransition] = useTransition();
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     setErrors({ ...errors, [e.target.name]: "" }); // clear error when user types
   };
@@ -68,7 +82,8 @@ export default function AddBannerForm({ action }: Props) {
           setToast(null);
           router.replace("/admin/dashboard/banners");
         }, 1500);
-      } catch (error) {
+      } catch (error: unknown) {
+        const message = getErrorMessage(error);
         if (error instanceof z.ZodError) {
           // ✅ Collect Zod errors and map to state
           const fieldErrors: Record<string, string> = {};
@@ -76,7 +91,21 @@ export default function AddBannerForm({ action }: Props) {
             if (err.path[0]) fieldErrors[err.path[0].toString()] = err.message;
           });
           setErrors(fieldErrors);
-          setToast({ message: "Please check the input fields.", type: "error" });
+          setToast({
+            message: "Please check the input fields.",
+            type: "error",
+          });
+        } else if (
+          message === "SESSION_EXPIRED" ||
+          message === "UNAUTHENTICATED"
+        ) {
+          setToast({ message: "Expired Session, Please Login", type: "error" });
+
+          setTimeout(() => {
+            signOut({ callbackUrl: "/login?reason=expired" });
+          }, 500);
+
+          return;
         } else {
           console.error(error);
           setToast({ message: "Failed to add banner.", type: "error" });
@@ -111,7 +140,7 @@ export default function AddBannerForm({ action }: Props) {
             {/* Alt Text */}
             <div className="flex flex-col">
               <label className="text-base text-black mb-1">
-                <span className="text-red-500 text-sm">*</span> Name 
+                <span className="text-red-500 text-sm">*</span> Name
               </label>
               <input
                 type="text"
@@ -123,13 +152,16 @@ export default function AddBannerForm({ action }: Props) {
                 }`}
                 required
               />
-              {errors.alt && <p className="text-red-500 text-sm mt-1">{errors.alt}</p>}
+              {errors.alt && (
+                <p className="text-red-500 text-sm mt-1">{errors.alt}</p>
+              )}
             </div>
 
             {/* English Description */}
             <div className="flex flex-col">
               <label className="text-base text-black mb-1">
-                <span className="text-red-500 text-sm">*</span> English Description
+                <span className="text-red-500 text-sm">*</span> English
+                Description
               </label>
               <textarea
                 name="description_en"
@@ -141,14 +173,17 @@ export default function AddBannerForm({ action }: Props) {
                 required
               />
               {errors.description_en && (
-                <p className="text-red-500 text-sm mt-1">{errors.description_en}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.description_en}
+                </p>
               )}
             </div>
 
             {/* Arabic Description */}
             <div className="flex flex-col">
               <label className="text-base text-black mb-1">
-                <span className="text-red-500 text-sm">*</span> Arabic Description
+                <span className="text-red-500 text-sm">*</span> Arabic
+                Description
               </label>
               <textarea
                 name="description_ar"
@@ -160,7 +195,9 @@ export default function AddBannerForm({ action }: Props) {
                 required
               />
               {errors.description_ar && (
-                <p className="text-red-500 text-sm mt-1">{errors.description_ar}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.description_ar}
+                </p>
               )}
             </div>
 
@@ -174,7 +211,9 @@ export default function AddBannerForm({ action }: Props) {
                 onUploadError={handleUploadError}
                 onDelete={handleImageDelete}
               />
-              {errors.image && <p className="text-red-500 text-sm mt-1">{errors.image}</p>}
+              {errors.image && (
+                <p className="text-red-500 text-sm mt-1">{errors.image}</p>
+              )}
             </div>
 
             {/* Buttons */}

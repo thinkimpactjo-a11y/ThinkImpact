@@ -123,6 +123,7 @@ export type DBUser = {
   email: string;
   password: string;
   role: string;
+  loginAt?:Date
 };
 
 export type userInfo = {
@@ -131,7 +132,7 @@ export type userInfo = {
 };
 
 export type BannerData = {
-  id: string;
+  id?: string;
   alt: string;
   image: string;
   description_en: string;

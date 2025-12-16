@@ -31,6 +31,16 @@ import { updateMemberOrder } from "@/app/[locale]/admin/dashboard/ourTeam/(fetch
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
+import { signOut } from "next-auth/react";
+
+function getErrorMessage(error: unknown): string | null {
+  if (typeof error === "object" && error !== null && "message" in error) {
+    const msg = (error as { message?: unknown }).message;
+    return typeof msg === "string" ? msg : null;
+  }
+  return null;
+}
+
 interface Props {
   members: newMemberDragAndDrop[];
 }
@@ -68,6 +78,16 @@ export default function DragDropOurteam({ members: initialMembers }: Props) {
           window.location.reload();
         }, 1500);
       } catch (error) {
+         const message = getErrorMessage(error);
+                        if (message === "SESSION_EXPIRED" || message === "UNAUTHENTICATED") {
+                          setToast({ message: "Expired Session, Please Login", type: "error" });
+                
+                          setTimeout(() => {
+                            signOut({ callbackUrl: "/login?reason=expired" });
+                          }, 500);
+                
+                          return;
+                        }
         console.error(error);
         setToast({ message: "Failed to Order Member.", type: "error" });
         setTimeout(() => setToast(null), 3000);

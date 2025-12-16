@@ -15,6 +15,15 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {  Trash2 } from "lucide-react";
+import { signOut } from "next-auth/react";
+
+function getErrorMessage(error: unknown): string | null {
+  if (typeof error === "object" && error !== null && "message" in error) {
+    const msg = (error as { message?: unknown }).message;
+    return typeof msg === "string" ? msg : null;
+  }
+  return null;
+}
 export default function DeleteCategoryButton({
   categoryId,
   deleteAction,
@@ -26,10 +35,26 @@ export default function DeleteCategoryButton({
  const [loading, setLoading] = useState<boolean>(false);
 
  const handleConfirm= async ()=>{
+  try {
     setLoading(true);
     await deleteAction(categoryId); 
     setLoading(false);
     setOpen(false);
+  } catch (error) {
+    {
+            const message = getErrorMessage(error);
+            if (message === "SESSION_EXPIRED" || message === "UNAUTHENTICATED") {
+             
+              setTimeout(() => {
+                signOut({ callbackUrl: "/login?reason=expired" });
+              }, 500);
+    
+              return;
+            }
+            console.error(error);
+          }
+  }
+    
     
  }
     

@@ -10,12 +10,17 @@ import PosterTwo from "@/components/poster/posterTwo";
 import { PAGE_METADATA, createMetadata } from "@/lib/constants/metadata";
 
 import { getSettingsData } from "@/app/models/db/lib/services/settings";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/models/db/authOptions";
 
 export const revalidate = 3600;
 
 export const metadata: Metadata = createMetadata(PAGE_METADATA.home);
 
 export default async function Home() {
+  const user=  await getServerSession(authOptions)
+  console.log("user: ",user);
+  
   const categories = await getAllcategories();
   const data = await getSettingsData();
 

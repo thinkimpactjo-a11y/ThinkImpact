@@ -12,6 +12,16 @@ import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { newTrainingSchema } from "@/types/zod/trainingSchema";
 
+import { signOut } from "next-auth/react";
+
+function getErrorMessage(error: unknown): string | null {
+  if (typeof error === "object" && error !== null && "message" in error) {
+    const msg = (error as { message?: unknown }).message;
+    return typeof msg === "string" ? msg : null;
+  }
+  return null;
+}
+
 interface Prop {
   training: newTraining;
   action: (data: newTraining) => Promise<void>;
@@ -71,6 +81,16 @@ function EditCategoryForm({ training, action }: Prop) {
           router.replace("/admin/dashboard/training");
         }, 1500);
       } catch (err: unknown) {
+         const message = getErrorMessage(err);
+                                        if (message === "SESSION_EXPIRED" || message === "UNAUTHENTICATED") {
+                                          setToast({ message: "Expired Session, Please Login", type: "error" });
+                                
+                                          setTimeout(() => {
+                                            signOut({ callbackUrl: "/login?reason=expired" });
+                                          }, 500);
+                                
+                                          return;
+                                        }
         if (err instanceof z.ZodError) {
           const fieldErrors: Partial<Record<keyof newTraining, string>> = {};
           err.issues.forEach((issue) => {

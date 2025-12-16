@@ -22,6 +22,16 @@ import {
 import { UploadDropzone } from "@uploadthing/react";
 import type { OurFileRouter } from "@/app/api/uploadthing/core";
 
+import { signOut } from "next-auth/react";
+
+function getErrorMessage(error: unknown): string | null {
+  if (typeof error === "object" && error !== null && "message" in error) {
+    const msg = (error as { message?: unknown }).message;
+    return typeof msg === "string" ? msg : null;
+  }
+  return null;
+}
+
 interface prop {
   setting: newSetting;
   action: (data: newSetting) => Promise<void>;
@@ -65,18 +75,30 @@ const defaultOptions: Option[] = [
   { value: "part_two_image", label: "Image In Part Two", type: "image" },
   { value: "about_page_text", label: "Text In About Page", type: "textarea" },
   { value: "vision_in_about", label: "Vision", type: "textarea" },
-    { value: "mission_in_about", label: "Mission", type: "textarea" },
-    { value: "value_one_in_about", label: "First Value (About Pge)", type: "textarea" },
-    { value: "value_two_in_about", label: "Second Value (About Pge)", type: "textarea" },
-    { value: "value_three_in_about", label: "Third Value (About Pge)", type: "textarea" },
-    { value: "our_methodology", label: "Our Methodology", type: "textarea" },
-    {
-      value: "what_we_stand_for",
-      label: "What We Stand For",
-      type: "textarea",
-    },
-    { value: "what_we_value", label: "What We Value", type: "textarea" },
-    { value: "why_we_are_here", label: "Why We’re Here", type: "textarea" },
+  { value: "mission_in_about", label: "Mission", type: "textarea" },
+  {
+    value: "value_one_in_about",
+    label: "First Value (About Pge)",
+    type: "textarea",
+  },
+  {
+    value: "value_two_in_about",
+    label: "Second Value (About Pge)",
+    type: "textarea",
+  },
+  {
+    value: "value_three_in_about",
+    label: "Third Value (About Pge)",
+    type: "textarea",
+  },
+  { value: "our_methodology", label: "Our Methodology", type: "textarea" },
+  {
+    value: "what_we_stand_for",
+    label: "What We Stand For",
+    type: "textarea",
+  },
+  { value: "what_we_value", label: "What We Value", type: "textarea" },
+  { value: "why_we_are_here", label: "Why We’re Here", type: "textarea" },
 ];
 
 function EditSettingForm({ setting, action }: prop) {
@@ -91,11 +113,14 @@ function EditSettingForm({ setting, action }: prop) {
 
   const [isPending, startTransition] = useTransition();
   const [isUploading, setIsUploading] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(
-    null
-  );
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -107,7 +132,9 @@ function EditSettingForm({ setting, action }: prop) {
   const handleUploadError = (type: "image" | "video") => {
     setIsUploading(false);
     setToast({
-      message: `${type === "image" ? "Image" : "Video"} upload failed. Please try again.`,
+      message: `${
+        type === "image" ? "Image" : "Video"
+      } upload failed. Please try again.`,
       type: "error",
     });
     setTimeout(() => setToast(null), 3000);
@@ -132,6 +159,16 @@ function EditSettingForm({ setting, action }: prop) {
           router.replace("/admin/dashboard/settings");
         }, 1500);
       } catch (error) {
+        const message = getErrorMessage(error);
+        if (message === "SESSION_EXPIRED" || message === "UNAUTHENTICATED") {
+          setToast({ message: "Expired Session, Please Login", type: "error" });
+
+          setTimeout(() => {
+            signOut({ callbackUrl: "/login?reason=expired" });
+          }, 500);
+
+          return;
+        }
         console.error(error);
         setToast({ message: "Failed to update Setting.", type: "error" });
         setTimeout(() => setToast(null), 3000);
@@ -139,7 +176,9 @@ function EditSettingForm({ setting, action }: prop) {
     });
   };
 
-  const selectedOption = defaultOptions.find((opt) => opt.value === form.key_name_en);
+  const selectedOption = defaultOptions.find(
+    (opt) => opt.value === form.key_name_en
+  );
 
   const renderValueInput = () => {
     if (!selectedOption) return null;
@@ -148,8 +187,10 @@ function EditSettingForm({ setting, action }: prop) {
       "border px-3 py-2 rounded border-gray-300 bg-white w-full md:w-[70vw] lg:w-[50vw] text-black";
 
     if (selectedOption.type === "text" || selectedOption.type === "textarea") {
-      const InputComponent = selectedOption.type === "textarea" ? "textarea" : "input";
-      const extraStyles = selectedOption.type === "textarea" ? "h-24 resize-none" : "";
+      const InputComponent =
+        selectedOption.type === "textarea" ? "textarea" : "input";
+      const extraStyles =
+        selectedOption.type === "textarea" ? "h-24 resize-none" : "";
 
       return (
         <div className="flex flex-col gap-4">
@@ -212,12 +253,11 @@ function EditSettingForm({ setting, action }: prop) {
             onDelete={() => setForm({ ...form, value_en: "" })}
           />
           {form.value_en && (
-         
-            
-      
-            <Image   src={form.value_en}
-            alt="Uploaded image"
-            className="mt-2 max-h-[200px] object-contain"/>
+            <Image
+              src={form.value_en}
+              alt="Uploaded image"
+              className="mt-2 max-h-[200px] object-contain"
+            />
           )}
         </div>
       );
@@ -248,7 +288,9 @@ function EditSettingForm({ setting, action }: prop) {
               label: ({ isDragActive }) => (
                 <div className="flex flex-col items-center">
                   <div className="text-sm font-semibold">
-                    {isDragActive ? "Drop the video" : "Drop video or click to browse"}
+                    {isDragActive
+                      ? "Drop the video"
+                      : "Drop video or click to browse"}
                   </div>
                   <div className="text-xs text-gray-400 mt-1">
                     Allowed: video files (Max Size: 64MB)
@@ -294,19 +336,25 @@ function EditSettingForm({ setting, action }: prop) {
 
           <CardContent className="flex flex-col gap-5">
             <div className="flex flex-col gap-2">
-              <label className="text-base font-medium text-gray-700">Setting Key</label>
+              <label className="text-base font-medium text-gray-700">
+                Setting Key
+              </label>
               <Select value={form.key_name_en} disabled>
                 <SelectTrigger className="w-full md:w-[70vw] lg:w-[50vw] border border-gray-300 text-black">
                   <SelectValue placeholder={form.key_name_en} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={form.key_name_en ?? ""}>{form.key_name_en}</SelectItem>
+                  <SelectItem value={form.key_name_en ?? ""}>
+                    {form.key_name_en}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="flex flex-col gap-2">
-              <label className="text-base font-medium text-gray-700">Value</label>
+              <label className="text-base font-medium text-gray-700">
+                Value
+              </label>
               {renderValueInput()}
             </div>
 
@@ -323,7 +371,11 @@ function EditSettingForm({ setting, action }: prop) {
                 className="px-4 py-2 bg-[#0f4473] text-white rounded hover:bg-[#236dae] cursor-pointer"
                 disabled={isPending || isUploading}
               >
-                {isPending ? "Updating..." : isUploading ? "Uploading..." : "Save Changes"}
+                {isPending
+                  ? "Updating..."
+                  : isUploading
+                  ? "Uploading..."
+                  : "Save Changes"}
               </button>
             </div>
           </CardContent>

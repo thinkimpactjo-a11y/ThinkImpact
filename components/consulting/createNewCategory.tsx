@@ -12,9 +12,18 @@ import {
 import React, { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { categorySchema } from "@/types/zod/consultingSchema"; // ✅ imported schema
+import { signOut } from "next-auth/react";
 
 interface Props {
   action: (data: newCategory) => Promise<void>;
+}
+
+function getErrorMessage(error: unknown): string | null {
+  if (typeof error === "object" && error !== null && "message" in error) {
+    const msg = (error as { message?: unknown }).message;
+    return typeof msg === "string" ? msg : null;
+  }
+  return null;
 }
 
 export default function CreateNewCategory({ action }: Props) {
@@ -36,29 +45,27 @@ export default function CreateNewCategory({ action }: Props) {
     type: "success" | "error";
   } | null>(null);
 
-const handleInputChange = (
-  e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-) => {
-  const { name, value } = e.target;
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
 
-  setForm(prev => {
-    const updatedForm = { ...prev, [name]: value };
+    setForm((prev) => {
+      const updatedForm = { ...prev, [name]: value };
 
-   
-    if (name === "category_name_en") {
-      updatedForm.slug = value
-        .toLowerCase()
-        .replace(/&/g, "and")
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "");
-    }
+      if (name === "category_name_en") {
+        updatedForm.slug = value
+          .toLowerCase()
+          .replace(/&/g, "and")
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, "");
+      }
 
-    return updatedForm;
-  });
+      return updatedForm;
+    });
 
-  setErrors({ ...errors, [name]: "" });
-};
-
+    setErrors({ ...errors, [name]: "" });
+  };
 
   const handleUploadComplete = (url: string) => {
     setForm({ ...form, category_logo: url });
@@ -98,6 +105,16 @@ const handleInputChange = (
           router.replace("/admin/dashboard/consulting");
         }, 1500);
       } catch (error) {
+        const message = getErrorMessage(error);
+        if (message === "SESSION_EXPIRED" || message === "UNAUTHENTICATED") {
+          setToast({ message: "Expired Session, Please Login", type: "error" });
+
+          setTimeout(() => {
+            signOut({ callbackUrl: "/login?reason=expired" });
+          }, 500);
+
+          return;
+        }
         console.error(error);
         setToast({ message: "Failed to add category.", type: "error" });
         setTimeout(() => setToast(null), 3000);

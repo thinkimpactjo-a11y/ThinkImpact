@@ -5,9 +5,23 @@ import { authOptions } from "@/app/models/db/authOptions";
 import {  newService } from "@/types";
 
 
+const EXPIRE_SECONDS = 15 * 24 * 60 * 60; // 15 days in seconds
 
 export async function createService(data: newService) {
   const session = await getServerSession(authOptions);
+
+
+   if (!session) {
+    throw new Error("UNAUTHENTICATED");
+  }
+ const nowSec = Math.floor(Date.now() / 1000);
+const loginAtSec = session.user.loginAt
+  ? Math.floor(new Date(session.user.loginAt).getTime() / 1000)
+  : null;
+
+  if (!loginAtSec || nowSec - loginAtSec > EXPIRE_SECONDS) {
+  throw new Error("SESSION_EXPIRED");
+}
   const token = session?.user.token;
  
   const result = await fetch(
