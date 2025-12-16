@@ -15,7 +15,7 @@ const checkPassword = async (password: string, hashedPasword: string) => {
 
 export const register = async (newUser: newUser) => {
   const checkEmail = await pool.query("select * from users where email=$1 ", [
-    newUser.email,
+    newUser.email.toLowerCase(),
   ]);
 
   if (checkEmail.rows.length > 0) {
@@ -26,7 +26,7 @@ export const register = async (newUser: newUser) => {
       [
         newUser.first_name,
         newUser.last_name,
-        newUser.email,
+        newUser.email.toLowerCase(),
         await hashPassword(newUser.password),
       ]
     );
@@ -62,7 +62,7 @@ export const login = async (userInfo: userInfo) => {
          
         },
         process.env.NEXTAUTH_SECRET as Secret,
-        { expiresIn: "30d" }
+        { expiresIn: "15d" }
       );
       return {
         id: dbUser.id,
