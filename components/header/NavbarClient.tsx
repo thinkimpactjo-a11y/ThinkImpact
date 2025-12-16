@@ -28,11 +28,9 @@ export default function NavbarClient({
   translations,
   locale,
 }: NavbarClientProps) {
-  const { data: session } = useSession(); // 🔥 Live session state
-
+  const { data: session } = useSession(); 
   const isLoggedIn = !!session;
-  const isAdmin = session?.user?.role === "admin"; // adjust based on your data
-
+  const isAdmin = session?.user?.role === "admin";
   const isArabic = locale === "ar";
 
   const menuItems = [
