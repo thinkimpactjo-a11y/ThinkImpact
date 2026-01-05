@@ -28,17 +28,9 @@ export default function VideoHeroSection({ data }: DataProp) {
   );
 
   const sectionRef = useRef<HTMLElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
-  /* Timeout أمان */
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setVideoReady(true);
-    }, 2000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  /* GSAP */
+  /* GSAP بعد تحميل الفيديو */
   useEffect(() => {
     if (!videoReady) return;
 
@@ -58,34 +50,46 @@ export default function VideoHeroSection({ data }: DataProp) {
       );
   }, [videoReady]);
 
+  /* مراقبة الفيديو */
+  useEffect(() => {
+    if (!videoRef.current) return;
+
+    const handleCanPlayThrough = () => setVideoReady(true);
+
+    const vid = videoRef.current;
+    vid.addEventListener("canplaythrough", handleCanPlayThrough, { once: true });
+
+    return () => {
+      vid.removeEventListener("canplaythrough", handleCanPlayThrough);
+    };
+  }, []);
+
   return (
     <>
-      {/* LOADING OVERLAY (لون الموقع الحقيقي) */}
+      {/* LOADING overlay فوق الصفحة */}
       {!videoReady && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-background">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-white">
           <Image src={loader} alt="loading" width={200} height={200} />
         </div>
       )}
 
-      {/* HERO */}
       <section
         ref={sectionRef}
         className={`relative w-full h-screen overflow-hidden transition-opacity duration-500 ${
-          videoReady ? "opacity-100" : "opacity-0"
+          videoReady ? "opacity-100" : "opacity-100"
         }`}
       >
         <div className="absolute inset-0 bg-black/50 z-10" />
 
         {videoUrl && (
           <video
+            ref={videoRef}
             src={videoUrl}
             autoPlay
             loop
             muted
             playsInline
-            preload="metadata"
-            onLoadedData={() => setVideoReady(true)}
-            onError={() => setVideoReady(true)}
+            preload="auto"
             className="absolute inset-0 w-full h-full object-cover z-0"
           />
         )}
