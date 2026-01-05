@@ -41,7 +41,7 @@ export default async function Home() {
           <Poster data={data} />
         </section>
 
-        <section className="relative z-10 w-full">
+        <section className="relative  z-10 w-full">
           <InteractiveMap />
         </section>
 
