@@ -54,7 +54,7 @@ export default function PosterSection(data: DataProp ) {
           alt="Hero Poster"
           width={400}
           height={300}
-          className="rounded-lg shadow-lg object-contain max-h-[300px]"
+          className="rounded-lg object-contain max-h-[300px]"
         />
       </div>
     </section>
