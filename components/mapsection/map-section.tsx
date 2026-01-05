@@ -138,7 +138,7 @@ export default function MapSection() {
           projection="geoMercator"
           projectionConfig={{
             scale,
-            center: [22, 25],
+            center: [25, 25],
           }}
           width={800}
           height={600}
