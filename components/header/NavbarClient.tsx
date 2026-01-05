@@ -28,7 +28,7 @@ export default function NavbarClient({
   translations,
   locale,
 }: NavbarClientProps) {
-  const { data: session } = useSession(); 
+  const { data: session } = useSession();
   const isLoggedIn = !!session;
   const isAdmin = session?.user?.role === "admin";
   const isArabic = locale === "ar";
@@ -65,7 +65,7 @@ export default function NavbarClient({
   ];
 
   // ACCOUNT ITEMS
-  const accountContent = [];
+const accountContent: React.JSX.Element[] = [];
 
   if (isAdmin) {
     accountContent.push(
@@ -82,14 +82,13 @@ export default function NavbarClient({
     <NavigationMenuLink asChild key="logout">
       <button
         onClick={() => signOut()}
-        className={`w-full px-2 py-1 cursor-pointer ${isArabic ? "text-right" : "text-left"}`}
+        className={isArabic ? "text-right w-full px-2 py-1" : "text-left w-full px-2 py-1"}
       >
         {translations.logout}
       </button>
     </NavigationMenuLink>
   );
 
-  // Add My Account dynamically
   if (isLoggedIn) {
     menuItems.push({
       type: "dropdown",
@@ -104,8 +103,8 @@ export default function NavbarClient({
   return (
     <NavigationMenu
       viewport={false}
-      className="text-[#00ADEE]"
       style={{ direction: isArabic ? "rtl" : "ltr" }}
+      className="text-[#00ADEE]"
     >
       <NavigationMenuList className="flex-row">
         {finalMenu.map((item) => {
@@ -113,7 +112,12 @@ export default function NavbarClient({
             return (
               <NavigationMenuItem key={item.key}>
                 <NavigationMenuLink asChild>
-                  <Link className={navigationMenuTriggerStyle()} href={item.href??""}>
+                  <Link
+                    className={`${navigationMenuTriggerStyle()} ${
+                      isArabic ? "text-right" : "text-left"
+                    }`}
+                    href={item.href ?? ""}
+                  >
                     {item.label}
                   </Link>
                 </NavigationMenuLink>
@@ -125,7 +129,10 @@ export default function NavbarClient({
             return (
               <NavigationMenuItem key={item.key}>
                 <NavigationMenuTrigger>{item.label}</NavigationMenuTrigger>
-                <NavigationMenuContent className={`grid gap-3 p-4 md:w-[400px] lg:w-[250px] ${isArabic ? "text-right" : "text-left"}`}>
+                <NavigationMenuContent
+                  dir={isArabic ? "rtl" : "ltr"}
+                  className="grid gap-2 p-4 min-w-[200px] md:min-w-[200px] lg:min-w-[250px]"
+                >
                   {item.content}
                 </NavigationMenuContent>
               </NavigationMenuItem>

@@ -24,14 +24,14 @@ export default function OurTeamPage({ members }: Props) {
     <main className="max-w-[1380px] mx-auto my-16 px-6 md:px-12 mt-20">
       {/* Page Title */}
       <h1
-        className={`text-4xl md:text-6xl font-extrabold text-center text-[#125892] mb-6 leading-tight ${
+        className={`text-4xl md:text-6xl centert font-extrabold text-center text-[#125892] mb-6 leading-tight ${
           isArabic ? "font-almarai" : ""
         }`}
       >
         {title}
       </h1>
 
-      <p className=" text-center text-lg mb-10">
+      <p className=" text-center text-lg  mb-10">
         {isArabic
           ? "يجمع فريقنا بين خبرات واسعة في التنمية الدولية والمساعدات الإنسانية والمتابعة والتقييم وإدارة المؤسسات. نحن ملتزمون بتقديم حلول مؤثرة وتحقيق تغيير إيجابي في المجتمعات."
           : "Our team brings together expertise in international development, humanitarian assistance, monitoring & evaluation, and organizational management. We are committed to delivering impactful solutions and driving positive change across communities."}
@@ -41,7 +41,7 @@ export default function OurTeamPage({ members }: Props) {
       {mainMembers.length > 0 && (
         <section className="mb-24">
           <h2
-            className={`text-2xl md:text-4xl font-semibold mb-10 text-center text-[#125892] ${
+            className={`text-2xl centert md:text-4xl font-semibold mb-10 text-center text-[#125892] ${
               isArabic ? "font-almarai" : ""
             }`}
           >
@@ -60,7 +60,7 @@ export default function OurTeamPage({ members }: Props) {
       {otherMembers.length > 0 && (
         <section>
           <h2
-            className={`text-2xl md:text-4xl font-semibold mb-10 text-center text-[#125892] ${
+            className={`text-2xl centert md:text-4xl font-semibold mb-10 text-center text-[#125892] ${
               isArabic ? "font-almarai" : ""
             }`}
           >

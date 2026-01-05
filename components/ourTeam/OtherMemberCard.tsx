@@ -42,8 +42,8 @@ export default function OtherMemberCard({ member, locale }: Props) {
         <p className="text-lg md:text-xl font-semibold text-[#125892] mb-1 ">
           {name}
         </p>
-        <p className="text-gray-600 text-sm md:text-base mb-3 dark:text-gray-200">{position}</p>
-        <p className="text-gray-500 text-sm md:text-[15px] leading-snug max-w-xs dark:text-gray-200">
+        <p className="text-gray-600 centert text-sm md:text-base mb-3 dark:text-gray-200">{position}</p>
+        <p className="text-gray-500 centert text-sm md:text-[15px] leading-snug max-w-xs dark:text-gray-200">
           {shortDesc}{" "}
           {hasLongDesc && <MemberDialog member={member} locale={locale} />}
         </p>

@@ -34,7 +34,7 @@ function TrainingCard({ courses }: TrainingCardProps) {
           return (
             <Card
               key={course.id}
-              className={`shadow-xl bg-white border border-gray-200 dark:border-black dark:bg-[#125892] rounded-xl hover:shadow-2xl transition-shadow min-h-[440px] flex flex-col relative overflow-hidden group ${
+              className={`shadow-xl  bg-white border border-gray-200 dark:border-black dark:bg-[#125892] rounded-xl hover:shadow-2xl transition-shadow min-h-[440px] flex flex-col relative overflow-hidden group ${
                 locale === "ar" ? "text-right" : "text-left"
               }`}
               dir={locale === "ar" ? "rtl" : "ltr"}

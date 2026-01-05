@@ -27,10 +27,10 @@ export default function MainMemberCard({ member, locale }: Props) {
         </div>
 
         <p className="text-lg font-extrabold text-white mb-1">{name}</p>
-        <p className="text-gray-300 mb-4">{position}</p>
-        <p className="text-gray-200 text-sm leading-relaxed mb-4">
+        <p className="text-gray-300 centert mb-4">{position}</p>
+        <p className="text-gray-200 centert text-sm leading-relaxed mb-4">
           {shortDesc}{" "}
-          {hasLongDesc && <MemberDialog member={member} locale={locale} />}
+          {hasLongDesc && <MemberDialog  member={member} locale={locale} />}
         </p>
       </div>
     </div>

@@ -23,7 +23,7 @@ type Props = {
 export default function ClientsCarousel({ clients,locale }: Props) {
   const isArabic= locale==="ar"
   return (
-    <section className="flex flex-col justify-center items-center mt-20 w-full">
+    <section className="flex flex-col   justify-center items-center mt-20 w-full">
       <h1 className="text-center text-3xl md:text-5xl sm:text-4xl font-bold text-[#125892] mb-8">
          {isArabic ? "شركائنا  ":"Our Collaborations"} 
       </h1>
@@ -34,7 +34,7 @@ export default function ClientsCarousel({ clients,locale }: Props) {
           spaceBetween={30}
           slidesPerView={2}
           navigation
-          pagination={{ clickable: true }}
+          pagination={{ clickable: true  } }
           autoplay={{ delay: 2000 }}
           breakpoints={{
             320: { slidesPerView: 1, spaceBetween: 20 },
@@ -45,7 +45,7 @@ export default function ClientsCarousel({ clients,locale }: Props) {
           className="w-full h-80 my-8"
         >
           {clients.map((client, i) => (
-            <SwiperSlide key={i} className="flex justify-center items-center">
+            <SwiperSlide key={i} className="flex  justify-center items-center">
               <div className="flex flex-col items-center p-4 rounded-lg h-full">
                 <div className="h-40 flex items-center justify-center">
               
@@ -61,7 +61,7 @@ export default function ClientsCarousel({ clients,locale }: Props) {
               </div>
             </SwiperSlide>
           ))}
-        </Swiper>
+        </Swiper >
       </div>
     </section>
   );

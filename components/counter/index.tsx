@@ -121,7 +121,7 @@ export const Counter = ({ data }: DataProp) => {
       dir={isArabic ? "rtl" : "ltr"}
       className="w-full max-w-7xl mx-auto py-20 px-6"
     >
-      <h2 className="text-4xl font-bold text-center text-[#125892] mb-12">
+      <h2 className="text-4xl centert font-bold text-center text-[#125892] mb-12">
         {isArabic ? "الأثر بالأرقام" : "Impact in Numbers"}
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12">

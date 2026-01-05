@@ -90,7 +90,7 @@ export default function ConsultingCards({ categories }: ConsultingCardsProps) {
             <div className="mt-auto z-10">
               <Link
                 href={href}
-                className="block text-center w-full mt-6 bg-[#125892]  text-white  dark:bg-white  dark:text-[#125892] py-2 rounded-md hover:bg-[#0e4a78] transition"
+                className="block centert text-center w-full mt-6 bg-[#125892]  text-white  dark:bg-white  dark:text-[#125892] py-2 rounded-md hover:bg-[#0e4a78] transition"
               >
                 {isArabic ? "اعرف المزيد" : "Learn More"}
               </Link>

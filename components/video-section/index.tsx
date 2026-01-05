@@ -57,7 +57,7 @@ export default function VideoHeroSection(data: DataProp) {
       />
 
       <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-4 sm:px-6">
-        <h1 className="hero-text text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 opacity-0 drop-shadow-lg leading-tight max-w-4xl">
+        <h1 className="hero-text centert text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 opacity-0 drop-shadow-lg leading-tight max-w-4xl">
           {isArabic ? videoText?.value_ar : videoText?.value_en}
         </h1>
 

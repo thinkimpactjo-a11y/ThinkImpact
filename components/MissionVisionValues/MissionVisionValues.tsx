@@ -110,8 +110,8 @@ export default function MissionVisionValues({ locale, settings }: Props) {
       className="py-20 px-6 md:px-12 bg-gray-50 dark:bg-gray-900 w-full"
       dir={isArabic ? "rtl" : "ltr"}
     >
-      <h2 className=" text-3xl md:text-4xl font-bold text-center text-[#125892] mb-16">
-        Mission, Vision & Values
+      <h2 className=" text-3xl md:text-4xl centert font-bold text-center text-[#125892] mb-16">
+      {isArabic ? "الرسالة، الرؤية والقيم" : " Mission, Vision & Values"} 
       </h2>
 
       {/* FIRST ROW — Mission + Vision */}

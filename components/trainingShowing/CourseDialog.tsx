@@ -35,7 +35,7 @@ export default function CourseDialog({ course, locale }: Props) {
 
   return (
     <div
-      className={`  relative  ${locale === "ar" ? "text-right" : "text-left"}`}
+      className={`   relative  ${locale === "ar" ? "text-right" : "text-left"}`}
       dir={locale === "ar" ? "rtl" : "ltr"}
     >
       <Dialog>
@@ -56,8 +56,8 @@ export default function CourseDialog({ course, locale }: Props) {
             isArabic ? "text-right" : "text-left"
           }`}
           style={{
-            width: "60vw",
-            maxWidth: "60vw",
+            width: "80vw",
+            maxWidth: "80vw",
             maxHeight: "80vh",
             overflowY: "auto",
           }}
@@ -109,7 +109,9 @@ export default function CourseDialog({ course, locale }: Props) {
               isArabic ? "text-right" : "text-left"
             }`}
           >
-            <p className="font-semibold mb-2 text-[#125892]">
+            <p className={` ${
+              isArabic ? "text-right!" : "text-left!"
+            }    font-semibold mb-2 text-[#125892]`}>
               {isArabic
                 ? ":للمزيد من المعلومات، يرجى التواصل معنا"
                 : "For more information, please contact us:"}

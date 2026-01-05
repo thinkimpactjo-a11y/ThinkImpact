@@ -32,7 +32,7 @@ export default async function RootLayout({ children, params }: Props) {
   setRequestLocale(locale);
 
   const messages = (await import(`../../../messages/${locale}.json`)).default;
-
+ const dir = locale === "ar" ? "rtl" : "ltr";
   const [categories, trainingData] = await Promise.all([
     getAllcategories(),
     getAllTraining(),
@@ -47,7 +47,7 @@ export default async function RootLayout({ children, params }: Props) {
         disableTransitionOnChange
       >
         <FontSwitcher locale={locale}>
-          <div className="flex flex-col min-h-screen">
+          <div dir={dir} className="flex flex-col min-h-screen ">
             <section
               aria-label="Header"
               className="fixed w-full top-0 left-0 right-0 backdrop-blur-sm z-50 bg-white dark:bg-[#020618]"

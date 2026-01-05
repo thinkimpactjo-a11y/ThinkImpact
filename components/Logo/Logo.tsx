@@ -29,8 +29,8 @@ const Logo: React.FC = () => {
 
   return (
     <Link href="/">
-      <div
-        className="flex items-center gap-2 cursor-pointer"
+      <div 
+        className="flex items-center gap-2  cursor-pointer"
         onMouseEnter={handleMouseEnter}
       >
         <Image
@@ -40,7 +40,7 @@ const Logo: React.FC = () => {
           height={40}
           style={{ pointerEvents: "none" }}
         />
-        <div
+        <div dir="ltr"
           ref={containerRef}
           className="text-xl font-bold whitespace-nowrap flex overflow-hidden"
         >
