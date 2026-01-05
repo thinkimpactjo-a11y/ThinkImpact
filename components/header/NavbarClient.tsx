@@ -34,14 +34,14 @@ export default function NavbarClient({
   const isArabic = locale === "ar";
 
   const menuItems = [
-    { type: "link", href: `/${locale}`, label: translations.home, key: "home" },
+    { type: "link", href: `/`, label: translations.home, key: "home" },
     {
       type: "dropdown",
       label: translations.consulting,
       key: "consulting",
       content: categories.map((item) => (
         <NavigationMenuLink asChild key={item.slug}>
-          <Link href={`/${locale}/Consulting/${item.slug}`}>
+          <Link href={`/Consulting/${item.slug}`}>
             {isArabic ? item.category_name_ar : item.category_name_en}
           </Link>
         </NavigationMenuLink>
@@ -53,15 +53,15 @@ export default function NavbarClient({
       key: "training",
       content: trainingData.map((item) => (
         <NavigationMenuLink asChild key={item.slug}>
-          <Link href={`/${locale}/Training/${item.slug}`}>
+          <Link href={`/Training/${item.slug}`}>
             {isArabic ? item.name_ar : item.name_en}
           </Link>
         </NavigationMenuLink>
       )),
     },
-    { type: "link", href: `/${locale}/about`, label: translations.about, key: "about" },
-    { type: "link", href: `/${locale}/ourTeam`, label: translations.ourTeam, key: "ourTeam" },
-    { type: "link", href: `/${locale}/newApplication`, label: translations.newApplication, key: "newApplication" },
+    { type: "link", href: `/about`, label: translations.about, key: "about" },
+    { type: "link", href: `/ourTeam`, label: translations.ourTeam, key: "ourTeam" },
+    { type: "link", href: `/newApplication`, label: translations.newApplication, key: "newApplication" },
   ];
 
   // ACCOUNT ITEMS
@@ -70,7 +70,7 @@ export default function NavbarClient({
   if (isAdmin) {
     accountContent.push(
       <NavigationMenuLink asChild key="dashboard">
-        <Link href={`/${locale}/admin/dashboard`}>{translations.dashboard}</Link>
+        <Link href={`/admin/dashboard`}>{translations.dashboard}</Link>
       </NavigationMenuLink>
     );
   }

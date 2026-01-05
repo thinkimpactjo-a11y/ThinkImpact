@@ -73,12 +73,15 @@ type TooltipData = {
 export default function MapSection() {
   const [tooltip, setTooltip] = useState<TooltipData | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+    const [isTablet, setIsTablet] = useState(false);
+
   const locale = useLocale();
   const isArabic = locale === "ar";
 
   useEffect(() => {
     const checkScreenSize = () => {
       setIsMobile(window.innerWidth <= 600);
+        setIsTablet(window.innerWidth <= 1200&&window.innerWidth>600);
     };
 
     checkScreenSize();
@@ -122,7 +125,7 @@ export default function MapSection() {
         <ComposableMap
           projection="geoMercator"
           projectionConfig={{
-            scale: 800,
+             scale: isTablet ? 550 : 800,
             center: [22, 25],
           }}
           width={800}
