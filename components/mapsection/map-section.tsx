@@ -90,7 +90,7 @@ export default function MapSection() {
 
       const baseScale =
         width <= 600 ? 350 :
-        width <= 1200 ? 550 :
+        width <= 1200 ? 650 :
         800;
 
       setScale(baseScale / dpr);
