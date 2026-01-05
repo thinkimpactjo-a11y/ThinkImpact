@@ -138,11 +138,11 @@ export default function MapSection() {
           projection="geoMercator"
           projectionConfig={{
             scale,
-            center: [25, 25],
+            center: [22, 25],
           }}
-          width={800}
+          width={1000}
           height={600}
-          className="w-3/4 h-auto"
+          className="w-full h-auto"
           onMouseLeave={() => setTooltip(null)}
         >
           <Geographies geography={geoUrl}>
