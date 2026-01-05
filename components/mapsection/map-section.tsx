@@ -1,5 +1,6 @@
 "use client";
-import map1 from "@/public/images/map1.png"
+
+import map1 from "@/public/images/map1.png";
 import React, { useState, useEffect } from "react";
 import {
   ComposableMap,
@@ -58,10 +59,10 @@ const countryNameMap: Record<string, { ar: string; en: string }> = {
   Jordan: { ar: "الأردن", en: "Jordan" },
   Lebanon: { ar: "لبنان", en: "Lebanon" },
   Morocco: { ar: "المغرب", en: "Morocco" },
-  Israel: { ar: "فلسطين", en: "Palestine" },        
-  "West Bank": { ar: "فلسطين", en: "Palestine" },  
+  Israel: { ar: "فلسطين", en: "Palestine" },
+  "West Bank": { ar: "فلسطين", en: "Palestine" },
   Syria: { ar: "سوريا", en: "Syria" },
-  Sudan:{ar: "السودان", en: "Sudan"}
+  Sudan: { ar: "السودان", en: "Sudan" },
 };
 
 type TooltipData = {
@@ -73,28 +74,37 @@ type TooltipData = {
 export default function MapSection() {
   const [tooltip, setTooltip] = useState<TooltipData | null>(null);
   const [isMobile, setIsMobile] = useState(false);
-    const [isTablet, setIsTablet] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
+  const [scale, setScale] = useState(800);
 
   const locale = useLocale();
   const isArabic = locale === "ar";
 
   useEffect(() => {
-    const checkScreenSize = () => {
-      setIsMobile(window.innerWidth <= 600);
-        setIsTablet(window.innerWidth <= 1200&&window.innerWidth>600);
+    const updateLayout = () => {
+      const width = window.innerWidth;
+      const dpr = window.devicePixelRatio || 1;
+
+      setIsMobile(width <= 600);
+      setIsTablet(width > 600 && width <= 1200);
+
+      const baseScale =
+        width <= 600 ? 350 :
+        width <= 1200 ? 550 :
+        800;
+
+      setScale(baseScale / dpr);
     };
 
-    checkScreenSize();
-    window.addEventListener("resize", checkScreenSize);
-    return () => window.removeEventListener("resize", checkScreenSize);
+    updateLayout();
+    window.addEventListener("resize", updateLayout);
+    return () => window.removeEventListener("resize", updateLayout);
   }, []);
-
 
   const translateCountryName = (name: string) => {
     if (countryNameMap[name]) {
       return isArabic ? countryNameMap[name].ar : countryNameMap[name].en;
     }
-   
     return name;
   };
 
@@ -110,7 +120,9 @@ export default function MapSection() {
           isMobile ? "text-xl" : "text-4xl"
         }`}
       >
-        {isArabic ? " أماكن عملنا في التنمية والتقييم" : "Countries of Operations"}
+        {isArabic
+          ? "أماكن عملنا في التنمية والتقييم"
+          : "Countries of Operations"}
       </h2>
 
       {isMobile ? (
@@ -125,7 +137,7 @@ export default function MapSection() {
         <ComposableMap
           projection="geoMercator"
           projectionConfig={{
-             scale: isTablet ? 550 : 800,
+            scale,
             center: [22, 25],
           }}
           width={800}
@@ -166,20 +178,22 @@ export default function MapSection() {
                             },
                         pressed: { outline: "none" },
                       }}
-                      onMouseEnter={
-                        isHighlighted
-                          ? (event: React.MouseEvent<SVGElement, MouseEvent>) => {
-                              const { clientX, clientY } = event;
-                              const displayName = translateCountryName(name || "Unknown");
-                              setTooltip({
-                                name: displayName,
-                                x: clientX,
-                                y: clientY,
-                              });
-                            }
-                          : undefined
+              onMouseEnter={
+  isHighlighted
+    ? (event: React.MouseEvent<SVGPathElement, MouseEvent>) => {
+        const { clientX, clientY } = event;
+        setTooltip({
+          name: translateCountryName(name || ""),
+          x: clientX,
+          y: clientY,
+        });
+      }
+    : undefined
+}
+
+                      onMouseLeave={
+                        isHighlighted ? () => setTooltip(null) : undefined
                       }
-                      onMouseLeave={isHighlighted ? () => setTooltip(null) : undefined}
                     />
                   );
                 })
