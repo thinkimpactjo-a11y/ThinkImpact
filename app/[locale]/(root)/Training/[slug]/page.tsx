@@ -62,7 +62,7 @@ export default async function ProductPage({ params }: PageProps) {
       dir={locale === "ar" ? "rtl" : "ltr"}
     >
       <section className="w-full   flex flex-col items-center text-justify mt-10">
-        <h1 className="text-3xl font-bold mb-4 mt-20">{trainingName}</h1>
+        <h1 className="text-3xl font-bold mb-4 mt-20 w-[75%]">{trainingName}</h1>
         <p className="mb-6 text-gray-700 w-[75%] text-justify text-lg dark:text-gray-100">
           {trainingDesc}
         </p>
