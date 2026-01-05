@@ -74,7 +74,6 @@ type TooltipData = {
 export default function MapSection() {
   const [tooltip, setTooltip] = useState<TooltipData | null>(null);
   const [isMobile, setIsMobile] = useState(false);
-  const [isTablet, setIsTablet] = useState(false);
   const [scale, setScale] = useState(800);
 
   const locale = useLocale();
@@ -86,14 +85,15 @@ export default function MapSection() {
       const dpr = window.devicePixelRatio || 1;
 
       setIsMobile(width <= 600);
-      setIsTablet(width > 600 && width <= 1200);
 
       const baseScale =
         width <= 600 ? 350 :
-        width <= 1200 ? 650 :
+        width <= 1200 ? 550 :
         800;
 
-      setScale(baseScale / dpr);
+      const dprFactor = dpr > 1 ? 1.25 : 1;
+
+      setScale(baseScale / dprFactor);
     };
 
     updateLayout();
@@ -178,19 +178,18 @@ export default function MapSection() {
                             },
                         pressed: { outline: "none" },
                       }}
-              onMouseEnter={
-  isHighlighted
-    ? (event: React.MouseEvent<SVGPathElement, MouseEvent>) => {
-        const { clientX, clientY } = event;
-        setTooltip({
-          name: translateCountryName(name || ""),
-          x: clientX,
-          y: clientY,
-        });
-      }
-    : undefined
-}
-
+                      onMouseEnter={
+                        isHighlighted
+                          ? (event: React.MouseEvent<SVGPathElement, MouseEvent>) => {
+                              const { clientX, clientY } = event;
+                              setTooltip({
+                                name: translateCountryName(name || ""),
+                                x: clientX,
+                                y: clientY,
+                              });
+                            }
+                          : undefined
+                      }
                       onMouseLeave={
                         isHighlighted ? () => setTooltip(null) : undefined
                       }
