@@ -32,27 +32,33 @@ export function Banner({ banners, locale }: Props) {
       onMouseEnter={plugin.current.stop}
       onMouseLeave={plugin.current.reset}
     >
-      <CarouselContent>
-        {banners.map((item) => {
-          const title = isArabic ? item.alt ?? item.alt : item.alt;
+      <CarouselContent className="flex flex-row overflow-hidden">
+        {banners.map((item, index) => {
+          const title = item.alt;
           const description = isArabic
             ? item.description_ar ?? item.description_en
             : item.description_en;
 
           return (
-            <CarouselItem key={item.id} className="relative">
+            <CarouselItem
+              key={item.id ?? index} // ✅ كل عنصر له key فريد
+              className="relative min-w-full flex-shrink-0"
+            >
               <Card className="border-0 shadow-none p-0">
                 <CardContent className="aspect-[20/8] p-0 m-0 relative overflow-hidden">
                   {/* Background image */}
                   <Image
-  src={item.image && item.image.trim() !== "" ? item.image : "/default-image.png"}
-  alt={title}
-  fill
-  className="object-cover"
-/>
+                    src={
+                      item.image && item.image.trim() !== ""
+                        ? item.image
+                        : "/default-image.png"
+                    }
+                    alt={title}
+                    fill
+                    className="object-cover"
+                  />
 
-
-                  {/* Gradient overlay that follows text side */}
+                  {/* Gradient overlay */}
                   <div
                     className={`absolute inset-0 z-10 ${
                       isArabic
@@ -61,20 +67,26 @@ export function Banner({ banners, locale }: Props) {
                     }`}
                   />
 
-                  {/* Text content (anchored to the correct side) */}
+                  {/* Text content */}
                   <div
                     dir={isArabic ? "rtl" : "ltr"}
-                    className={`absolute top-0 bottom-0 z-20 flex flex-col justify-center text-white transition-all duration-300 
-                      ${isArabic ? "right-[6vw] items-start text-right" : "left-[6vw] items-start text-left"}`}
+                    className={`absolute inset-y-0 z-20 flex flex-col justify-center text-white
+                      ${
+                        isArabic
+                          ? "right-[6vw] items-start text-right"
+                          : "left-[6vw] items-start text-left"
+                      }`}
                   >
-                    <div className="w-[90%] sm:w-[70%] md:w-[50%] lg:w-[45%]">
+                    {/* ✅ padding داخلي لمنع اللزق */}
+                    <div className="max-w-[520px] px-2 sm:px-0">
                       {title && (
-                        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 drop-shadow-md">
+                        <h2 className="font-bold mb-3 drop-shadow-md text-xl sm:text-2xl md:text-3xl lg:text-4xl">
                           {title}
                         </h2>
                       )}
+
                       {description && (
-                        <p className="text-base sm:text-lg md:text-xl leading-relaxed drop-shadow-md">
+                        <p className="leading-relaxed drop-shadow-md text-sm sm:text-base md:text-lg lg:text-xl">
                           {description}
                         </p>
                       )}
@@ -86,6 +98,7 @@ export function Banner({ banners, locale }: Props) {
           );
         })}
       </CarouselContent>
+
       <CarouselPrevious />
       <CarouselNext />
     </Carousel>
