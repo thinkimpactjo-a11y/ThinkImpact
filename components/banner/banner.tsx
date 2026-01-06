@@ -27,13 +27,14 @@ export function Banner({ banners, locale }: Props) {
 
   return (
     <Carousel
+    dir="ltr"
       plugins={[plugin.current]}
-      className="w-full mt-20"
+      className="w-full mt-20  "
       onMouseEnter={plugin.current.stop}
       onMouseLeave={plugin.current.reset}
     >
-      <CarouselContent className="flex flex-row overflow-hidden">
-        {banners.map((item, index) => {
+      <CarouselContent>
+        {banners.map((item) => {
           const title = item.alt;
           const description = isArabic
             ? item.description_ar ?? item.description_en
@@ -41,12 +42,11 @@ export function Banner({ banners, locale }: Props) {
 
           return (
             <CarouselItem
-              key={item.id ?? index} // ✅ كل عنصر له key فريد
-              className="relative min-w-full flex-shrink-0"
+              key={item.id}
+              className="relative basis-full shrink-0"
             >
               <Card className="border-0 shadow-none p-0">
                 <CardContent className="aspect-[20/8] p-0 m-0 relative overflow-hidden">
-                  {/* Background image */}
                   <Image
                     src={
                       item.image && item.image.trim() !== ""
@@ -58,7 +58,6 @@ export function Banner({ banners, locale }: Props) {
                     className="object-cover"
                   />
 
-                  {/* Gradient overlay */}
                   <div
                     className={`absolute inset-0 z-10 ${
                       isArabic
@@ -67,7 +66,6 @@ export function Banner({ banners, locale }: Props) {
                     }`}
                   />
 
-                  {/* Text content */}
                   <div
                     dir={isArabic ? "rtl" : "ltr"}
                     className={`absolute inset-y-0 z-20 flex flex-col justify-center text-white
@@ -77,7 +75,6 @@ export function Banner({ banners, locale }: Props) {
                           : "left-[6vw] items-start text-left"
                       }`}
                   >
-                    {/* ✅ padding داخلي لمنع اللزق */}
                     <div className="max-w-[520px] px-2 sm:px-0">
                       {title && (
                         <h2 className="font-bold mb-3 drop-shadow-md text-xl sm:text-2xl md:text-3xl lg:text-4xl">
