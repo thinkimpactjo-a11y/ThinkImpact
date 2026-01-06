@@ -75,15 +75,11 @@ export function Banner({ banners, locale }: Props) {
                           : "left-[6vw] items-start text-left"
                       }`}
                   >
-                    <div className="max-w-[520px] px-2 sm:px-0">
-                      {title && (
-                        <h2 className="font-bold mb-3 drop-shadow-md text-xl sm:text-2xl md:text-3xl lg:text-4xl">
-                          {title}
-                        </h2>
-                      )}
+                    <div className="max-w-[50%] px-2 sm:px-0 ">
+                   
 
                       {description && (
-                        <p className="leading-relaxed drop-shadow-md text-sm sm:text-base md:text-lg lg:text-xl">
+                        <p className="leading-relaxed drop-shadow-md text-[10px] sm:text-base md:text-lg lg:text-3xl font-semibold">
                           {description}
                         </p>
                       )}
