@@ -49,7 +49,7 @@ const FlippingCard: React.FC<CardProps> = ({ title, description, service_image }
                    group-hover:rotate-x-0
                    flex flex-col justify-center bg-[#0f4473] z-30"
       >
-        <p className="mt-2 text-sm lg:text-base leading-relaxed" dir="rtl">{description}</p>
+        <p className="mt-2 text-sm lg:text-base leading-relaxed" >{description}</p>
       </div>
     </div>
   );
