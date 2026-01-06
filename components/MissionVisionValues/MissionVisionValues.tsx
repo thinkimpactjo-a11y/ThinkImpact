@@ -134,7 +134,7 @@ export default function MissionVisionValues({ locale, settings }: Props) {
             <h3 className="text-xl font-semibold mb-3">
               {isArabic ? item.title_ar : item.title_en}
             </h3>
-            <p className="text-sm sm:text-base leading-relaxed">
+            <p className="text-sm sm:text-base centert leading-relaxed">
               {isArabic ? item.description_ar : item.description_en}
             </p>
           </div>
@@ -162,7 +162,7 @@ export default function MissionVisionValues({ locale, settings }: Props) {
             <h3 className="text-xl font-semibold mb-3">
               {isArabic ? item.title_ar : item.title_en}
             </h3>
-            <p className="text-sm sm:text-base leading-relaxed">
+            <p className="text-sm centert sm:text-base leading-relaxed">
               {isArabic ? item.description_ar : item.description_en}
             </p>
           </div>
