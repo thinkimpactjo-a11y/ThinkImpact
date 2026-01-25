@@ -32,10 +32,10 @@ export default function MemberDialog({ member, locale }: Props) {
       <DialogTrigger asChild>
         <Button
           variant="ghost"
-          className={`p-0 underline underline-offset-2 cursor-pointer ${
+          className={`p-0 underline text-black dark:text-white underline-offset-2 cursor-pointer ${
             isArabic
-              ? "text-gray-900 font-semibold text-sm"
-              : "text-gray-900 font-semibold text-xs"
+              ? "font-semibold text-sm"
+              : " font-semibold text-xs"
           }`}
         >
           {isArabic ? "اعرف المزيد" : "See More"}
