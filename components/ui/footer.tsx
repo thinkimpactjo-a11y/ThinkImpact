@@ -133,7 +133,7 @@ export default function Footer({ categories, trainingData, locale }: Props) {
 
         {/* Footer Bottom */}
         <div className="text-center pt-5 pb-10 border-t border-white/20">
-          <p className="text-sm text-white break-words">
+          <p className="text-sm text-white centert break-words">
             {isArabic ? (
               <>
                 © 2025 Think Impact. جميع الحقوق محفوظة. تم الإنشاء بواسطة{" "}

@@ -69,14 +69,14 @@ export default function CourseDialog({ course, locale }: Props) {
               }`}
             >
               <div>
-                <DialogTitle className="text-[#125892] mt-6 font-bold text-justify text-base sm:text-lg md:text-2xl">
+                <DialogTitle className="text-[#125892]  mt-6 font-bold text-justify text-base sm:text-lg md:text-2xl">
                   {title}
                 </DialogTitle>
               </div>
             </div>
           </DialogHeader>
 
-          <div className="text-gray-700 text-sm sm:text-base " dir="rtl">
+          <div className="text-gray-700  text-sm sm:text-base " dir={isArabic?"rtl":"ltr"}>
             {description}
             {audience?.length > 0 && (
               <p className="mt-3 text-sm sm:text-base">
