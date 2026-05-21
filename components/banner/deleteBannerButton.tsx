@@ -14,25 +14,69 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {  Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
+import { signOut } from "next-auth/react";
 export default function DeleteBannerButton({
   bannerId,
   deleteAction,
 }: {
   bannerId: string;
-  deleteAction: (id: string) => Promise<void>;
+  deleteAction: (
+    id: string,
+  ) => Promise<{ message: string; success: boolean; status: number }>;
 }) {
-    const [open, setOpen] = useState<boolean>(false)
- const [loading, setLoading] = useState<boolean>(false);
+  const [open, setOpen] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
+  const handleConfirm = async () => {
+    try {
+      setLoading(true);
 
- const handleConfirm= async ()=>{
-    setLoading(true);
-    await deleteAction(bannerId); 
-    setLoading(false);
-    setOpen(false);
-    
- }
-    
+      const result = await deleteAction(bannerId);
+
+      // 🔐 AUTH HANDLING
+      if (
+       result?.status === 403 || result?.status === 401
+      ) {
+        setToast?.({
+          message: "Expired Session, Please Login",
+          type: "error",
+        });
+
+        setTimeout(() => {
+          signOut({ callbackUrl: "/login?reason=expired" });
+        }, 500);
+
+        return;
+      }
+
+      // ❌ BUSINESS FAILURE
+      if (!result.success) {
+        console.error(result.message);
+        setToast?.({
+          message: result.message || "Failed to delete banner",
+          type: "error",
+        });
+        return;
+      }
+
+      // ✅ SUCCESS
+      setToast?.({
+        message: "Banner deleted successfully!",
+        type: "success",
+      });
+
+      setOpen(false);
+    } catch (error) {
+      console.error("Unexpected error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -58,19 +102,21 @@ export default function DeleteBannerButton({
         </DialogHeader>
         <div className="mt-4 flex justify-end gap-2">
           <DialogTrigger asChild>
-            <button className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300" onClick={() => setOpen(false)}>
+            <button
+              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+              onClick={() => setOpen(false)}
+            >
               Cancel
             </button>
           </DialogTrigger>
-          <form action={() => deleteAction(bannerId)}>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-              onClick={handleConfirm}
-            >
-               {loading ? "Deleting..." : "Confirm"}
-            </button>
-          </form>
+
+          <button
+            type="submit"
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            onClick={handleConfirm}
+          >
+            {loading ? "Deleting..." : "Confirm"}
+          </button>
         </div>
       </DialogContent>
     </Dialog>

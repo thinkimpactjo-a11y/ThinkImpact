@@ -15,23 +15,68 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {  Trash2 } from "lucide-react";
+import { signOut } from "next-auth/react";
 export default function DeleteApplicationButton({
   applicationId,
   deleteAction,
 }: {
   applicationId: string;
-  deleteAction: (id: string) => Promise<void>;
+  deleteAction: (id: string) => Promise<{message:string,success:boolean, status:number}>;
 }) {
     const [open, setOpen] = useState<boolean>(false)
  const [loading, setLoading] = useState<boolean>(false);
-
- const handleConfirm= async ()=>{
+ const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
+ const handleConfirm = async () => {
+  try {
     setLoading(true);
-    await deleteAction(applicationId); 
-    setLoading(false);
+
+    const result = await deleteAction(applicationId);
+
+    // 🔐 Auth handling
+    if (
+     result?.status === 403 || result?.status === 401
+    ) {
+      setToast?.({
+        message: "Expired Session, Please Login",
+        type: "error",
+      });
+
+      setTimeout(() => {
+        signOut({ callbackUrl: "/login?reason=expired" });
+      }, 500);
+
+      return;
+    }
+
+    // ❌ Failure handling
+    if (!result.success) {
+      setToast?.({
+        message: result.message || "Failed to delete application",
+        type: "error",
+      });
+      return;
+    }
+
+    // ✅ Success
+    setToast?.({
+      message: "Application deleted successfully!",
+      type: "success",
+    });
+
     setOpen(false);
-    
- }
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    setToast?.({
+      message: "Something went wrong",
+      type: "error",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
     
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -62,7 +107,7 @@ export default function DeleteApplicationButton({
               Cancel
             </button>
           </DialogTrigger>
-          <form action={() => deleteAction(applicationId)}>
+          
             <button
               type="submit"
               className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
@@ -70,7 +115,7 @@ export default function DeleteApplicationButton({
             >
                {loading ? "Deleting..." : "Confirm"}
             </button>
-          </form>
+          
         </div>
       </DialogContent>
     </Dialog>

@@ -10,10 +10,8 @@ const adminRoutes = ["/admin/dashboard"];
 const authRoutes = ["/login", "/register", "/forgot-password"];
 
 export async function middleware(req: NextRequest) {
-  // ✅ أولاً: خلي الـ i18n يحدد اللغة
   const i18nResponse = handleI18nRouting(req);
 
-  // نستخدم nextUrl من الـ request مباشرة
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   const { nextUrl } = req;
   const pathWithoutLocale = nextUrl.pathname.replace(/^\/(en|ar)/, "");

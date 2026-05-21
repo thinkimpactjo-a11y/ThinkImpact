@@ -14,7 +14,9 @@ import { z } from "zod";
 import { newClientSchema } from "@/types/zod/clientsSchema";
 import { signOut } from "next-auth/react";
 interface Props {
-  action: (data: newClient) => Promise<void>;
+  action: (
+    data: newClient,
+  ) => Promise<{ message: string; status: number; success: boolean }>;
 }
 
 function getErrorMessage(error: unknown): string | null {
@@ -34,7 +36,10 @@ export default function AddClientForm({ action }: Props) {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isPending, startTransition] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -56,50 +61,83 @@ export default function AddClientForm({ action }: Props) {
   };
 
   const handleFormSubmit = () => {
-    startTransition(true);
-    try {
-      // Validate with Zod
-      newClientSchema.parse(form);
-      setErrors({}); // clear previous errors
+   startTransition(true)
+      try {
+        // Validate with Zod
+        newClientSchema.parse(form);
+        setErrors({}); // clear previous errors
 
-      action({ ...form })
-        .then(() => {
-          setToast({ message: "Client added successfully!", type: "success" });
+        action({ ...form })
+          .then((result) => {
+            if (result.status === 401 || result.status === 403) {
+              setToast({
+                message: "Expired Session, Please Login",
+                type: "error",
+              });
+
+              setTimeout(() => {
+                signOut({ callbackUrl: "/login?reason=expired" });
+              }, 500);
+
+              return;
+            }
+
+            if (result.success) {
+              setToast({
+                message: "Client updated successfully!",
+                type: "success",
+              });
+
+              setTimeout(() => {
+                setToast(null);
+                router.replace("/admin/dashboard/clients");
+              }, 1500);
+            } else {
+              setToast({
+                message: result?.message || "Failed to update Client.",
+                type: "error",
+              });
+
+              setTimeout(() => setToast(null), 3000);
+            }
+          })
+          .catch(() => {
+            setToast({ message: "Failed to update Client.", type: "error" });
+            setTimeout(() => setToast(null), 3000);
+          })
+          .finally(() => startTransition(false));
+      } catch (error) {
+        const message = getErrorMessage(error);
+
+        if (error instanceof z.ZodError) {
+          const fieldErrors: Record<string, string> = {};
+
+          error.issues.forEach((err) => {
+            if (err.path[0]) {
+              fieldErrors[err.path[0] as string] = err.message;
+            }
+          });
+
+          setErrors(fieldErrors);
+        } else if (
+          message === "SESSION_EXPIRED" ||
+          message === "UNAUTHENTICATED"
+        ) {
+          setToast({ message: "Expired Session, Please Login", type: "error" });
+
           setTimeout(() => {
-            setToast(null);
-            router.replace("/admin/dashboard/clients");
-          }, 1500);
-        })
-        .catch(() => {
-          setToast({ message: "Failed to add Client.", type: "error" });
-          setTimeout(() => setToast(null), 3000);
-        })
-        .finally(() => startTransition(false));
-    } catch (error) {
-      const message = getErrorMessage(error);
-      if (error instanceof z.ZodError) {
-        const fieldErrors: Record<string, string> = {};
-        error.issues.forEach((err) => {
-          if (err.path[0]) fieldErrors[err.path[0] as string] = err.message;
-        });
-        setErrors(fieldErrors);
-      }else if (
-                        message === "SESSION_EXPIRED" ||
-                        message === "UNAUTHENTICATED"
-                      ) {
-                        setToast({ message: "Expired Session, Please Login", type: "error" });
-              
-                        setTimeout(() => {
-                          signOut({ callbackUrl: "/login?reason=expired" });
-                        }, 500);
-              
-                        return;
-                      } else {
-        setToast({ message: "Failed to add Client.", type: "error" });
+            signOut({ callbackUrl: "/login?reason=expired" });
+          }, 500);
+
+          return;
+        } else {
+          setToast({ message: "Failed to update Client.", type: "error" });
+        }
+
+        setTimeout(() => setToast(null), 3000);
+        startTransition(false);
       }
-      setTimeout(() => setToast(null), 3000);
-      startTransition(false);
-    }
+
   };
 
   return (
@@ -138,7 +176,9 @@ export default function AddClientForm({ action }: Props) {
                   errors.name ? "border-red-600" : "border-black"
                 }`}
               />
-              {errors.name && <p className="text-red-600 text-sm mt-1">{errors.name}</p>}
+              {errors.name && (
+                <p className="text-red-600 text-sm mt-1">{errors.name}</p>
+              )}
             </div>
 
             {/* Logo Field */}
@@ -151,7 +191,9 @@ export default function AddClientForm({ action }: Props) {
                 onUploadError={handleUploadError}
                 onDelete={handleImageDelete}
               />
-              {errors.logo && <p className="text-red-600 text-sm mt-1">{errors.logo}</p>}
+              {errors.logo && (
+                <p className="text-red-600 text-sm mt-1">{errors.logo}</p>
+              )}
             </div>
 
             {/* Buttons */}

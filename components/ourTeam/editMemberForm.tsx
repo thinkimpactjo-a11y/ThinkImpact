@@ -27,7 +27,7 @@ function getErrorMessage(error: unknown): string | null {
 
 interface Props {
   member: newMember;
-  action: (data: newMember) => Promise<void>;
+  action: (data: newMember) => Promise<{message:string, success:boolean, status:number}>;
 }
 
 export default function EditMemberForm({ member, action }: Props) {
@@ -41,15 +41,18 @@ export default function EditMemberForm({ member, action }: Props) {
     description_en: member.description_en ?? "",
     description_ar: member.description_ar ?? "",
     image: member.image ?? "",
-    main: member.main??"",
+    main: member.main ?? "",
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isPending, startTransition] = useTransition();
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     setErrors({ ...errors, [e.target.name]: "" }); // clear field error
@@ -69,46 +72,73 @@ export default function EditMemberForm({ member, action }: Props) {
     setForm({ ...form, image: "" });
   };
 
-  const handleFormSubmit = () => {
-    startTransition(async () => {
-      try {
-        // Validate form using Zod
-        newMemberSchema.parse(form);
-        setErrors({}); // clear errors if valid
+ const handleFormSubmit = () => {
+  startTransition(async () => {
+    try {
+      // Validate form using Zod
+      newMemberSchema.parse(form);
+      setErrors({});
 
-        await action({ ...form });
-        setToast({ message: "Member updated successfully!", type: "success" });
+      const result = await action({ ...form });
+
+      if (result.success) {
+        setToast({
+          message: "Member updated successfully",
+          type: "success",
+        });
 
         setTimeout(() => {
           setToast(null);
           router.replace("/admin/dashboard/ourTeam");
         }, 1500);
-      } catch (error) {
-        const message = getErrorMessage(error);
-       if (error instanceof z.ZodError) {
-  const fieldErrors: Record<string, string> = {};
-  error.issues.forEach((err) => {
-    
-    if (err.path[0]) fieldErrors[err.path[0] as string] = err.message;
-  });
-  setErrors(fieldErrors);
-} else  
-                if (message === "SESSION_EXPIRED" || message === "UNAUTHENTICATED") {
-                  setToast({ message: "Expired Session, Please Login", type: "error" });
-        
-                  setTimeout(() => {
-                    signOut({ callbackUrl: "/login?reason=expired" });
-                  }, 500);
-        
-                  return;
-                } else {
-  setToast({ message: "Failed to add Member.", type: "error" });
-}
 
-        setTimeout(() => setToast(null), 3000);
+        return;
       }
-    });
-  };
+
+      // Handle expected server-side errors
+      if (
+        result?.status === 403 || result?.status === 401
+      ) {
+        setToast({
+          message: "Session expired. Please login again",
+          type: "error",
+        });
+
+        setTimeout(() => {
+          signOut({ callbackUrl: "/login?reason=expired" });
+        }, 200);
+
+        return;
+      }
+
+      setToast({
+        message: result.message || "Failed to update member",
+        type: "error",
+      });
+    } catch (error) {
+      // Zod validation errors only
+      if (error instanceof z.ZodError) {
+        const fieldErrors: Record<string, string> = {};
+
+        error.issues.forEach((err) => {
+          if (err.path[0]) {
+            fieldErrors[err.path[0] as string] = err.message;
+          }
+        });
+
+        setErrors(fieldErrors);
+        return;
+      }
+
+      setToast({
+        message: "Something went wrong. Please try again",
+        type: "error",
+      });
+
+      setTimeout(() => setToast(null), 3000);
+    }
+  });
+};
 
   return (
     <main className="ml-3 xl:ml-7 mb-7">
@@ -148,7 +178,9 @@ export default function EditMemberForm({ member, action }: Props) {
                     errors.name_en ? "border-red-600" : "border-black"
                   }`}
                 />
-                {errors.name_en && <p className="text-red-600 text-sm mt-1">{errors.name_en}</p>}
+                {errors.name_en && (
+                  <p className="text-red-600 text-sm mt-1">{errors.name_en}</p>
+                )}
               </div>
 
               <div className="flex flex-col">
@@ -164,7 +196,9 @@ export default function EditMemberForm({ member, action }: Props) {
                     errors.name_ar ? "border-red-600" : "border-black"
                   }`}
                 />
-                {errors.name_ar && <p className="text-red-600 text-sm mt-1">{errors.name_ar}</p>}
+                {errors.name_ar && (
+                  <p className="text-red-600 text-sm mt-1">{errors.name_ar}</p>
+                )}
               </div>
             </div>
 
@@ -172,7 +206,8 @@ export default function EditMemberForm({ member, action }: Props) {
             <div className="flex flex-col lg:flex lg:flex-row lg:justify-start gap-7 ">
               <div className="flex flex-col">
                 <label className="text-base text-black mb-1">
-                  <span className="text-red-500 text-sm">*</span> Position (English)
+                  <span className="text-red-500 text-sm">*</span> Position
+                  (English)
                 </label>
                 <input
                   type="text"
@@ -183,12 +218,17 @@ export default function EditMemberForm({ member, action }: Props) {
                     errors.position_en ? "border-red-600" : "border-black"
                   }`}
                 />
-                {errors.position_en && <p className="text-red-600 text-sm mt-1">{errors.position_en}</p>}
+                {errors.position_en && (
+                  <p className="text-red-600 text-sm mt-1">
+                    {errors.position_en}
+                  </p>
+                )}
               </div>
 
               <div className="flex flex-col">
                 <label className="text-base text-black mb-1">
-                  <span className="text-red-500 text-sm">*</span> Position (Arabic)
+                  <span className="text-red-500 text-sm">*</span> Position
+                  (Arabic)
                 </label>
                 <input
                   type="text"
@@ -199,14 +239,19 @@ export default function EditMemberForm({ member, action }: Props) {
                     errors.position_ar ? "border-red-600" : "border-black"
                   }`}
                 />
-                {errors.position_ar && <p className="text-red-600 text-sm mt-1">{errors.position_ar}</p>}
+                {errors.position_ar && (
+                  <p className="text-red-600 text-sm mt-1">
+                    {errors.position_ar}
+                  </p>
+                )}
               </div>
             </div>
 
             {/* Description Fields */}
             <div className="flex flex-col">
               <label className="text-base text-black mb-1">
-                <span className="text-red-500 text-sm">*</span> English Description
+                <span className="text-red-500 text-sm">*</span> English
+                Description
               </label>
               <textarea
                 name="description_en"
@@ -216,12 +261,17 @@ export default function EditMemberForm({ member, action }: Props) {
                   errors.description_en ? "border-red-600" : "border-black"
                 }`}
               />
-              {errors.description_en && <p className="text-red-600 text-sm mt-1">{errors.description_en}</p>}
+              {errors.description_en && (
+                <p className="text-red-600 text-sm mt-1">
+                  {errors.description_en}
+                </p>
+              )}
             </div>
 
             <div className="flex flex-col">
               <label className="text-base text-black mb-1">
-                <span className="text-red-500 text-sm">*</span> Arabic Description
+                <span className="text-red-500 text-sm">*</span> Arabic
+                Description
               </label>
               <textarea
                 name="description_ar"
@@ -231,7 +281,11 @@ export default function EditMemberForm({ member, action }: Props) {
                   errors.description_ar ? "border-red-600" : "border-black"
                 }`}
               />
-              {errors.description_ar && <p className="text-red-600 text-sm mt-1">{errors.description_ar}</p>}
+              {errors.description_ar && (
+                <p className="text-red-600 text-sm mt-1">
+                  {errors.description_ar}
+                </p>
+              )}
             </div>
 
             {/* Image Uploader */}
@@ -244,7 +298,9 @@ export default function EditMemberForm({ member, action }: Props) {
                 onUploadError={handleUploadError}
                 onDelete={handleImageDelete}
               />
-              {errors.image && <p className="text-red-600 text-sm mt-1">{errors.image}</p>}
+              {errors.image && (
+                <p className="text-red-600 text-sm mt-1">{errors.image}</p>
+              )}
             </div>
 
             {/* Main Checkbox */}

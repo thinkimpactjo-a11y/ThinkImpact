@@ -1,6 +1,4 @@
 import { NextResponse } from "next/server";
-import jwt, { Secret } from "jsonwebtoken";
-import { type tokenPayload } from "../../consulting/route";
 import { editCourse, deleteCoruse } from "@/app/models/db/lib/services/courses";
 
 export const PUT = async (
@@ -10,38 +8,26 @@ export const PUT = async (
   }
 ) => {
   try {
-    const authHeader = request.headers.get("authorization")?.split(" ")[1];
-    if (!authHeader) {
-      return NextResponse.json({ message: "Unauthenticated" }, { status: 500 });
+    const { id } = await params.params;
+    const body = await request.json();
+    const result = await editCourse(id, body);
+
+    if (result === null) {
+      return NextResponse.json(
+        {
+          data: result,
+          message: `No course with this id: ${id}`,
+        },
+        { status: 409 }
+      );
     } else {
-      const payload = jwt.verify(
-        authHeader,
-        process.env.NEXTAUTH_SECRET as Secret
-      ) as tokenPayload;
-      if (payload.role !== "admin") {
-        return NextResponse.json({ message: "Unauthorized" }, { status: 501 });
-      } else {
-        const { id } = await params.params;
-        const body = await request.json();
-        const result = await editCourse(id, body);
-        if (result === null) {
-          return NextResponse.json(
-            {
-              data: result,
-              message: `No course with this id: ${id}`,
-            },
-            { status: 409 }
-          );
-        } else {
-          return NextResponse.json(
-            {
-              data: result,
-              message: "The course has been updated successfully",
-            },
-            { status: 201 }
-          );
-        }
-      }
+      return NextResponse.json(
+        {
+          data: result,
+          message: "The course has been updated successfully",
+        },
+        { status: 201 }
+      );
     }
   } catch (error) {
     return NextResponse.json(
@@ -58,39 +44,25 @@ export const DELETE = async (
   }
 ) => {
   try {
-    const authHeader = request.headers.get("authorization")?.split(" ")[1];
+    const { id } = await params.params;
+    const result = await deleteCoruse(id);
 
-    if (!authHeader) {
-      return NextResponse.json({ message: "Unauthenticated" }, { status: 500 });
+    if (result === null) {
+      return NextResponse.json(
+        {
+          data: result,
+          message: `No course with this id: ${id}`,
+        },
+        { status: 409 }
+      );
     } else {
-      const payload = jwt.verify(
-        authHeader,
-        process.env.NEXTAUTH_SECRET as Secret
-      ) as tokenPayload;
-      if (payload.role !== "admin") {
-        return NextResponse.json({ message: "Unauthorized" }, { status: 501 });
-      } else {
-        const { id } = await params.params;
-        const result = await deleteCoruse(id);
-
-        if (result === null) {
-          return NextResponse.json(
-            {
-              data: result,
-              message: `No course with this id: ${id}`,
-            },
-            { status: 409 }
-          );
-        } else {
-          return NextResponse.json(
-            {
-              data: result,
-              message: "The course has been deleted successfully",
-            },
-            { status: 201 }
-          );
-        }
-      }
+      return NextResponse.json(
+        {
+          data: result,
+          message: "The course has been deleted successfully",
+        },
+        { status: 201 }
+      );
     }
   } catch (error) {
     return NextResponse.json(

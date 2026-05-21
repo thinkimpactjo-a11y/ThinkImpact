@@ -22,7 +22,9 @@ function getErrorMessage(error: unknown): string | null {
 interface Props {
   userId: string;
   userRole: string;
-  action: (formData: FormData) => Promise<void>;
+  action: (
+    formData: FormData,
+  ) => Promise<{ message: string; success: boolean; status: number }>;
 }
 
 export default function UpdateRoleForm({ userId, userRole, action }: Props) {
@@ -39,22 +41,39 @@ export default function UpdateRoleForm({ userId, userRole, action }: Props) {
 
     startTransition(async () => {
       try {
-        await action(formData);
+        const result = await action(formData);
+
+        if (!result?.success) {
+          if (result?.status === 403 || result?.status === 401) {
+            setToast({
+              message: "Expired Session, Please Login",
+              type: "error",
+            });
+
+            setTimeout(() => {
+              signOut({ callbackUrl: "/login?reason=expired" });
+            }, 500);
+
+            return;
+          }
+
+          setToast({
+            message: result?.message || "Failed to update role.",
+            type: "error",
+          });
+
+          setTimeout(() => setToast(null), 3000);
+          return;
+        }
+
         setToast({ message: "Role Updated Successfully!", type: "success" });
 
         setTimeout(() => setToast(null), 3000);
       } catch (error) {
-         const message = getErrorMessage(error);
-                                        if (message === "SESSION_EXPIRED" || message === "UNAUTHENTICATED") {
-                                          setToast({ message: "Expired Session, Please Login", type: "error" });
-                                
-                                          setTimeout(() => {
-                                            signOut({ callbackUrl: "/login?reason=expired" });
-                                          }, 500);
-                                
-                                          return;
-                                        }
-        setToast({ message: "Failed to update role.", type: "error" });
+        console.error(error);
+
+        setToast({ message: "Unexpected error occurred.", type: "error" });
+
         setTimeout(() => setToast(null), 3000);
       }
     });

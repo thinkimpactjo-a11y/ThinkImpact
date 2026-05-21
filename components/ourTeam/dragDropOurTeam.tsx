@@ -33,13 +33,6 @@ import Image from "next/image";
 
 import { signOut } from "next-auth/react";
 
-function getErrorMessage(error: unknown): string | null {
-  if (typeof error === "object" && error !== null && "message" in error) {
-    const msg = (error as { message?: unknown }).message;
-    return typeof msg === "string" ? msg : null;
-  }
-  return null;
-}
 
 interface Props {
   members: newMemberDragAndDrop[];
@@ -64,36 +57,61 @@ export default function DragDropOurteam({ members: initialMembers }: Props) {
   };
 
   const handleSaveOrder = async () => {
-    const body = members.map((member, index) => ({
-      id: member.id,
-      display_order: index + 1,
-    }));
-    startTransition(async () => {
-      try {
-        await updateMemberOrder(body);
-        setToast({ message: "Members Ordered successfully!", type: "success" });
+  const body = members.map((member, index) => ({
+    id: member.id,
+    display_order: index + 1,
+  }));
+
+  startTransition(async () => {
+    try {
+      const result = await updateMemberOrder(body);
+
+      if (result.success) {
+        setToast({
+          message: "Members ordered successfully",
+          type: "success",
+        });
+
         setTimeout(() => {
           setToast(null);
           router.replace("/admin/dashboard/ourTeam");
           window.location.reload();
         }, 1500);
-      } catch (error) {
-         const message = getErrorMessage(error);
-                        if (message === "SESSION_EXPIRED" || message === "UNAUTHENTICATED") {
-                          setToast({ message: "Expired Session, Please Login", type: "error" });
-                
-                          setTimeout(() => {
-                            signOut({ callbackUrl: "/login?reason=expired" });
-                          }, 500);
-                
-                          return;
-                        }
-        console.error(error);
-        setToast({ message: "Failed to Order Member.", type: "error" });
-        setTimeout(() => setToast(null), 3000);
+
+        return;
       }
-    });
-  };
+
+      if (
+        result?.status === 403 || result?.status === 401
+      ) {
+        setToast({
+          message: "Session expired. Please login again",
+          type: "error",
+        });
+
+        setTimeout(() => {
+          signOut({ callbackUrl: "/login?reason=expired" });
+        }, 200);
+
+        return;
+      }
+
+      setToast({
+        message: result.message || "Failed to update order",
+        type: "error",
+      });
+    } catch (error) {
+      console.error("Unexpected error:", error);
+
+      setToast({
+        message: "Something went wrong. Please try again",
+        type: "error",
+      });
+
+      setTimeout(() => setToast(null), 3000);
+    }
+  });
+};
 
   const SortableRow = ({ member }: { member: newMemberDragAndDrop }) => {
     const { attributes, listeners, setNodeRef, transform, transition } =

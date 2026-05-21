@@ -5,37 +5,49 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/models/db/authOptions";
 import { newMember } from "@/types";
 
-const EXPIRE_SECONDS = 15 * 24 * 60 * 60; // 15 days in seconds
-
 export async function editMember(data: newMember) {
   const session = await getServerSession(authOptions);
 
   if (!session) {
-    throw new Error("UNAUTHENTICATED");
+    return {
+      message: "UNAUTHENTICATED",
+      success: false,
+      status: 401,
+    };
   }
 
-   const nowSec = Math.floor(Date.now() / 1000);
-const loginAtSec = session.user.loginAt
-  ? Math.floor(new Date(session.user.loginAt).getTime() / 1000)
-  : null;
+  if (session.user.role !== "admin") {
+    return {
+      message: "UNAUTHORIZED",
+      success: false,
+      status: 403,
+    };
+  }
 
-  if (!loginAtSec || nowSec - loginAtSec > EXPIRE_SECONDS) {
-  throw new Error("SESSION_EXPIRED");
-}
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_APP_URL}/api/ourTeam/${data.id}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    }
+  );
 
-  const token = session.user.token;
+  if (!res.ok) {
+    return {
+      message: "ERROR_UPDATING_MEMBER",
+      success: false,
+      status: res.status,
+    };
+  }
 
-  const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/ourTeam/${data.id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(data),
-  });
+  revalidatePath("/dashboard/ourTeam");
 
-  if (!res.ok) throw new Error("FAILED_TO_UPDATE_MEMBER");
-
-  revalidatePath(`/dashboard/ourTeam`);
-  return await res.json();
+  return {
+    message: "MEMBER_UPDATED_SUCCESSFULLY",
+    success: true,
+    status: 200,
+  };
 }

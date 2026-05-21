@@ -22,7 +22,7 @@ interface Props {
     description_ar: string;
     image?: string | null;
     bannerId?: string;
-  }) => Promise<void>;
+  }) => Promise<{message:string, success:boolean, status:number}>;
 }
 function getErrorMessage(error: unknown): string | null {
   if (typeof error === "object" && error !== null && "message" in error) {
@@ -66,49 +66,72 @@ export default function EditBannerForm({ banner, action }: Props) {
     setForm({ ...form, image: null });
   };
 
-  const handleFormSubmit = () => {
-    startTransition(async () => {
-      try {
-        // ✅ Validate form using Zod
-        const validatedData = bannerSchema.parse(form);
+ const handleFormSubmit = () => {
+  startTransition(async () => {
+    try {
+      // ✅ Validate form using Zod
+      const validatedData = bannerSchema.parse(form);
 
-        await action({ ...validatedData, bannerId: banner.id });
-        setToast({ message: "Banner updated successfully!", type: "success" });
+      const result = await action({
+        ...validatedData,
+        bannerId: banner.id,
+      });
+
+      
+      if (
+        result?.status === 403 || result?.status === 401
+      ) {
+        setToast({ message: "Expired Session, Please Login", type: "error" });
 
         setTimeout(() => {
-          setToast(null);
-          router.replace("/admin/dashboard/banners");
-        }, 1500);
-      } catch (error) {
-        const message = getErrorMessage(error);
-        if (error instanceof z.ZodError) {
-          // ✅ Map field-specific errors
-          const fieldErrors: Partial<Record<keyof newBanner, string>> = {};
-          error.issues.forEach((err) => {
-            const path = err.path[0] as keyof newBanner;
-            fieldErrors[path] = err.message;
-          });
-          setErrors(fieldErrors);
-          setToast({ message: "Please check the highlighted fields.", type: "error" });
-        }else if (
-                  message === "SESSION_EXPIRED" ||
-                  message === "UNAUTHENTICATED"
-                ) {
-                  setToast({ message: "Expired Session, Please Login", type: "error" });
-        
-                  setTimeout(() => {
-                    signOut({ callbackUrl: "/login?reason=expired" });
-                  }, 500);
-        
-                  return;
-                } else {
-          console.error(error);
-          setToast({ message: "Failed to update banner.", type: "error" });
-        }
-        setTimeout(() => setToast(null), 3000);
+          signOut({ callbackUrl: "/login?reason=expired" });
+        }, 500);
+
+        return;
       }
-    });
-  };
+
+      if (!result.success) {
+        setToast({ message: result.message, type: "error" });
+        return;
+      }
+
+      // ✅ Success
+      setToast({
+        message: "Banner updated successfully!",
+        type: "success",
+      });
+
+      setTimeout(() => {
+        setToast(null);
+        router.replace("/admin/dashboard/banners");
+      }, 1500);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const fieldErrors: Partial<Record<keyof newBanner, string>> = {};
+
+        error.issues.forEach((err) => {
+          const path = err.path[0] as keyof newBanner;
+          fieldErrors[path] = err.message;
+        });
+
+        setErrors(fieldErrors);
+
+        setToast({
+          message: "Please check the highlighted fields.",
+          type: "error",
+        });
+      } else {
+        console.error(error);
+        setToast({
+          message: "Failed to update banner.",
+          type: "error",
+        });
+      }
+
+      setTimeout(() => setToast(null), 3000);
+    }
+  });
+};
 
   return (
     <main className="ml-3 xl:ml-7 mb-7">

@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import {
   Dialog,
@@ -14,59 +15,58 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {  Trash2 } from "lucide-react";
-
+import { Trash2 } from "lucide-react";
 import { signOut } from "next-auth/react";
 
-function getErrorMessage(error: unknown): string | null {
-  if (typeof error === "object" && error !== null && "message" in error) {
-    const msg = (error as { message?: unknown }).message;
-    return typeof msg === "string" ? msg : null;
-  }
-  return null;
-}
 export default function DeleteMemberButton({
   memberId,
   deleteAction,
 }: {
   memberId: string;
-  deleteAction: (id: string) => Promise<void>;
+  deleteAction: (
+    id: string
+  ) => Promise<{ message: string; success: boolean; status: number }>;
 }) {
-    const [open, setOpen] = useState<boolean>(false)
- const [loading, setLoading] = useState<boolean>(false);
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
- const handleConfirm= async ()=>{
-  try {
-     setLoading(true);
-    await deleteAction(memberId); 
-    setLoading(false);
-    setOpen(false);
-    
-  } catch (error) {
-    {
-                const message = getErrorMessage(error);
-                if (message === "SESSION_EXPIRED" || message === "UNAUTHENTICATED") {
-                 
-                  setTimeout(() => {
-                    signOut({ callbackUrl: "/login?reason=expired" });
-                  }, 500);
-        
-                  return;
-                }
-                console.error(error);
-              }
-  }
-   
- }
-    
+  const handleConfirm = async () => {
+    try {
+      setLoading(true);
+
+      const result = await deleteAction(memberId);
+
+      if (result.success) {
+        setOpen(false);
+        return;
+      }
+
+      if (
+       result?.status === 403 || result?.status === 401
+      ) {
+        setTimeout(() => {
+          signOut({ callbackUrl: "/login?reason=expired" });
+        }, 800);
+        return;
+      }
+
+      console.error(result.message || "Failed to delete member");
+      setOpen(false);
+    } catch (error) {
+      console.error("Unexpected error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <div className="relative flex justify-center items-center">
+        <div className="relative flex items-center justify-center">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Trash2 className="w-5 h-5 text-[#8B0000] cursor-pointer hover:text-[#800000]" />
+                <Trash2 className="h-5 w-5 cursor-pointer text-[#8B0000] hover:text-[#800000]" />
               </TooltipTrigger>
               <TooltipContent side="top" align="center">
                 <p>Delete</p>
@@ -75,28 +75,33 @@ export default function DeleteMemberButton({
           </TooltipProvider>
         </div>
       </DialogTrigger>
+
       <DialogContent className="sm:max-w-[400px]">
         <DialogHeader>
           <DialogTitle>Confirm Delete</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete this Member?
+            Are you sure you want to delete this member?
           </DialogDescription>
         </DialogHeader>
+
         <div className="mt-4 flex justify-end gap-2">
-          <DialogTrigger asChild>
-            <button className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300" onClick={() => setOpen(false)}>
-              Cancel
-            </button>
-          </DialogTrigger>
-          <form action={() => deleteAction(memberId)}>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-              onClick={handleConfirm}
-            >
-               {loading ? "Deleting..." : "Confirm"}
-            </button>
-          </form>
+          <button
+            type="button"
+            className="rounded bg-gray-200 px-4 py-2 hover:bg-gray-300"
+            onClick={() => setOpen(false)}
+            disabled={loading}
+          >
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            className="rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+            onClick={handleConfirm}
+            disabled={loading}
+          >
+            {loading ? "Deleting..." : "Confirm"}
+          </button>
         </div>
       </DialogContent>
     </Dialog>

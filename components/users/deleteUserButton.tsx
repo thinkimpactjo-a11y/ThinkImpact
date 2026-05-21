@@ -30,7 +30,9 @@ export default function DeleteUserButton({
   deleteAction,
 }: {
   userId: string;
-  deleteAction: (id: string) => Promise<void>;
+  deleteAction: (
+    id: string,
+  ) => Promise<{ message: string; success: boolean; status: number }>;
 }) {
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -38,21 +40,30 @@ export default function DeleteUserButton({
   const handleConfirm = async () => {
     try {
       setLoading(true);
-      await deleteAction(userId);
-      setLoading(false);
+
+      const result = await deleteAction(userId);
+
+      // 🔐 Auth handling
+      if (result?.status === 403 || result?.status === 401) {
+        setTimeout(() => {
+          signOut({ callbackUrl: "/login?reason=expired" });
+        }, 500);
+
+        return;
+      }
+
+      // ❌ Failure handling
+      if (!result.success) {
+        console.error(result.message);
+        return;
+      }
+
+      // ✅ Success
       setOpen(false);
     } catch (error) {
-      {
-        const message = getErrorMessage(error);
-        if (message === "SESSION_EXPIRED" || message === "UNAUTHENTICATED") {
-          setTimeout(() => {
-            signOut({ callbackUrl: "/login?reason=expired" });
-          }, 500);
-
-          return;
-        }
-        console.error(error);
-      }
+      console.error("Unexpected error:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -88,15 +99,14 @@ export default function DeleteUserButton({
               Cancel
             </button>
           </DialogTrigger>
-          <form action={() => deleteAction(userId)}>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-              onClick={handleConfirm}
-            >
-              {loading ? "Deleting..." : "Confirm"}
-            </button>
-          </form>
+
+          <button
+            type="submit"
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            onClick={handleConfirm}
+          >
+            {loading ? "Deleting..." : "Confirm"}
+          </button>
         </div>
       </DialogContent>
     </Dialog>

@@ -7,7 +7,7 @@ export const PUT = async (
   request: Request,
   params: {
     params: Promise<{ id: string }>;
-  }
+  },
 ) => {
   try {
     const authHeader = request.headers.get("authorization")?.split(" ")[1];
@@ -16,12 +16,11 @@ export const PUT = async (
     } else {
       const payload = jwt.verify(
         authHeader,
-        process.env.NEXTAUTH_SECRET as Secret
+        process.env.NEXTAUTH_SECRET as Secret,
       ) as tokenPayload;
       if (payload.role !== "admin") {
         return NextResponse.json({ message: "Unauthorized" }, { status: 501 });
       } else {
-
         const { id } = await params.params;
         const body = await request.json();
         const result = await editMember(id, body);
@@ -31,7 +30,7 @@ export const PUT = async (
               data: result,
               message: `No member with this id: ${id}`,
             },
-            { status: 409 }
+            { status: 409 },
           );
         } else {
           return NextResponse.json(
@@ -39,7 +38,7 @@ export const PUT = async (
               data: result,
               message: "The member has been updated successfully",
             },
-            { status: 201 }
+            { status: 201 },
           );
         }
       }
@@ -47,56 +46,43 @@ export const PUT = async (
   } catch (error) {
     return NextResponse.json(
       { data: error, message: "Error in updating The member" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };
 
 export const DELETE = async (
   request: Request,
-  params: {
-    params: Promise<{ id: string }>;
-  }
+  { params }: { params: { id: string } }
 ) => {
   try {
-    const authHeader = request.headers.get("authorization")?.split(" ")[1];
+    const { id } = params;
 
-    if (!authHeader) {
-      return NextResponse.json({ message: "Unauthenticated" }, { status: 500 });
-    } else {
-      const payload = jwt.verify(
-        authHeader,
-        process.env.NEXTAUTH_SECRET as Secret
-      ) as tokenPayload;
-      if (payload.role !== "admin") {
-        return NextResponse.json({ message: "Unauthorized" }, { status: 501 });
-      } else {
-        const { id } = await params.params;
-        const result = await deleteMember(id);
+    const result = await deleteMember(id);
 
-        if (result === null) {
-          
-          return NextResponse.json(
-            {
-              data: result,
-              message: `No member with this id: ${id}`,
-            },
-            { status: 409 }
-          );
-        } else {
-          return NextResponse.json(
-            {
-              data: result,
-              message: "The member has been deleted successfully",
-            },
-            { status: 201 }
-          );
-        }
-      }
+    if (!result) {
+      return NextResponse.json(
+        {
+          data: null,
+          message: "Member Not Found",
+        },
+        { status: 500}
+      );
     }
-  } catch (error) {    
+
     return NextResponse.json(
-      { data: error, message: "Error in deleting The member" },
+      {
+        data: result,
+        message: "Member deleted successfully",
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    return NextResponse.json(
+      {
+        data: error,
+        message: "Error deleting member",
+      },
       { status: 500 }
     );
   }

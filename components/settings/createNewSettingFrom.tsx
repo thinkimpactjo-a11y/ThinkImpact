@@ -154,7 +154,7 @@ export default function CreateNewSetting({
     },
   });
 
-   const watchedKey = watch("key_name_en");
+  const watchedKey = watch("key_name_en");
   const watchedValueEn = watch("value_en");
 
   useEffect(() => {
@@ -164,9 +164,8 @@ export default function CreateNewSetting({
     clearErrors();
   }, [watchedKey, setValue, clearErrors]);
 
-
   const remainingOptions = availableOptions.filter(
-    (opt) => !existingKeys.includes(opt.value)
+    (opt) => !existingKeys.includes(opt.value),
   );
 
   if (remainingOptions.length === 0) {
@@ -181,20 +180,18 @@ export default function CreateNewSetting({
           available to create.
         </div>
 
-       <div className="w-full flex justify-center my-5">
-  <button
-    onClick={() => router.push("/admin/dashboard/settings")}
-    className="bg-[#125892] text-white px-4 py-2 rounded-md cursor-pointer hover:bg-[#0f4473] transition mt-28"
-  >
-    Back to Settings
-  </button>
-</div>
-
-
+        <div className="w-full flex justify-center my-5">
+          <button
+            onClick={() => router.push("/admin/dashboard/settings")}
+            className="bg-[#125892] text-white px-4 py-2 rounded-md cursor-pointer hover:bg-[#0f4473] transition mt-28"
+          >
+            Back to Settings
+          </button>
+        </div>
       </main>
     );
   }
- 
+
   const handleImageUploadedEn = (url: string) => {
     setIsUploadingEn(false);
     setValue("value_en", url, { shouldValidate: true });
@@ -254,16 +251,16 @@ export default function CreateNewSetting({
           router.replace("/admin/dashboard/settings");
         }, 1500);
       } catch (err) {
-         const message = getErrorMessage(err);
-                                if (message === "SESSION_EXPIRED" || message === "UNAUTHENTICATED") {
-                                  setToast({ message: "Expired Session, Please Login", type: "error" });
-                        
-                                  setTimeout(() => {
-                                    signOut({ callbackUrl: "/login?reason=expired" });
-                                  }, 500);
-                        
-                                  return;
-                                }
+        const message = getErrorMessage(err);
+        if (message === "SESSION_EXPIRED" || message === "UNAUTHENTICATED") {
+          setToast({ message: "Expired Session, Please Login", type: "error" });
+
+          setTimeout(() => {
+            signOut({ callbackUrl: "/login?reason=expired" });
+          }, 500);
+
+          return;
+        }
         console.error(err);
         setToast({ message: "Failed to add Setting.", type: "error" });
         setTimeout(() => setToast(null), 3000);
@@ -562,8 +559,8 @@ export default function CreateNewSetting({
                   {isPending
                     ? "Adding..."
                     : isUploadingEn || isUploadingAr
-                    ? "Uploading..."
-                    : "Add Setting"}
+                      ? "Uploading..."
+                      : "Add Setting"}
                 </button>
               </div>
             </div>
