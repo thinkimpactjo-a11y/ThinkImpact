@@ -29,28 +29,71 @@ export default function DeleteClientButton({
   deleteAction,
 }: {
   clientId: string;
-  deleteAction: (id: string) => Promise<void>;
+  deleteAction: (
+    id: string,
+  ) => Promise<{ message: string; status: number; success: boolean }>;
 }) {
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
   const handleConfirm = async () => {
-    try {
-      setLoading(true);
-      await deleteAction(clientId);
-      setLoading(false);
-      setOpen(false);
-    } catch (error) {
-      const message = getErrorMessage(error);
-      if (message === "SESSION_EXPIRED" || message === "UNAUTHENTICATED") {
-        setTimeout(() => {
-          signOut({ callbackUrl: "/login?reason=expired" });
-        }, 500);
+  try {
+    setLoading(true);
 
-        return;
-      }
+    const result = await deleteAction(clientId);
+
+    // 🔐 Auth/session errors
+    if (result?.status === 401 || result?.status === 403) {
+      setToast({
+        message: "Expired Session, Please Login",
+        type: "error",
+      });
+
+      setTimeout(() => {
+        signOut({ callbackUrl: "/login?reason=expired" });
+      }, 500);
+
+      return;
     }
-  };
+
+    // ❌ Server failure
+    if (!result?.success) {
+      setToast({
+        message: result?.message || "Failed to delete client.",
+        type: "error",
+      });
+
+      setTimeout(() => setToast(null), 3000);
+
+      return;
+    }
+
+    // ✅ Success
+    setToast({
+      message: "Client deleted successfully!",
+      type: "success",
+    });
+
+    setTimeout(() => {
+      setToast(null);
+      setOpen(false);
+    }, 1500);
+  } catch (error) {
+    console.error(error);
+
+    setToast({
+      message: "Something went wrong.",
+      type: "error",
+    });
+
+    setTimeout(() => setToast(null), 3000);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -84,15 +127,14 @@ export default function DeleteClientButton({
               Cancel
             </button>
           </DialogTrigger>
-          <form action={() => deleteAction(clientId)}>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-              onClick={handleConfirm}
-            >
-              {loading ? "Deleting..." : "Confirm"}
-            </button>
-          </form>
+
+          <button
+            type="submit"
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            onClick={handleConfirm}
+          >
+            {loading ? "Deleting..." : "Confirm"}
+          </button>
         </div>
       </DialogContent>
     </Dialog>

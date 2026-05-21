@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { deleteApplications, getApplicationById } from "@/app/models/db/lib/services/careers";
 
 export const DELETE = async (
- 
+ request:Request,
   params: {
     params: Promise<{ id: string }>;
   }
@@ -38,7 +38,7 @@ export const DELETE = async (
 };
 
 export const GET = async (
-
+request:Request,
   params: {
     params: Promise<{ id: string }>
   }

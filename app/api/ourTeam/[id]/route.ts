@@ -53,10 +53,12 @@ export const PUT = async (
 
 export const DELETE = async (
   request: Request,
-  { params }: { params: { id: string } }
+  params: {
+    params: Promise<{ id: string }>;
+  },
 ) => {
   try {
-    const { id } = params;
+    const { id } = await params.params;
 
     const result = await deleteMember(id);
 
@@ -66,7 +68,7 @@ export const DELETE = async (
           data: null,
           message: "Member Not Found",
         },
-        { status: 500}
+        { status: 500 },
       );
     }
 
@@ -75,7 +77,7 @@ export const DELETE = async (
         data: result,
         message: "Member deleted successfully",
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     return NextResponse.json(
@@ -83,7 +85,7 @@ export const DELETE = async (
         data: error,
         message: "Error deleting member",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };
