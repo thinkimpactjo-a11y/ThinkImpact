@@ -17,13 +17,7 @@ import { newMemberSchema } from "@/types/zod/ourTeamSchema";
 
 import { signOut } from "next-auth/react";
 
-function getErrorMessage(error: unknown): string | null {
-  if (typeof error === "object" && error !== null && "message" in error) {
-    const msg = (error as { message?: unknown }).message;
-    return typeof msg === "string" ? msg : null;
-  }
-  return null;
-}
+
 
 interface Props {
   member: newMember;

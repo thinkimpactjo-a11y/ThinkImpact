@@ -3,8 +3,9 @@
 import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
 import { authOptions } from "@/app/models/db/authOptions";
+import { deleteMember } from "@/app/models/db/lib/services/outTeam";
 
-export async function deleteMember(memberId: string) {
+export async function deleteMemberAction(memberId: string) {
   const session = await getServerSession(authOptions);
 
   if (!session) {
@@ -23,31 +24,13 @@ export async function deleteMember(memberId: string) {
     };
   }
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_URL}/api/ourTeam/${memberId}`,
-    {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
+  const res = await deleteMember(memberId);
 
-  if (!res.ok) {
-    return {
-      message: "Error Deleting Member",
-      success: false,
-      status: res.status,
-    };
-  }
-
-  console.log("res: ",res);
-  
   revalidatePath("/dashboard/ourTeam");
 
   return {
-    message: "Member Deleted Successfully",
-    success: true,
-    status: 200,
+    message: res.message,
+    success: res.success,
+    status: res.statusCode,
   };
 }

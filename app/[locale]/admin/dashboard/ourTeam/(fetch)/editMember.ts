@@ -4,8 +4,9 @@ import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/models/db/authOptions";
 import { newMember } from "@/types";
+import { editMember } from "@/app/models/db/lib/services/outTeam";
 
-export async function editMember(data: newMember) {
+export async function editMemberAction(data: newMember) {
   const session = await getServerSession(authOptions);
 
   if (!session) {
@@ -24,30 +25,21 @@ export async function editMember(data: newMember) {
     };
   }
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_URL}/api/ourTeam/${data.id}`,
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    }
-  );
-
-  if (!res.ok) {
+  if (!data.id) {
     return {
-      message: "ERROR_UPDATING_MEMBER",
+      message: "ID is required",
       success: false,
-      status: res.status,
+      status: 400,
     };
   }
+
+  const res = await editMember(data.id, data);
 
   revalidatePath("/dashboard/ourTeam");
 
   return {
-    message: "MEMBER_UPDATED_SUCCESSFULLY",
-    success: true,
-    status: 200,
+    message: res.message,
+    success: res.success,
+    status: res.statusCode,
   };
 }

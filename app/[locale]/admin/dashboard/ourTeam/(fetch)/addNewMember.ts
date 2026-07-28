@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/models/db/authOptions";
 import { newMember } from "@/types";
+import { addNewMember } from "@/app/models/db/lib/services/outTeam";
 
 export async function createMember(data: newMember) {
   const session = await getServerSession(authOptions);
@@ -24,29 +25,13 @@ export async function createMember(data: newMember) {
     };
   }
 
-  const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/ourTeam`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
+  const res = await addNewMember(data);
 
-  if (!res.ok) {
-    console.log("res: ", res);
-
-    return {
-      message: "Error Creating Member",
-      success: false,
-      status: res.status,
-    };
-  }
-
+  console.log("res: ", res);
   revalidatePath("/dashboard/ourTeam");
-
   return {
-    message: "Member Created Successfully",
-    success: true,
-    status: 201,
+    message: res.message,
+    success: res.success,
+    status: res.statusCode,
   };
 }

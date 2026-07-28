@@ -51,6 +51,19 @@ export type newMember = {
   main:boolean
 };
 
+export type getMember = {
+  id: string;
+  name_en: string;
+  name_ar: string;
+  description_en: string;
+  description_ar: string;
+  position_en: string;
+  position_ar: string;
+  image: string;
+  display_order?:number;
+  main:boolean
+};
+
 
 export type newMemberDragAndDrop = {
   id: string;

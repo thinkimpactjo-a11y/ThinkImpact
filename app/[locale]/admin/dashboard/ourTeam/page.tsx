@@ -3,9 +3,12 @@ import { getAllMembers } from "@/app/models/db/lib/services/outTeam";
 import DragDropClients from "@/components/ourTeam/dragDropOurTeam";
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import NotFound from "@/app/not-found";
 
 export default async function membersTable() {
-  const members = await getAllMembers();
+  const members = (await getAllMembers()).data;
+
+  if (!members) return <NotFound />;
 
   return (
     <>
@@ -20,21 +23,19 @@ export default async function membersTable() {
         {members.length === 0 ? (
           <div className="w-full text-center py-10 text-gray-500 text-lg min-w-[70vw]">
             No Members found. Please add a new Member.
-             <div className="flex justify-end mt-4  w-full">
-          <Link
-            href="/admin/dashboard/ourTeam/newMember"
-            className="bg-[#125892] hover:bg-[#0f4473] text-white px-5 py-3 rounded-md flex items-center gap-2"
-          >
-            <Plus className="w-5 h-5" />
-            Add
-          </Link>
-        </div>
+            <div className="flex justify-end mt-4  w-full">
+              <Link
+                href="/admin/dashboard/ourTeam/newMember"
+                className="bg-[#125892] hover:bg-[#0f4473] text-white px-5 py-3 rounded-md flex items-center gap-2"
+              >
+                <Plus className="w-5 h-5" />
+                Add
+              </Link>
+            </div>
           </div>
         ) : (
           <DragDropClients members={members} />
         )}
-
-       
       </main>
     </>
   );

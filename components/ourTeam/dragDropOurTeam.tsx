@@ -25,7 +25,7 @@ import {
 } from "@dnd-kit/sortable";
 import { DndContext, closestCenter, DragEndEvent } from "@dnd-kit/core";
 import { type newMemberDragAndDrop } from "@/types/index";
-import { deleteMember } from "@/app/[locale]/admin/dashboard/ourTeam/(fetch)/deleteMember";
+import { deleteMemberAction } from "@/app/[locale]/admin/dashboard/ourTeam/(fetch)/deleteMember";
 import DeleteMemberButton from "./deleteMemberButton";
 import { updateMemberOrder } from "@/app/[locale]/admin/dashboard/ourTeam/(fetch)/updateMemberOrder";
 import { useRouter } from "next/navigation";
@@ -169,7 +169,7 @@ export default function DragDropOurteam({ members: initialMembers }: Props) {
 
             <DeleteMemberButton
               memberId={member.id}
-              deleteAction={deleteMember}
+              deleteAction={deleteMemberAction}
             />
           </div>
         </TableCell>
