@@ -33,8 +33,12 @@ function getErrorMessage(error: unknown): string | null {
 }
 
 interface prop {
-  setting: newSetting;
-  action: (data: newSetting) => Promise<void>;
+  setting: Partial<newSetting>;
+  action: (data: newSetting) => Promise<{
+    message: string;
+    success: boolean;
+    status: number;
+  }>;
 }
 
 interface Option {
@@ -119,7 +123,7 @@ function EditSettingForm({ setting, action }: prop) {
   } | null>(null);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -177,7 +181,7 @@ function EditSettingForm({ setting, action }: prop) {
   };
 
   const selectedOption = defaultOptions.find(
-    (opt) => opt.value === form.key_name_en
+    (opt) => opt.value === form.key_name_en,
   );
 
   const renderValueInput = () => {
@@ -374,8 +378,8 @@ function EditSettingForm({ setting, action }: prop) {
                 {isPending
                   ? "Updating..."
                   : isUploading
-                  ? "Uploading..."
-                  : "Save Changes"}
+                    ? "Uploading..."
+                    : "Save Changes"}
               </button>
             </div>
           </CardContent>

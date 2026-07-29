@@ -14,7 +14,7 @@ import { deleteApplication } from "./(fetch)/deleteApplication";
 import { getAllApplications } from "@/app/models/db/lib/services/careers";
 
 export default async function applicationsTable() {
-  const applications = await getAllApplications();
+  const applications = (await getAllApplications()).data;
 
   return (
     <main className="flex flex-col justify-center items-center m-2 w-full">
@@ -26,32 +26,35 @@ export default async function applicationsTable() {
         </h2>
       </div>
 
-      {applications.length === 0 ? (
+      {!applications || applications.length === 0 ? (
         <div className="w-full text-center py-10 text-gray-500 text-lg max-w-[calc(100vw-32px)] lg:max-w-[75vw]">
           No Applications found
         </div>
       ) : (
-        // Center wrapper: controls overall width behavior
         <div className="w-full flex justify-center">
-          {/* 
-            This inner wrapper sets the effective width:
-              - Small screens: calc(100vw - 32px) so it's slightly less than full viewport
-              - Large screens: 75vw
-              - max-w-[1200px] to avoid overly wide table on very large displays
-          */}
-          <div className="overflow-x-auto rounded-2xl border border-gray-300 p-2
-                  w-[calc(100vw-64px)] lg:w-[75vw] max-w-[1200px]">
+          <div
+            className="overflow-x-auto rounded-2xl border border-gray-300 p-2
+                  w-[calc(100vw-64px)] lg:w-[75vw] max-w-[1200px]"
+          >
             {/* Keep a min width for the inner table so columns don't collapse */}
             <div className="min-w-[70vw]">
               <Table className="w-full">
                 <TableHeader>
                   <TableRow>
                     <TableHead>Name & Info</TableHead>
-                    <TableHead className="hidden lg:table-cell">Email</TableHead>
-                    <TableHead className="hidden lg:table-cell">Area Of Expertise</TableHead>
+                    <TableHead className="hidden lg:table-cell">
+                      Email
+                    </TableHead>
+                    <TableHead className="hidden lg:table-cell">
+                      Area Of Expertise
+                    </TableHead>
                     <TableHead className="hidden lg:table-cell">CV</TableHead>
-                    <TableHead className="hidden lg:table-cell">Applied At</TableHead>
-                    <TableHead className="text-center hidden lg:table-cell">Actions</TableHead>
+                    <TableHead className="hidden lg:table-cell">
+                      Applied At
+                    </TableHead>
+                    <TableHead className="text-center hidden lg:table-cell">
+                      Actions
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
 
@@ -101,7 +104,9 @@ export default async function applicationsTable() {
                         {/* Applied At */}
                         <TableCell className="hidden lg:table-cell text-xs sm:text-base">
                           {application.created_at
-                            ? new Date(application.created_at).toLocaleDateString()
+                            ? new Date(
+                                application.created_at,
+                              ).toLocaleDateString()
                             : ""}
                         </TableCell>
 
@@ -126,8 +131,13 @@ export default async function applicationsTable() {
 
                       {/* Actions row for small screens (compact, close to data) */}
                       <TableRow className="lg:hidden bg-gray-50">
-                        <TableCell colSpan={6} className="p-2 text-xs text-gray-700 flex items-center justify-between">
-                          <span className="text-sm font-semibold">Actions:</span>
+                        <TableCell
+                          colSpan={6}
+                          className="p-2 text-xs text-gray-700 flex items-center justify-between"
+                        >
+                          <span className="text-sm font-semibold">
+                            Actions:
+                          </span>
                           <div className="flex justify-start items-center gap-2">
                             <ShowApplicationComponent
                               application={{

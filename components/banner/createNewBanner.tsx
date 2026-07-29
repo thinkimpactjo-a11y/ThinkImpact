@@ -15,15 +15,10 @@ import { bannerSchema } from "@/types/zod/bannerSchema";
 import { signOut } from "next-auth/react";
 
 interface Props {
-  action: (data: {
-    alt: string;
-    description_en: string;
-    description_ar: string;
-    image?: string | null;
-  }) => Promise<{message:string, success:boolean, status:number}>;
+  action: (
+    data: newBanner,
+  ) => Promise<{ message: string; success: boolean; status: number }>;
 }
-
-
 
 export default function AddBannerForm({ action }: Props) {
   const router = useRouter();
@@ -42,7 +37,7 @@ export default function AddBannerForm({ action }: Props) {
   } | null>(null);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     setErrors({ ...errors, [e.target.name]: "" }); // clear error when user types
@@ -63,68 +58,65 @@ export default function AddBannerForm({ action }: Props) {
   };
 
   const handleFormSubmit = () => {
-  startTransition(async () => {
-    try {
-      // ✅ Validate form using Zod schema
-      const validatedData = bannerSchema.parse(form);
-      setErrors({}); // clear previous errors
+    startTransition(async () => {
+      try {
+        // ✅ Validate form using Zod schema
+        const validatedData = bannerSchema.parse(form);
+        setErrors({}); // clear previous errors
 
-      const result = await action(validatedData);
+        const result = await action(validatedData);
 
-     
-      if (
-       result?.status === 403 || result?.status === 401
-      ) {
-        setToast({ message: "Expired Session, Please Login", type: "error" });
+        if (result?.status === 403 || result?.status === 401) {
+          setToast({ message: "Expired Session, Please Login", type: "error" });
+
+          setTimeout(() => {
+            signOut({ callbackUrl: "/login?reason=expired" });
+          }, 500);
+
+          return;
+        }
+
+        // ❌ Server failure
+        if (!result.success) {
+          setToast({ message: result.message, type: "error" });
+          return;
+        }
+
+        // ✅ Success
+        setToast({ message: "Banner added successfully!", type: "success" });
 
         setTimeout(() => {
-          signOut({ callbackUrl: "/login?reason=expired" });
-        }, 500);
+          setToast(null);
+          router.replace("/admin/dashboard/banners");
+        }, 1500);
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          const fieldErrors: Record<string, string> = {};
 
-        return;
+          error.issues.forEach((err) => {
+            if (err.path[0]) {
+              fieldErrors[err.path[0].toString()] = err.message;
+            }
+          });
+
+          setErrors(fieldErrors);
+
+          setToast({
+            message: "Please check the input fields.",
+            type: "error",
+          });
+        } else {
+          console.error(error);
+          setToast({
+            message: "Failed to add banner.",
+            type: "error",
+          });
+        }
+
+        setTimeout(() => setToast(null), 3000);
       }
-
-      // ❌ Server failure
-      if (!result.success) {
-        setToast({ message: result.message, type: "error" });
-        return;
-      }
-
-      // ✅ Success
-      setToast({ message: "Banner added successfully!", type: "success" });
-
-      setTimeout(() => {
-        setToast(null);
-        router.replace("/admin/dashboard/banners");
-      }, 1500);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        const fieldErrors: Record<string, string> = {};
-
-        error.issues.forEach((err) => {
-          if (err.path[0]) {
-            fieldErrors[err.path[0].toString()] = err.message;
-          }
-        });
-
-        setErrors(fieldErrors);
-
-        setToast({
-          message: "Please check the input fields.",
-          type: "error",
-        });
-      } else {
-        console.error(error);
-        setToast({
-          message: "Failed to add banner.",
-          type: "error",
-        });
-      }
-
-      setTimeout(() => setToast(null), 3000);
-    }
-  });
-};
+    });
+  };
 
   return (
     <main className="ml-3 xl:ml-7 mb-7">

@@ -3,19 +3,18 @@ import Head from "next/head";
 import { getCaregoryById } from "@/app/models/db/lib/services/consulting";
 import { editCategory } from "../(fetch)/editCategory";
 import EditCategoryForm from "@/components/consulting/editCategoryForm";
+import NotFound from "@/app/not-found";
 
 async function Page(prop: { params: Promise<{ id: string }> }) {
   const params = await prop.params;
-  const category = await getCaregoryById(params.id);
+  const category = (await getCaregoryById(params.id)).data;
 
-  const categoryData = category[0];
+  if (!category) return <NotFound />;
 
   return (
-    
-
-      <main>
-        <EditCategoryForm category={categoryData} action={editCategory} />
-      </main>
+    <main>
+      <EditCategoryForm category={category} action={editCategory} />
+    </main>
   );
 }
 

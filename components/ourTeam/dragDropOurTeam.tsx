@@ -15,8 +15,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {Plus,  SquarePen, GripVertical } from "lucide-react";
-import React, { useState, useTransition } from "react";
+import { Plus, SquarePen, GripVertical } from "lucide-react";
+import React, { useEffect, useState, useTransition } from "react";
 import {
   arrayMove,
   SortableContext,
@@ -33,7 +33,6 @@ import Image from "next/image";
 
 import { signOut } from "next-auth/react";
 
-
 interface Props {
   members: newMemberDragAndDrop[];
 }
@@ -47,6 +46,10 @@ export default function DragDropOurteam({ members: initialMembers }: Props) {
   } | null>(null);
   const router = useRouter();
 
+  useEffect(() => {
+    setMembers(initialMembers);
+  }, [initialMembers]);
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (active.id !== over?.id) {
@@ -57,61 +60,59 @@ export default function DragDropOurteam({ members: initialMembers }: Props) {
   };
 
   const handleSaveOrder = async () => {
-  const body = members.map((member, index) => ({
-    id: member.id,
-    display_order: index + 1,
-  }));
+    const body = members.map((member, index) => ({
+      id: member.id,
+      display_order: index + 1,
+    }));
 
-  startTransition(async () => {
-    try {
-      const result = await updateMemberOrder(body);
+    startTransition(async () => {
+      try {
+        const result = await updateMemberOrder(body);
 
-      if (result.success) {
+        if (result.success) {
+          setToast({
+            message: "Members ordered successfully",
+            type: "success",
+          });
+
+          setTimeout(() => {
+            setToast(null);
+            router.replace("/admin/dashboard/ourTeam");
+            window.location.reload();
+          }, 1500);
+
+          return;
+        }
+
+        if (result?.status === 403 || result?.status === 401) {
+          setToast({
+            message: "Session expired. Please login again",
+            type: "error",
+          });
+
+          setTimeout(() => {
+            signOut({ callbackUrl: "/login?reason=expired" });
+          }, 200);
+
+          return;
+        }
+
         setToast({
-          message: "Members ordered successfully",
-          type: "success",
+          message: result.message || "Failed to update order",
+          type: "error",
         });
+      } catch (error) {
+        console.error("Unexpected error:", error);
 
-        setTimeout(() => {
-          setToast(null);
-          router.replace("/admin/dashboard/ourTeam");
-          window.location.reload();
-        }, 1500);
-
-        return;
-      }
-
-      if (
-        result?.status === 403 || result?.status === 401
-      ) {
         setToast({
-          message: "Session expired. Please login again",
+          message: "Something went wrong. Please try again",
           type: "error",
         });
 
-        setTimeout(() => {
-          signOut({ callbackUrl: "/login?reason=expired" });
-        }, 200);
-
-        return;
+        setTimeout(() => setToast(null), 3000);
       }
-
-      setToast({
-        message: result.message || "Failed to update order",
-        type: "error",
-      });
-    } catch (error) {
-      console.error("Unexpected error:", error);
-
-      setToast({
-        message: "Something went wrong. Please try again",
-        type: "error",
-      });
-
-      setTimeout(() => setToast(null), 3000);
-    }
-  });
-};
+    });
+  };
 
   const SortableRow = ({ member }: { member: newMemberDragAndDrop }) => {
     const { attributes, listeners, setNodeRef, transform, transition } =
@@ -213,23 +214,22 @@ export default function DragDropOurteam({ members: initialMembers }: Props) {
           </DndContext>
         </div>
       </div>
-<div className="flex justify-end gap-2 mt-4">
-  <button
-    onClick={handleSaveOrder}
-    className="bg-[#125892] hover:bg-[#0f4473] text-white px-5 py-3 rounded-md cursor-pointer"
-  >
-    {isPending ? "Loading..." : "Save Order"}
-  </button>
+      <div className="flex justify-end gap-2 mt-4">
+        <button
+          onClick={handleSaveOrder}
+          className="bg-[#125892] hover:bg-[#0f4473] text-white px-5 py-3 rounded-md cursor-pointer"
+        >
+          {isPending ? "Loading..." : "Save Order"}
+        </button>
 
-  <Link
-    href="/admin/dashboard/ourTeam/newMember"
-    className="bg-[#125892] hover:bg-[#0f4473] text-white px-5 py-3 rounded-md flex items-center gap-2"
-  >
-    <Plus className="w-5 h-5" />
-    Add
-  </Link>
-</div>
-
+        <Link
+          href="/admin/dashboard/ourTeam/newMember"
+          className="bg-[#125892] hover:bg-[#0f4473] text-white px-5 py-3 rounded-md flex items-center gap-2"
+        >
+          <Plus className="w-5 h-5" />
+          Add
+        </Link>
+      </div>
 
       {toast && (
         <div

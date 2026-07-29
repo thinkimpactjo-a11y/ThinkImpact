@@ -21,16 +21,10 @@ interface Props {
     description_en: string;
     description_ar: string;
     image?: string | null;
-    bannerId?: string;
+    id?: string;
   }) => Promise<{message:string, success:boolean, status:number}>;
 }
-function getErrorMessage(error: unknown): string | null {
-  if (typeof error === "object" && error !== null && "message" in error) {
-    const msg = (error as { message?: unknown }).message;
-    return typeof msg === "string" ? msg : null;
-  }
-  return null;
-}
+
 export default function EditBannerForm({ banner, action }: Props) {
   const router = useRouter();
 
@@ -74,7 +68,7 @@ export default function EditBannerForm({ banner, action }: Props) {
 
       const result = await action({
         ...validatedData,
-        bannerId: banner.id,
+        id: banner.id,
       });
 
       

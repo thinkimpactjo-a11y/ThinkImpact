@@ -7,13 +7,19 @@ import { getAllcategories } from "@/app/models/db/lib/services/consulting";
 
 async function Page(prop: { params: Promise<{ id: string }> }) {
   const params = await prop.params;
-  const service = await getServiceById(params.id);
-  const categories = await getAllcategories();
+  const [service, categories] = await Promise.all([
+    (await getServiceById(params.id)).data,
+    (await getAllcategories()).data,
+  ]);
 
   return (
-      <div>
-        <EditServiceForm service={service[0]} action={editService} categories={categories} />
-      </div>
+    <div>
+      <EditServiceForm
+        service={service}
+        action={editService}
+        categories={categories||[]}
+      />
+    </div>
   );
 }
 

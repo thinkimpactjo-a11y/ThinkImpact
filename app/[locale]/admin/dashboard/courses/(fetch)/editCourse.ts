@@ -1,41 +1,42 @@
 "use server";
 
 import { authOptions } from "@/app/models/db/authOptions";
+import { editCourse as editCourseRecord } from "@/app/models/db/lib/services/courses";
 import { type editCourse } from "@/types";
 import { getServerSession } from "next-auth";
-import { revalidatePath } from "next/cache";
-
-const EXPIRE_SECONDS = 15 * 24 * 60 * 60; // 15 days in seconds
 
 export async function editCourse(data: editCourse) {
+  const { id, ...courseData } = data;
   const session = await getServerSession(authOptions);
 
   if (!session) {
-    throw new Error("UNAUTHENTICATED");
+    return {
+      message: "UNAUTHENTICATED",
+      success: false,
+      status: 401,
+    };
   }
 
-  // Check login expiration
- const nowSec = Math.floor(Date.now() / 1000);
-const loginAtSec = session.user.loginAt
-  ? Math.floor(new Date(session.user.loginAt).getTime() / 1000)
-  : null;
+  if (session.user.role !== "admin") {
+    return {
+      message: "UNAUTHORIZED",
+      success: false,
+      status: 403,
+    };
+  }
 
-  if (!loginAtSec || nowSec - loginAtSec > EXPIRE_SECONDS) {
-  throw new Error("SESSION_EXPIRED");
-}
-  const token = session.user.token;
+  if (!id) {
+    return {
+      message: "ID is required",
+      success: false,
+      status: 400,
+    };
+  }
 
-  const result = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/courses/${data.id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(data),
-  });
-
-  if (!result.ok) throw new Error("FAILED_TO_UPDATE_COURSE");
-
-  revalidatePath("/dashboard/courses");
-  return await result.json();
+  const result = await editCourseRecord(id, courseData);
+  return {
+    message: result.message,
+    success: result.success,
+    status: result.statusCode,
+  };
 }

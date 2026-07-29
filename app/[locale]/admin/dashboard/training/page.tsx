@@ -21,7 +21,7 @@ import DeleteTrainingButton from "@/components/training/deleteTrainingButton";
 import { deleteTraining } from "./(fetch)/deleteTraining";
 
 export default async function trainingTable() {
-  const training = await getAllTraining();
+  const training = (await getAllTraining()).data;
 
   return (
     <>
@@ -33,7 +33,7 @@ export default async function trainingTable() {
             A list of your Training.
           </h2>
         </div>
-        {training.length === 0 ? (
+        {!training || training.length === 0 ? (
           <div className="w-full text-center py-10 text-gray-500 text-lg min-w-[70vw]">
             No Trainings found. Please add a new Training.
           </div>

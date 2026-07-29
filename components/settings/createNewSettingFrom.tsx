@@ -51,7 +51,11 @@ interface Option {
 }
 
 interface Props {
-  action: (data: newSetting) => Promise<void>;
+  action: (data: newSetting) => Promise<{
+    message: string;
+    success: boolean;
+    status: number;
+  }>;
   existingKeys?: string[];
   options?: Option[];
 }

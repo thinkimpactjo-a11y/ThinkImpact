@@ -6,7 +6,7 @@ export const POST = async (request: Request) => {
     const body = await request.json();
     const result = await resetPassword(body.token, body.newPassword);
     return NextResponse.json(
-      { date: result.result, message: result.message },
+      { date: result.data, message: result.message },
       { status: 201 }
     );
   } catch (error) {

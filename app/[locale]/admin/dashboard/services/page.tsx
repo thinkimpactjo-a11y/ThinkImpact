@@ -20,7 +20,7 @@ import DeleteServiceButton from "@/components/services/deleteServiceForm";
 import { deleteService } from "./(fetch)/deleteService";
 
 export default async function ServicesTable() {
-  const services = await getAllServices();
+  const services = (await getAllServices()).data;
 
   return (
     <>
@@ -34,7 +34,7 @@ export default async function ServicesTable() {
         </div>
 
         {/* If no services */}
-        {services.length === 0 ? (
+        {!services || services.length === 0 ? (
           <div className="w-full text-center py-10 text-gray-500 text-lg min-w-[75vw]">
             No services found. Please add a new service.
           </div>
@@ -46,7 +46,9 @@ export default async function ServicesTable() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Name</TableHead>
-                    <TableHead className="hidden xl:table-cell">Description</TableHead>
+                    <TableHead className="hidden xl:table-cell">
+                      Description
+                    </TableHead>
                     <TableHead>Category</TableHead>
                     <TableHead></TableHead>
                   </TableRow>
@@ -54,7 +56,9 @@ export default async function ServicesTable() {
                 <TableBody>
                   {services.map((service, i) => (
                     <TableRow key={i}>
-                      <TableCell className="text-xs sm:text-base">{service.name_en}</TableCell>
+                      <TableCell className="text-xs sm:text-base">
+                        {service.name_en}
+                      </TableCell>
 
                       {/* Description */}
                       <TableCell className="text-xs sm:text-base hidden xl:table-cell">
@@ -72,7 +76,9 @@ export default async function ServicesTable() {
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Link href={`/admin/dashboard/services/${service.id}`}>
+                                <Link
+                                  href={`/admin/dashboard/services/${service.id}`}
+                                >
                                   <SquarePen className="w-5 h-5 text-[#125892] cursor-pointer hover:text-[#0f4473]" />
                                 </Link>
                               </TooltipTrigger>

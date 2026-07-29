@@ -1,8 +1,8 @@
 "use server";
 
 import { getServerSession } from "next-auth";
-import { revalidatePath } from "next/cache";
 import { authOptions } from "@/app/models/db/authOptions";
+import { deleteApplications } from "@/app/models/db/lib/services/careers";
 
 export async function deleteApplication(applicationId: string) {
   const session = await getServerSession(authOptions);
@@ -23,30 +23,11 @@ export async function deleteApplication(applicationId: string) {
     };
   }
 
-  const result = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_URL}/api/careers/${applicationId}`,
-    {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session.user.token}`,
-      },
-    }
-  );
-
-  if (!result.ok) {
-    return {
-      message: "Error Deleting Application",
-      success: false,
-      status: result.status,
-    };
-  }
-
-  revalidatePath("/dashboard/careers");
+  const result = await deleteApplications(applicationId);
 
   return {
-    message: "Application Deleted Successfully",
-    success: true,
-    status: 200,
+    message: result.message,
+    success: result.success,
+    status: result.statusCode,
   };
 }

@@ -13,13 +13,7 @@ import { z } from "zod";
 
 import { signOut } from "next-auth/react";
 
-function getErrorMessage(error: unknown): string | null {
-  if (typeof error === "object" && error !== null && "message" in error) {
-    const msg = (error as { message?: unknown }).message;
-    return typeof msg === "string" ? msg : null;
-  }
-  return null;
-}
+
 
 // Zod schema for validation
 const newTrainingSchema = z.object({
@@ -43,7 +37,11 @@ const newTrainingSchema = z.object({
 });
 
 interface Props {
-  action: (data: newTraining) => Promise<void>;
+  action: (data: newTraining) => Promise<{
+    message: string;
+    success: boolean;
+    status: number;
+  }>;
 }
 
 export default function CreateNewTraining({ action }: Props) {
@@ -57,19 +55,23 @@ export default function CreateNewTraining({ action }: Props) {
     slug: "",
   });
 
-  const [errors, setErrors] = useState<Partial<Record<keyof newTraining, string>>>({});
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof newTraining, string>>
+  >({});
   const [isPending, startTransition] = useTransition();
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
-  
-    setForm(prev => {
+
+    setForm((prev) => {
       const updatedForm = { ...prev, [name]: value };
-  
-     
+
       if (name === "name_en") {
         updatedForm.slug = value
           .toLowerCase()
@@ -77,49 +79,84 @@ export default function CreateNewTraining({ action }: Props) {
           .replace(/[^a-z0-9]+/g, "-")
           .replace(/^-+|-+$/g, "");
       }
-  
+
       return updatedForm;
     });
-  
+
     setErrors({ ...errors, [name]: "" });
   };
-  
 
   const handleFormSubmit = () => {
     startTransition(async () => {
-      try {
-        newTrainingSchema.parse(form);
-        setErrors({});
-        await action({ ...form });
+      setErrors({});
 
-        setToast({ message: "Training added successfully!", type: "success" });
+      // Validate form
+      const validation = newTrainingSchema.safeParse(form);
+
+      if (!validation.success) {
+        const fieldErrors: Partial<Record<keyof newTraining, string>> = {};
+
+        validation.error.issues.forEach((err) => {
+          if (err.path[0]) {
+            fieldErrors[err.path[0] as keyof newTraining] = err.message;
+          }
+        });
+
+        setErrors(fieldErrors);
+
+        setToast({
+          message: "Please fix the form errors.",
+          type: "error",
+        });
+
+        setTimeout(() => setToast(null), 3000);
+        return;
+      }
+
+      try {
+        const result = await action({ ...form });
+
+        if (result?.status === 401 || result?.status === 403) {
+          setToast({
+            message: "Expired Session, Please Login",
+            type: "error",
+          });
+
+          setTimeout(() => {
+            signOut({ callbackUrl: "/login?reason=expired" });
+          }, 500);
+
+          return;
+        }
+
+        if (!result.success) {
+          setToast({
+            message: result.message,
+            type: "error",
+          });
+
+          setTimeout(() => setToast(null), 3000);
+          return;
+        }
+
+        setToast({
+          message: "Training added successfully!",
+          type: "success",
+        });
+
         setTimeout(() => {
           setToast(null);
           router.replace("/admin/dashboard/training");
         }, 1500);
-      } catch (err: unknown) {
-         const message = getErrorMessage(err);
-                                        if (message === "SESSION_EXPIRED" || message === "UNAUTHENTICATED") {
-                                          setToast({ message: "Expired Session, Please Login", type: "error" });
-                                
-                                          setTimeout(() => {
-                                            signOut({ callbackUrl: "/login?reason=expired" });
-                                          }, 500);
-                                
-                                          return;
-                                        }
-        if (err instanceof z.ZodError) {
-          const zodError = err as z.ZodError<typeof form>;
-          const fieldErrors: Partial<Record<keyof newTraining, string>> = {};
-          zodError.issues.forEach((e) => {
-            if (e.path[0]) fieldErrors[e.path[0] as keyof newTraining] = e.message;
-          });
-          setErrors(fieldErrors);
-        } else {
-          console.error(err);
-          setToast({ message: "Failed to add Training.", type: "error" });
-          setTimeout(() => setToast(null), 3000);
-        }
+      } catch (error) {
+        console.error(error);
+
+        setToast({
+          message: "Failed to add Training.",
+          type: "error",
+        });
+
+        setTimeout(() => setToast(null), 3000);
       }
     });
   };
@@ -146,7 +183,7 @@ export default function CreateNewTraining({ action }: Props) {
           </CardHeader>
 
           <CardContent className="flex flex-col items-start gap-5 mb-7">
-           <div className="flex flex-col">
+            <div className="flex flex-col">
               <label className="text-base text-black mb-1">
                 <span className="text-red-500 text-sm">*</span> Slug (Auto
                 Generated)
@@ -173,7 +210,9 @@ export default function CreateNewTraining({ action }: Props) {
                   className="border px-2 py-1 rounded border-black bg-white w-[80vw] md:w-[75vw] lg:w-[55vw] xl:w-[19vw] h-[5vh] text-black"
                 />
                 {errors.name_en && (
-                  <span className="text-red-500 text-sm mt-1">{errors.name_en}</span>
+                  <span className="text-red-500 text-sm mt-1">
+                    {errors.name_en}
+                  </span>
                 )}
               </div>
 
@@ -189,14 +228,17 @@ export default function CreateNewTraining({ action }: Props) {
                   className="border px-2 py-1 rounded border-black bg-white w-[80vw] md:w-[75vw] lg:w-[55vw] xl:w-[19vw] h-[5vh] text-black"
                 />
                 {errors.name_ar && (
-                  <span className="text-red-500 text-sm mt-1">{errors.name_ar}</span>
+                  <span className="text-red-500 text-sm mt-1">
+                    {errors.name_ar}
+                  </span>
                 )}
               </div>
             </div>
 
             <div className="flex flex-col">
               <label className="text-base text-black mb-1">
-                <span className="text-red-500 text-sm">*</span> English Description
+                <span className="text-red-500 text-sm">*</span> English
+                Description
               </label>
               <textarea
                 name="description_en"
@@ -205,13 +247,16 @@ export default function CreateNewTraining({ action }: Props) {
                 className="border px-2 py-1 rounded border-black bg-white w-[80vw] md:w-[75vw] lg:w-[65vw] xl:w-[40vw] h-[15vh] text-black"
               />
               {errors.description_en && (
-                <span className="text-red-500 text-sm mt-1">{errors.description_en}</span>
+                <span className="text-red-500 text-sm mt-1">
+                  {errors.description_en}
+                </span>
               )}
             </div>
 
             <div className="flex flex-col">
               <label className="text-base text-black mb-1">
-                <span className="text-red-500 text-sm">*</span> Arabic Description
+                <span className="text-red-500 text-sm">*</span> Arabic
+                Description
               </label>
               <textarea
                 name="description_ar"
@@ -220,7 +265,9 @@ export default function CreateNewTraining({ action }: Props) {
                 className="border px-2 py-1 rounded border-black bg-white w-[80vw] md:w-[75vw] lg:w-[65vw] xl:w-[40vw] h-[15vh] text-black"
               />
               {errors.description_ar && (
-                <span className="text-red-500 text-sm mt-1">{errors.description_ar}</span>
+                <span className="text-red-500 text-sm mt-1">
+                  {errors.description_ar}
+                </span>
               )}
             </div>
 

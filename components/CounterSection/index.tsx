@@ -1,15 +1,14 @@
-
 import React from "react";
 import { Counter } from "@/components/counter";
-import { getSettingsData } from "@/app/models/db/lib/services/settings";
+import { newSetting } from "@/types";
 
-
-export default async function CounterSection() {
-  const data= await getSettingsData()
-  
+type DataProp = {
+  data: newSetting[];
+};
+export default async function CounterSection({ data }: DataProp) {
   return (
     <section className="bg-white dark:bg-[#020618]">
-      <Counter data={data}  />
+      <Counter data={data} />
     </section>
   );
 }

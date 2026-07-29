@@ -4,8 +4,9 @@ import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
-import {type changePassword} from "@/types/index"
+import { signOut, useSession } from "next-auth/react";
+import { type changePassword } from "@/types/index";
+import { changePasswordAction } from "@/app/[locale]/(root)/change-password/(action)/changePasswordAction";
 
 type ChangePasswordProps = {
   locale: string;
@@ -25,37 +26,66 @@ function Page({ locale }: ChangePasswordProps) {
   const [loading, setLoading] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
-  const userId = session.data?.user.id;
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (form.password === form.confirmPassword) {
-      setLoading(true);
-      setError("");
-      axios
-        .put(
-          `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/change-password/${userId}`,
-          {
-            oldPassword: form.oldPassword,
-            newPassword: form.password,
-          }
-        )
-        .then((result) => {
-          setMessage("Password Changed Successfully");
-          setTimeout(() => {
-            setMessage("");
-            router.push("/");
-          }, 2000);
-        })
-        .catch((error) => {
-          setError(error.response.data.message);
-          setLoading(false);
-        });
-    } else {
-      setError("*Passwords Don't Match");
+
+    if (form.password !== form.confirmPassword) {
+      setError(
+        isArabic ? "كلمتا المرور غير متطابقتين." : "Passwords don't match.",
+      );
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const result = await changePasswordAction(
+        form.oldPassword,
+        form.password,
+      );
+
+      if (result.status === 401) {
+        signOut({ callbackUrl: "/login?reason=expired" });
+        return;
+      }
+
+      if (!result.success) {
+        const message = isArabic
+          ? result.status === 404
+            ? "المستخدم غير موجود."
+            : result.status === 400
+              ? "كلمة المرور الحالية غير صحيحة."
+              : "فشل في تغيير كلمة المرور."
+          : result.message;
+
+        setError(message);
+        return;
+      }
+
+      setMessage(
+        isArabic
+          ? "تم تغيير كلمة المرور بنجاح."
+          : "Password changed successfully.",
+      );
+
+      setTimeout(() => {
+        router.replace("/");
+      }, 1000);
+    } catch (error) {
+      console.error(error);
+
+      setError(
+        isArabic
+          ? "حدث خطأ أثناء تغيير كلمة المرور."
+          : "Failed to change password.",
+      );
+    } finally {
       setLoading(false);
     }
   };
@@ -175,8 +205,8 @@ function Page({ locale }: ChangePasswordProps) {
               ? "جاري التغيير"
               : "Changing..."
             : isArabic
-            ? "حفظ التغيير"
-            : "Change"}
+              ? "حفظ التغيير"
+              : "Change"}
         </button>
         <Link
           href="/"

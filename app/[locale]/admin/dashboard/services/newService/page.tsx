@@ -5,11 +5,11 @@ import { createService } from "../(fetch)/createService";
 import { getAllcategories } from "@/app/models/db/lib/services/consulting";
 
 async function Page() {
-  const categories = await getAllcategories();
+  const categories = (await getAllcategories()).data;
 
   return (
     <>
-      <CreateNewService action={createService} categories={categories} />
+      <CreateNewService action={createService} categories={categories || []} />
     </>
   );
 }

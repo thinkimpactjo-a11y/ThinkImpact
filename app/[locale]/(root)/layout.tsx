@@ -32,10 +32,10 @@ export default async function RootLayout({ children, params }: Props) {
   setRequestLocale(locale);
 
   const messages = (await import(`../../../messages/${locale}.json`)).default;
- const dir = locale === "ar" ? "rtl" : "ltr";
+  const dir = locale === "ar" ? "rtl" : "ltr";
   const [categories, trainingData] = await Promise.all([
-    getAllcategories(),
-    getAllTraining(),
+    (await getAllcategories()).data,
+    (await getAllTraining()).data,
   ]);
 
   return (
@@ -52,14 +52,14 @@ export default async function RootLayout({ children, params }: Props) {
               aria-label="Header"
               className="fixed w-full top-0 left-0 right-0 backdrop-blur-sm z-50 bg-white dark:bg-[#020618]"
             >
-              <Header  locale={locale} />
+              <Header locale={locale} />
             </section>
 
             <main className="flex-1">{children}</main>
 
             <Footer
-              categories={categories}
-              trainingData={trainingData}
+              categories={categories ?? []}
+              trainingData={trainingData ?? []}
               locale={locale}
             />
           </div>

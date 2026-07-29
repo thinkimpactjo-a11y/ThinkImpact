@@ -34,7 +34,11 @@ function getErrorMessage(error: unknown): string | null {
 interface Prop {
   service: editService;
   categories: newCategory[];
-  action: (data: editService) => Promise<void>;
+  action: (data: editService) => Promise<{
+    message: string;
+    success: boolean;
+    status: number;
+  }>;
 }
 
 function EditServiceForm({ service, action, categories }: Prop) {
@@ -50,16 +54,24 @@ function EditServiceForm({ service, action, categories }: Prop) {
     image: service.image,
   });
 
-  const [formErrors, setFormErrors] = useState<Partial<Record<keyof editService, string>>>({});
+  const [formErrors, setFormErrors] = useState<
+    Partial<Record<keyof editService, string>>
+  >({});
   const [isPending, startTransition] = useTransition();
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     setFormErrors({ ...formErrors, [e.target.name]: "" });
   };
 
-  const handleUploadComplete = (url: string) => setForm({ ...form, image: url });
+  const handleUploadComplete = (url: string) =>
+    setForm({ ...form, image: url });
   const handleUploadError = (error: Error) => {
     setToast({ message: `Upload failed: ${error.message}`, type: "error" });
     setTimeout(() => setToast(null), 3000);
@@ -68,48 +80,104 @@ function EditServiceForm({ service, action, categories }: Prop) {
 
   const handleFormSubmit = () => {
     startTransition(async () => {
+      setFormErrors({});
+
+      // Validate service form
+      const serviceValidation = newServiceSchema.safeParse(form);
+
+      if (!serviceValidation.success) {
+        const fieldErrors: Partial<Record<keyof editService, string>> = {};
+
+        serviceValidation.error.issues.forEach((err) => {
+          const field = err.path[0] as keyof editService;
+          fieldErrors[field] = err.message;
+        });
+
+        setFormErrors(fieldErrors);
+        setToast({
+          message: "Please fix the form errors.",
+          type: "error",
+        });
+
+        setTimeout(() => setToast(null), 3000);
+        return;
+      }
+
+      // Validate category
+      const selectedCategory = categories.find(
+        (c) => c.id === form.category_id,
+      );
+
+      if (!selectedCategory) {
+        setToast({
+          message: "Category not found.",
+          type: "error",
+        });
+        return;
+      }
+
+      const categoryValidation = categorySchema.safeParse(selectedCategory);
+
+      if (!categoryValidation.success) {
+        setToast({
+          message: "Invalid category.",
+          type: "error",
+        });
+        return;
+      }
+
       try {
-        setFormErrors({});
-        newServiceSchema.parse(form);
-        const selectedCategory = categories.find(c => c.id === form.category_id);
-        if (!selectedCategory) throw new Error("Category not found");
-        categorySchema.parse(selectedCategory);
-        await action(form);
-        setToast({ message: "Service updated successfully!", type: "success" });
+        const result = await action(form);
+
+        if (result?.status === 401 || result?.status === 403) {
+          setToast({
+            message: "Expired Session, Please Login",
+            type: "error",
+          });
+
+          setTimeout(() => {
+            signOut({ callbackUrl: "/login?reason=expired" });
+          }, 500);
+
+          return;
+        }
+
+        if (!result.success) {
+          setToast({
+            message: result.message,
+            type: "error",
+          });
+
+          setTimeout(() => setToast(null), 3000);
+          return;
+        }
+
+        setToast({
+          message: "Service updated successfully!",
+          type: "success",
+        });
+
         setTimeout(() => {
           setToast(null);
           router.replace("/admin/dashboard/services");
         }, 1500);
-      } catch (error: unknown) {
-         const message = getErrorMessage(error);
-                                if (message === "SESSION_EXPIRED" || message === "UNAUTHENTICATED") {
-                                  setToast({ message: "Expired Session, Please Login", type: "error" });
-                        
-                                  setTimeout(() => {
-                                    signOut({ callbackUrl: "/login?reason=expired" });
-                                  }, 500);
-                        
-                                  return;
-                                }
-        if (error instanceof z.ZodError) {
-          const fieldErrors: Partial<Record<keyof editService, string>> = {};
-          error.issues.forEach(err => {
-            const field = err.path[0] as keyof editService;
-            fieldErrors[field] = err.message;
-          });
-          setFormErrors(fieldErrors);
-        } else if (error instanceof Error) {
-          setToast({ message: error.message || "Failed to update Service.", type: "error" });
-        } else {
-          setToast({ message: "An unknown error occurred.", type: "error" });
-        }
+      } catch (error) {
+        console.error(error);
+
+        setToast({
+          message: "Failed to update Service.",
+          type: "error",
+        });
+
         setTimeout(() => setToast(null), 3000);
       }
     });
   };
 
   const renderError = (field: keyof editService) =>
-    formErrors[field] ? <p className="text-red-500 text-sm mt-1">{formErrors[field]}</p> : null;
+    formErrors[field] ? (
+      <p className="text-red-500 text-sm mt-1">{formErrors[field]}</p>
+    ) : null;
 
   return (
     <main className="ml-3 xl:ml-7 mb-7">
@@ -128,7 +196,9 @@ function EditServiceForm({ service, action, categories }: Prop) {
         <Card className="w-full h-full">
           <CardHeader>
             <CardTitle>Edit Service Details</CardTitle>
-            <CardDescription>Fill out the required fields below to update your Service.</CardDescription>
+            <CardDescription>
+              Fill out the required fields below to update your Service.
+            </CardDescription>
           </CardHeader>
 
           <CardContent className="flex flex-col items-start gap-5 mb-7">
@@ -141,7 +211,10 @@ function EditServiceForm({ service, action, categories }: Prop) {
             >
               <SelectTrigger className="w-[80vw] md:w-[75vw] lg:w-[55vw] xl:w-[20vw] border border-black text-black">
                 <SelectValue
-                  placeholder={categories.find(c => c.id === service.category_id)?.category_name_en || "Select category"}
+                  placeholder={
+                    categories.find((c) => c.id === service.category_id)
+                      ?.category_name_en || "Select category"
+                  }
                   className=" placeholder:text-black"
                 />
               </SelectTrigger>
@@ -189,7 +262,8 @@ function EditServiceForm({ service, action, categories }: Prop) {
 
             <div className="flex flex-col">
               <label className="text-base text-black mb-1">
-                <span className="text-red-500 text-sm">*</span> English Description
+                <span className="text-red-500 text-sm">*</span> English
+                Description
               </label>
               <textarea
                 name="description_en"
@@ -203,7 +277,8 @@ function EditServiceForm({ service, action, categories }: Prop) {
 
             <div className="flex flex-col">
               <label className="text-base text-black mb-1">
-                <span className="text-red-500 text-sm">*</span> Arabic Description
+                <span className="text-red-500 text-sm">*</span> Arabic
+                Description
               </label>
               <textarea
                 name="description_ar"

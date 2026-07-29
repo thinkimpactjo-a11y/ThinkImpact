@@ -18,10 +18,10 @@ import { SquarePen, Plus } from "lucide-react";
 import Image from "next/image";
 import { getAllClients } from "@/app/models/db/lib/services/clients";
 import DeleteClientrButton from "@/components/clients/deleteClientForm";
-import { deleteClient } from "./(fetch)/deleteClient";
+import { deleteClientAction } from "./(fetch)/deleteClient";
 
 export default async function ClientsTable() {
-  const clients = await getAllClients();
+  const clients = (await getAllClients()).data;
 
   return (
     <>
@@ -35,7 +35,7 @@ export default async function ClientsTable() {
         </div>
 
         {/* If no Clients */}
-        {clients.length === 0 ? (
+        {(!clients || clients.length === 0) ? (
           <div className="w-full text-center py-10 text-gray-500 text-lg min-w-[70vw]">
             No Clients found. Please add a new Client.
           </div>
@@ -95,7 +95,7 @@ export default async function ClientsTable() {
 
                           <DeleteClientrButton
                             clientId={client.id ?? ""}
-                            deleteAction={deleteClient}
+                            deleteAction={deleteClientAction}
                           />
                         </div>
                       </TableCell>

@@ -1,41 +1,33 @@
 "use server";
 
 import { getServerSession } from "next-auth";
-import { revalidatePath } from "next/cache";
 import { authOptions } from "@/app/models/db/authOptions";
 import { type newCourse } from "@/types";
-
-const EXPIRE_SECONDS = 15 * 24 * 60 * 60; // 15 days in seconds
+import { addNewCourse } from "@/app/models/db/lib/services/courses";
 
 export async function createnewCourse(data: newCourse) {
   const session = await getServerSession(authOptions);
-
   if (!session) {
-    throw new Error("UNAUTHENTICATED");
+    return {
+      message: "UNAUTHENTICATED",
+      success: false,
+      status: 401,
+    };
   }
 
-  const nowSec = Math.floor(Date.now() / 1000);
-const loginAtSec = session.user.loginAt
-  ? Math.floor(new Date(session.user.loginAt).getTime() / 1000)
-  : null;
+  if (session.user.role !== "admin") {
+    return {
+      message: "UNAUTHORIZED",
+      success: false,
+      status: 403,
+    };
+  }
 
-  if (!loginAtSec || nowSec - loginAtSec > EXPIRE_SECONDS) {
-  throw new Error("SESSION_EXPIRED");
-}
+  const result = await addNewCourse(data);
 
-  const token = session.user.token;
-
-  const result = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/courses`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(data),
-  });
-
-  if (!result.ok) throw new Error("FAILED_TO_CREATE_COURSE");
-
-  revalidatePath(`/dashboard/courses`);
-  return await result.json();
+  return {
+    message: result.message,
+    success: result.success,
+    status: result.statusCode,
+  };
 }

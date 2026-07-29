@@ -14,70 +14,73 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {  Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 export default function DeleteApplicationButton({
   applicationId,
   deleteAction,
 }: {
   applicationId: string;
-  deleteAction: (id: string) => Promise<{message:string,success:boolean, status:number}>;
+  deleteAction: (
+    id: string,
+  ) => Promise<{ message: string; success: boolean; status: number }>;
 }) {
-    const [open, setOpen] = useState<boolean>(false)
- const [loading, setLoading] = useState<boolean>(false);
- const [toast, setToast] = useState<{
+  const [open, setOpen] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const router = useRouter();
+  const [toast, setToast] = useState<{
     message: string;
     type: "success" | "error";
   } | null>(null);
- const handleConfirm = async () => {
-  try {
-    setLoading(true);
+  const handleConfirm = async () => {
+    try {
+      setLoading(true);
 
-    const result = await deleteAction(applicationId);
+      const result = await deleteAction(applicationId);
 
-    // 🔐 Auth handling
-    if (
-     result?.status === 403 || result?.status === 401
-    ) {
+      // 🔐 Auth handling
+      if (result?.status === 403 || result?.status === 401) {
+        setToast?.({
+          message: "Expired Session, Please Login",
+          type: "error",
+        });
+
+        setTimeout(() => {
+          signOut({ callbackUrl: "/login?reason=expired" });
+        }, 500);
+
+        return;
+      }
+
+      // ❌ Failure handling
+      if (!result.success) {
+        setToast?.({
+          message: result.message || "Failed to delete application",
+          type: "error",
+        });
+        return;
+      }
+
+      // ✅ Success
       setToast?.({
-        message: "Expired Session, Please Login",
+        message: "Application deleted successfully!",
+        type: "success",
+      });
+      router.refresh();
+
+      setOpen(false);
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      setToast?.({
+        message: "Something went wrong",
         type: "error",
       });
-
-      setTimeout(() => {
-        signOut({ callbackUrl: "/login?reason=expired" });
-      }, 500);
-
-      return;
+    } finally {
+      setLoading(false);
     }
+  };
 
-    // ❌ Failure handling
-    if (!result.success) {
-      setToast?.({
-        message: result.message || "Failed to delete application",
-        type: "error",
-      });
-      return;
-    }
-
-    // ✅ Success
-    setToast?.({
-      message: "Application deleted successfully!",
-      type: "success",
-    });
-
-    setOpen(false);
-  } catch (error) {
-    console.error("Unexpected error:", error);
-    setToast?.({
-      message: "Something went wrong",
-      type: "error",
-    });
-  } finally {
-    setLoading(false);
-  }
-};
-    
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -103,19 +106,21 @@ export default function DeleteApplicationButton({
         </DialogHeader>
         <div className="mt-4 flex justify-end gap-2">
           <DialogTrigger asChild>
-            <button className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300" onClick={() => setOpen(false)}>
+            <button
+              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+              onClick={() => setOpen(false)}
+            >
               Cancel
             </button>
           </DialogTrigger>
-          
-            <button
-              type="submit"
-              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-              onClick={handleConfirm}
-            >
-               {loading ? "Deleting..." : "Confirm"}
-            </button>
-          
+
+          <button
+            type="submit"
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            onClick={handleConfirm}
+          >
+            {loading ? "Deleting..." : "Confirm"}
+          </button>
         </div>
       </DialogContent>
     </Dialog>

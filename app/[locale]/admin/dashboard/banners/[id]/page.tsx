@@ -2,11 +2,14 @@ import React from "react";
 import Head from "next/head";
 import { getBannerbyId } from "@/app/models/db/lib/services/banners";
 import EditBannerForm from "@/components/banner/editBannerForm";
-import { editBanner } from "../(actions)/editBannerAction";
+import { editBannerAction } from "../(actions)/editBannerAction";
+import NotFound from "@/app/not-found";
 
 async function Page(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
-  const banner = await getBannerbyId(params.id);
+  const banner = (await getBannerbyId(params.id)).data;
+
+  if (!banner) return <NotFound />;
 
   return (
     <>
@@ -39,7 +42,7 @@ async function Page(props: { params: Promise<{ id: string }> }) {
         <meta property="og:site_name" content="Think Impact" />
       </Head>
 
-      <EditBannerForm banner={banner[0]} action={editBanner} />
+      <EditBannerForm banner={banner} action={editBannerAction} />
     </>
   );
 }

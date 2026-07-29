@@ -20,11 +20,10 @@ import DeleteCourseButton from "@/components/courses/deleteCourseButton";
 import { deleteCourse } from "./(fetch)/deleteCourse";
 
 export default async function coursesTable() {
-  const courses = await getAllCourses();
+  const courses = (await getAllCourses()).data;
 
   return (
     <>
-
       <main className="flex flex-col justify-center items-center xl:ml-5 m-2">
         {/* Header */}
         <div className="flex flex-col justify-start items-start mb-6 border-b border-gray-300 w-full">
@@ -35,7 +34,7 @@ export default async function coursesTable() {
         </div>
 
         {/* If no courses */}
-        {courses.length === 0 ? (
+        {!courses || courses.length === 0 ? (
           <div className="w-full text-center py-10 text-gray-500 text-lg min-w-[75vw]">
             No courses found. Please add a new course.
           </div>
@@ -47,7 +46,9 @@ export default async function coursesTable() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Name</TableHead>
-                    <TableHead className="hidden xl:table-cell">Description</TableHead>
+                    <TableHead className="hidden xl:table-cell">
+                      Description
+                    </TableHead>
                     <TableHead>Program</TableHead>
                     <TableHead></TableHead>
                   </TableRow>
@@ -56,7 +57,11 @@ export default async function coursesTable() {
                   {courses.map((course, i) => (
                     <TableRow key={i}>
                       {/* Course Name */}
-                      <TableCell className="text-xs sm:text-base">{course.title_en}</TableCell>
+                      <TableCell className="text-xs sm:text-base">
+                        {course.title_en.length > 0
+                          ? course.title_en.substring(0, 25) + "..."
+                          : course.title_en}
+                      </TableCell>
 
                       {/* Description */}
                       <TableCell className="text-xs sm:text-base hidden xl:table-cell">
@@ -64,7 +69,9 @@ export default async function coursesTable() {
                       </TableCell>
 
                       {/* Training Name */}
-                      <TableCell className="text-xs sm:text-base">{course.training_name_en}</TableCell>
+                      <TableCell className="text-xs sm:text-base">
+                        {course.training_name_en}
+                      </TableCell>
 
                       {/* Edit & Delete Icons */}
                       <TableCell>
@@ -72,7 +79,9 @@ export default async function coursesTable() {
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Link href={`/admin/dashboard/courses/${course.id}`}>
+                                <Link
+                                  href={`/admin/dashboard/courses/${course.id}`}
+                                >
                                   <SquarePen className="w-5 h-5 text-[#125892] cursor-pointer hover:text-[#0f4473]" />
                                 </Link>
                               </TooltipTrigger>

@@ -1,10 +1,10 @@
 "use server";
 
 import { getServerSession } from "next-auth";
-import { revalidatePath } from "next/cache";
 import { authOptions } from "@/app/models/db/authOptions";
+import { deleteBanner } from "@/app/models/db/lib/services/banners";
 
-export async function deleteBanner(bannerId: string) {
+export async function deleteBannerAction(bannerId: string) {
   const session = await getServerSession(authOptions);
 
   if (!session) {
@@ -23,30 +23,11 @@ export async function deleteBanner(bannerId: string) {
     };
   }
 
-  const result = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_URL}/api/banners/${bannerId}`,
-    {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session.user.token}`,
-      },
-    }
-  );
-
-  if (!result.ok) {
-    return {
-      message: "Error Deleting Banner",
-      success: false,
-      status: result.status,
-    };
-  }
-
-  revalidatePath("/dashboard/banners");
+  const result = await deleteBanner(bannerId);
 
   return {
-    message: "Banner Deleted Successfully",
-    success: true,
-    status: 200,
+    message: result.message,
+    success: result.success,
+    status: result.statusCode,
   };
 }

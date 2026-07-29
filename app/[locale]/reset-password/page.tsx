@@ -51,7 +51,7 @@ function ResetPasswordPage() {
         {
           token,
           newPassword: form.password,
-        }
+        },
       );
       setMessage("Password updated successfully. Redirecting to Login Page...");
       setTimeout(() => router.push("/login"), 2000);
@@ -143,7 +143,7 @@ function ResetPasswordPage() {
         </button>
 
         <Link
-          href="/admin/login"
+          href="/login"
           className="block pt-4 text-center text-sm text-[#125892] underline-offset-4 hover:underline m-2"
         >
           Back To Login

@@ -18,40 +18,49 @@ export const revalidate = 3600;
 export const metadata: Metadata = createMetadata(PAGE_METADATA.home);
 
 export default async function Home() {
-  const user=  await getServerSession(authOptions)
-  console.log("user: ",user);
-  
-  const categories = await getAllcategories();
-  const data = await getSettingsData();
+  const [categories, data] = await Promise.all([
+    (await getAllcategories()).data,
+    (await getSettingsData()).data,
+  ]);
 
   return (
     <>
       <main className="relative">
-        <header className="w-full h-screen">
-          <div className="mt-20">
-            <VideoSection data={data} />
-          </div>
-        </header>
+        {data && (
+          <header className="w-full h-screen">
+            <div className="mt-20">
+              <VideoSection data={data} />
+            </div>
+          </header>
+        )}
 
-        <section className="relative z-10 w-full">
-          <CounterSection />
-        </section>
+        {data && (
+          <section className="relative z-10 w-full">
+            <CounterSection data={data} />
+          </section>
+        )}
 
-        <section className="relative z-10 w-full">
-          <Poster data={data} />
-        </section>
+        {data && (
+          <section className="relative z-10 w-full">
+            <Poster data={data} />
+          </section>
+        )}
 
         <section className="relative  z-10 w-full">
           <InteractiveMap />
         </section>
 
-        <section className="relative z-10 w-full">
-          <PosterTwo data={data} />
-        </section>
+        {data && (
+          <section className="relative z-10 w-full">
+            <PosterTwo data={data} />
+          </section>
+        )}
 
-        <section className="bg-white dark:bg-[#020618] py-10">
-          <ConsultingCards categories={categories} />
-        </section>
+        {categories && (
+          <section className="bg-white dark:bg-[#020618] py-10">
+            <ConsultingCards categories={categories} />
+          </section>
+        )}
       </main>
     </>
   );

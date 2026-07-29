@@ -1,20 +1,15 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/models/db/authOptions";
+import { editBanner } from "@/app/models/db/lib/services/banners";
+import { newBanner } from "@/types";
 
-interface BannerUpdate {
-  bannerId?: string;
-  alt: string;
-  description_en: string;
-  description_ar: string;
-  image?: string | null;
-}
+export async function editBannerAction(data: Partial<newBanner>) {
+  const { id, ...body } = data;
 
-export async function editBanner(data: BannerUpdate) {
-  const { bannerId, ...body } = data;
-
+  console.log("data: Partial<newBanner>: ",data);
+  
   const session = await getServerSession(authOptions);
 
   if (!session) {
@@ -33,30 +28,18 @@ export async function editBanner(data: BannerUpdate) {
     };
   }
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_URL}/api/banners/${bannerId}`,
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    }
-  );
-
-  if (!res.ok) {
+  if (!id) {
     return {
-      message: "Error Updating Banner",
+      message: "ID is required",
       success: false,
-      status: res.status,
+      status: 400,
     };
   }
 
-  revalidatePath("/admin/dashboard/banners");
-
+  const res = await editBanner(id, body);
   return {
-    message: "Banner Updated Successfully",
-    success: true,
-    status: 200,
+    message: res.message,
+    success: res.success,
+    status: res.statusCode,
   };
 }

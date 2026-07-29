@@ -22,9 +22,10 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 
-
 interface prop {
-  action: (data: newCareer) => Promise<void>;
+  action: (
+    data: newCareer,
+  ) => Promise<{ message: string; success: boolean; status: number }>;
   locale: string;
 }
 
@@ -83,7 +84,7 @@ function NewApplicationForm({ action, locale }: prop) {
   ];
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     if (errors[e.target.name]) {
@@ -108,7 +109,20 @@ function NewApplicationForm({ action, locale }: prop) {
 
     startTransition(async () => {
       try {
-        await action({ ...form });
+        const result = await action({ ...form });
+
+        if (!result.success) {
+          setToast({
+            message: isArabic
+              ? "فشل في إرسال الطلب."
+              : "Failed to Submit The Application.",
+            type: "error",
+          });
+
+          setTimeout(() => {
+            setToast(null);
+          }, 1000);
+        }
         setToast({
           message: isArabic
             ? "تم إرسال الطلب بنجاح!"
@@ -317,54 +331,55 @@ function NewApplicationForm({ action, locale }: prop) {
               </div>
 
               {/* Area of Expertise */}
-   <div className="flex flex-col">
-  <label className="text-sm font-semibold text-gray-700 mb-1 dark:text-white">
-    <span className="text-red-500">*</span>{" "}
-    {isArabic ? "مجال الخبرة" : "Area of Expertise"}
-  </label>
+              <div className="flex flex-col">
+                <label className="text-sm font-semibold text-gray-700 mb-1 dark:text-white">
+                  <span className="text-red-500">*</span>{" "}
+                  {isArabic ? "مجال الخبرة" : "Area of Expertise"}
+                </label>
 
-  <Select
-  dir={isArabic ? "rtl" : "ltr"}
-    value={form.area_of_expertise}
-    onValueChange={(value) => {
-      setForm({ ...form, area_of_expertise: value });
-      if (errors.area_of_expertise) {
-        setErrors({ ...errors, area_of_expertise: "" });
-      }
-    }}
-    
-    
-  >
-    <SelectTrigger
-    
-  className={` w-full border px-3 py-5 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00ADEE] dark:border-gray-500 dark:bg-gray-200 dark:text-black dark:border
+                <Select
+                  dir={isArabic ? "rtl" : "ltr"}
+                  value={form.area_of_expertise}
+                  onValueChange={(value) => {
+                    setForm({ ...form, area_of_expertise: value });
+                    if (errors.area_of_expertise) {
+                      setErrors({ ...errors, area_of_expertise: "" });
+                    }
+                  }}
+                >
+                  <SelectTrigger
+                    className={` w-full border px-3 py-5 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00ADEE] dark:border-gray-500 dark:bg-gray-200 dark:text-black dark:border
     ${errors.area_of_expertise ? "border-red-500" : "border-gray-300"}
   `}
->
-<SelectValue
-        placeholder={
-          isArabic ? "اختر مجال الخبرة" : "Select Area of Expertise"
-        }
-      />
-    </SelectTrigger>
+                  >
+                    <SelectValue
+                      placeholder={
+                        isArabic
+                          ? "اختر مجال الخبرة"
+                          : "Select Area of Expertise"
+                      }
+                    />
+                  </SelectTrigger>
 
-    <SelectContent className="text-base">
-      {area_of_expertise_options.map((option, i) => (
-        <SelectItem key={i} value={option.value} className="text-base py-2">
-          {isArabic ? option.label_ar : option.label_en}
-        </SelectItem>
-      ))}
-    </SelectContent>
-  </Select>
+                  <SelectContent className="text-base">
+                    {area_of_expertise_options.map((option, i) => (
+                      <SelectItem
+                        key={i}
+                        value={option.value}
+                        className="text-base py-2"
+                      >
+                        {isArabic ? option.label_ar : option.label_en}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
 
-  {errors.area_of_expertise && (
-    <span className="text-red-500 text-sm mt-1">
-      {errors.area_of_expertise}
-    </span>
-  )}
-</div>
-
-
+                {errors.area_of_expertise && (
+                  <span className="text-red-500 text-sm mt-1">
+                    {errors.area_of_expertise}
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* CV Upload */}
@@ -405,8 +420,8 @@ function NewApplicationForm({ action, locale }: prop) {
                     ? "جاري الإرسال..."
                     : "Submitting..."
                   : isArabic
-                  ? "إرسال"
-                  : "Submit"}
+                    ? "إرسال"
+                    : "Submit"}
               </button>
             </div>
           </CardContent>

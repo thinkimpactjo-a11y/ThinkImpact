@@ -16,14 +16,8 @@ import {
 } from "@/components/ui/tooltip";
 import { Trash2 } from "lucide-react";
 import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
-function getErrorMessage(error: unknown): string | null {
-  if (typeof error === "object" && error !== null && "message" in error) {
-    const msg = (error as { message?: unknown }).message;
-    return typeof msg === "string" ? msg : null;
-  }
-  return null;
-}
 export default function DeleteClientButton({
   clientId,
   deleteAction,
@@ -35,65 +29,67 @@ export default function DeleteClientButton({
 }) {
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const router = useRouter();
   const [toast, setToast] = useState<{
     message: string;
     type: "success" | "error";
   } | null>(null);
   const handleConfirm = async () => {
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const result = await deleteAction(clientId);
+      const result = await deleteAction(clientId);
 
-    // 🔐 Auth/session errors
-    if (result?.status === 401 || result?.status === 403) {
+      // 🔐 Auth/session errors
+      if (result?.status === 401 || result?.status === 403) {
+        setToast({
+          message: "Expired Session, Please Login",
+          type: "error",
+        });
+
+        setTimeout(() => {
+          signOut({ callbackUrl: "/login?reason=expired" });
+        }, 500);
+
+        return;
+      }
+
+      // ❌ Server failure
+      if (!result?.success) {
+        setToast({
+          message: result?.message || "Failed to delete client.",
+          type: "error",
+        });
+
+        setTimeout(() => setToast(null), 3000);
+
+        return;
+      }
+
+      // ✅ Success
       setToast({
-        message: "Expired Session, Please Login",
-        type: "error",
+        message: "Client deleted successfully!",
+        type: "success",
       });
+      router.refresh();
 
       setTimeout(() => {
-        signOut({ callbackUrl: "/login?reason=expired" });
-      }, 500);
+        setToast(null);
+        setOpen(false);
+      }, 1500);
+    } catch (error) {
+      console.error(error);
 
-      return;
-    }
-
-    // ❌ Server failure
-    if (!result?.success) {
       setToast({
-        message: result?.message || "Failed to delete client.",
+        message: "Something went wrong.",
         type: "error",
       });
 
       setTimeout(() => setToast(null), 3000);
-
-      return;
+    } finally {
+      setLoading(false);
     }
-
-    // ✅ Success
-    setToast({
-      message: "Client deleted successfully!",
-      type: "success",
-    });
-
-    setTimeout(() => {
-      setToast(null);
-      setOpen(false);
-    }, 1500);
-  } catch (error) {
-    console.error(error);
-
-    setToast({
-      message: "Something went wrong.",
-      type: "error",
-    });
-
-    setTimeout(() => setToast(null), 3000);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

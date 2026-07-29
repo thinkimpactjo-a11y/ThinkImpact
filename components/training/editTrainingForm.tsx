@@ -24,7 +24,11 @@ function getErrorMessage(error: unknown): string | null {
 
 interface Prop {
   training: newTraining;
-  action: (data: newTraining) => Promise<void>;
+  action: (data: newTraining) => Promise<{
+    message: string;
+    success: boolean;
+    status: number;
+  }>;
 }
 
 function EditCategoryForm({ training, action }: Prop) {
@@ -38,70 +42,108 @@ function EditCategoryForm({ training, action }: Prop) {
     slug: training.slug ?? "",
   });
 
-  const [errors, setErrors] = useState<Partial<Record<keyof newTraining, string>>>({});
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof newTraining, string>>
+  >({});
   const [isPending, startTransition] = useTransition();
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
 
- const handleInputChange = (
-     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-   ) => {
-     const { name, value } = e.target;
-   
-     setForm(prev => {
-       const updatedForm = { ...prev, [name]: value };
-   
-      
-       if (name === "name_en") {
-         updatedForm.slug = value
-           .toLowerCase()
-           .replace(/&/g, "and")
-           .replace(/[^a-z0-9]+/g, "-")
-           .replace(/^-+|-+$/g, "");
-       }
-   
-       return updatedForm;
-     });
-   
-     setErrors({ ...errors, [name]: "" });
-   };
-   
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = e.target;
+
+    setForm((prev) => {
+      const updatedForm = { ...prev, [name]: value };
+
+      if (name === "name_en") {
+        updatedForm.slug = value
+          .toLowerCase()
+          .replace(/&/g, "and")
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, "");
+      }
+
+      return updatedForm;
+    });
+
+    setErrors({ ...errors, [name]: "" });
+  };
 
   const handleFormSubmit = () => {
     startTransition(async () => {
+      setErrors({});
+
+      // Validate form
+      const validation = newTrainingSchema.safeParse(form);
+
+      if (!validation.success) {
+        const fieldErrors: Partial<Record<keyof newTraining, string>> = {};
+
+        validation.error.issues.forEach((issue) => {
+          if (issue.path[0]) {
+            fieldErrors[issue.path[0] as keyof newTraining] = issue.message;
+          }
+        });
+
+        setErrors(fieldErrors);
+
+        setToast({
+          message: "Please fix the form errors.",
+          type: "error",
+        });
+
+        setTimeout(() => setToast(null), 3000);
+        return;
+      }
+
       try {
-        // Validate the form
-        newTrainingSchema.parse(form);
-        setErrors({});
+        const result = await action(form);
 
-        await action(form);
+        if (result?.status === 401 || result?.status === 403) {
+          setToast({
+            message: "Expired Session, Please Login",
+            type: "error",
+          });
 
-        setToast({ message: "Training updated successfully!", type: "success" });
+          setTimeout(() => {
+            signOut({ callbackUrl: "/login?reason=expired" });
+          }, 500);
+
+          return;
+        }
+
+        if (!result.success) {
+          setToast({
+            message: result.message,
+            type: "error",
+          });
+
+          setTimeout(() => setToast(null), 3000);
+          return;
+        }
+
+        setToast({
+          message: "Training updated successfully!",
+          type: "success",
+        });
+
         setTimeout(() => {
           setToast(null);
           router.replace("/admin/dashboard/training");
         }, 1500);
-      } catch (err: unknown) {
-         const message = getErrorMessage(err);
-                                        if (message === "SESSION_EXPIRED" || message === "UNAUTHENTICATED") {
-                                          setToast({ message: "Expired Session, Please Login", type: "error" });
-                                
-                                          setTimeout(() => {
-                                            signOut({ callbackUrl: "/login?reason=expired" });
-                                          }, 500);
-                                
-                                          return;
-                                        }
-        if (err instanceof z.ZodError) {
-          const fieldErrors: Partial<Record<keyof newTraining, string>> = {};
-          err.issues.forEach((issue) => {
-            if (issue.path[0]) fieldErrors[issue.path[0] as keyof newTraining] = issue.message;
-          });
-          setErrors(fieldErrors);
-        } else {
-          console.error(err);
-          setToast({ message: "Failed to update Training.", type: "error" });
-          setTimeout(() => setToast(null), 3000);
-        }
+      } catch (error) {
+        console.error(error);
+
+        setToast({
+          message: "Failed to update Training.",
+          type: "error",
+        });
+
+        setTimeout(() => setToast(null), 3000);
       }
     });
   };
@@ -123,19 +165,21 @@ function EditCategoryForm({ training, action }: Prop) {
         <Card className="w-full h-full">
           <CardHeader>
             <CardTitle>Edit Training Details</CardTitle>
-            <CardDescription>Fill out the required fields below to update your Training.</CardDescription>
+            <CardDescription>
+              Fill out the required fields below to update your Training.
+            </CardDescription>
           </CardHeader>
 
           <CardContent className="flex flex-col items-start gap-5 mb-7">
             <div className="flex flex-col">
               <label className="text-base text-black mb-1">
-                <span className="text-red-500 text-sm">*</span> Slug (Auto Generated)
+                <span className="text-red-500 text-sm">*</span> Slug (Auto
+                Generated)
               </label>
               <input
                 type="text"
                 name="slug"
                 value={form.slug}
-                
                 className="border px-2 py-1 rounded cursor-not-allowed border-black bg-gray-100 w-[80vw] md:w-[75vw] lg:w-[65vw] xl:w-[19vw] h-[5vh] text-black"
               />
             </div>
@@ -152,7 +196,11 @@ function EditCategoryForm({ training, action }: Prop) {
                   onChange={handleInputChange}
                   className={`border px-2 py-1 rounded w-[80vw] md:w-[75vw] lg:w-[55vw] xl:w-[19vw] h-[5vh] text-black ${errors.name_en ? "border-red-500" : "border-black"}`}
                 />
-                {errors.name_en && <span className="text-red-500 text-sm mt-1">{errors.name_en}</span>}
+                {errors.name_en && (
+                  <span className="text-red-500 text-sm mt-1">
+                    {errors.name_en}
+                  </span>
+                )}
               </div>
 
               <div className="flex flex-col">
@@ -166,13 +214,18 @@ function EditCategoryForm({ training, action }: Prop) {
                   onChange={handleInputChange}
                   className={`border px-2 py-1 rounded w-[80vw] md:w-[75vw] lg:w-[55vw] xl:w-[19vw] h-[5vh] text-black ${errors.name_ar ? "border-red-500" : "border-black"}`}
                 />
-                {errors.name_ar && <span className="text-red-500 text-sm mt-1">{errors.name_ar}</span>}
+                {errors.name_ar && (
+                  <span className="text-red-500 text-sm mt-1">
+                    {errors.name_ar}
+                  </span>
+                )}
               </div>
             </div>
 
             <div className="flex flex-col">
               <label className="text-base text-black mb-1">
-                <span className="text-red-500 text-sm">*</span> English Description
+                <span className="text-red-500 text-sm">*</span> English
+                Description
               </label>
               <textarea
                 name="description_en"
@@ -180,12 +233,17 @@ function EditCategoryForm({ training, action }: Prop) {
                 onChange={handleInputChange}
                 className={`border px-2 py-1 rounded w-[80vw] md:w-[75vw] lg:w-[65vw] xl:w-[40vw] h-[15vh] text-black ${errors.description_en ? "border-red-500" : "border-black"}`}
               />
-              {errors.description_en && <span className="text-red-500 text-sm mt-1">{errors.description_en}</span>}
+              {errors.description_en && (
+                <span className="text-red-500 text-sm mt-1">
+                  {errors.description_en}
+                </span>
+              )}
             </div>
 
             <div className="flex flex-col">
               <label className="text-base text-black mb-1">
-                <span className="text-red-500 text-sm">*</span> Arabic Description
+                <span className="text-red-500 text-sm">*</span> Arabic
+                Description
               </label>
               <textarea
                 name="description_ar"
@@ -193,7 +251,11 @@ function EditCategoryForm({ training, action }: Prop) {
                 onChange={handleInputChange}
                 className={`border px-2 py-1 rounded w-[80vw] md:w-[75vw] lg:w-[65vw] xl:w-[40vw] h-[15vh] text-black ${errors.description_ar ? "border-red-500" : "border-black"}`}
               />
-              {errors.description_ar && <span className="text-red-500 text-sm mt-1">{errors.description_ar}</span>}
+              {errors.description_ar && (
+                <span className="text-red-500 text-sm mt-1">
+                  {errors.description_ar}
+                </span>
+              )}
             </div>
 
             <div className="w-full flex justify-center mt-5">

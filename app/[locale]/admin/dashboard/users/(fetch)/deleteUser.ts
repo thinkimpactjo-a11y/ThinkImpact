@@ -3,6 +3,7 @@
 import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
 import { authOptions } from "@/app/models/db/authOptions";
+import { removeUser } from "@/app/models/db/lib/services/users";
 
 export async function deleteUser(userId: string) {
   const session = await getServerSession(authOptions);
@@ -23,30 +24,11 @@ export async function deleteUser(userId: string) {
     };
   }
 
-  const result = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_URL}/api/users/editUser/${userId}`,
-    {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session.user.token}`,
-      },
-    }
-  );
-
-  if (!result.ok) {
-    return {
-      message: "Error Deleting User",
-      success: false,
-      status: result.status,
-    };
-  }
-
-  revalidatePath(`/dashboard/users`);
+  const result = await removeUser(userId);
 
   return {
-    message: "User Deleted Successfully",
-    success: true,
-    status: 200,
+    message: result.message,
+    success: result.success,
+    status: result.statusCode,
   };
 }

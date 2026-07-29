@@ -17,6 +17,7 @@ import {
 import { Trash2 } from "lucide-react";
 
 import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 function getErrorMessage(error: unknown): string | null {
   if (typeof error === "object" && error !== null && "message" in error) {
@@ -36,6 +37,7 @@ export default function DeleteUserButton({
 }) {
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const router = useRouter();
 
   const handleConfirm = async () => {
     try {
@@ -60,6 +62,7 @@ export default function DeleteUserButton({
 
       // ✅ Success
       setOpen(false);
+      router.refresh();
     } catch (error) {
       console.error("Unexpected error:", error);
     } finally {

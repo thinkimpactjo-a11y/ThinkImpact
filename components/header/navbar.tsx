@@ -5,12 +5,16 @@ import NavbarClient from "./NavbarClient";
 import { newCategory, newTraining } from "@/types";
 
 type Props = {
-  categories: newCategory[];
-  trainingData: newTraining[];
+  categories: newCategory[] | [];
+  trainingData: newTraining[] | [];
   locale: string;
 };
 
-export default async function Navbar({ categories, trainingData, locale }: Props) {
+export default async function Navbar({
+  categories,
+  trainingData,
+  locale,
+}: Props) {
   const session = await getServerSession(authOptions);
   const t = await getTranslations("Navbar");
 

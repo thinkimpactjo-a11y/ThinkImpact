@@ -19,8 +19,6 @@ export const bannerSchema = z.object({
   image: z
     .string()
     .url({ message: "Invalid image URL" })
-    .optional()
-    .or(z.literal("").optional())
     .or(z.null())
 });
 

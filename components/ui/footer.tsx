@@ -5,19 +5,27 @@ import Image from "next/image";
 import Logo from "@/public/images/whitelogo.png";
 import type { newCategory, newTraining } from "@/types";
 import { Mail, Phone } from "lucide-react";
-import { SiFacebook, SiLinkedin, SiYoutube, SiInstagram, SiX } from "react-icons/si";
+import {
+  SiFacebook,
+  SiLinkedin,
+  SiYoutube,
+  SiInstagram,
+  SiX,
+} from "react-icons/si";
 
 type Props = {
-  categories: newCategory[];
-  trainingData: newTraining[];
+  categories: newCategory[] | [];
+  trainingData: newTraining[] | [];
   locale: string;
 };
 
 export default function Footer({ categories, trainingData, locale }: Props) {
   const isArabic = locale === "ar";
 
-  const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "info@example.com";
-  const contactPhone = process.env.NEXT_PUBLIC_CONTACT_PHONE || "+962-0000-0000";
+  const contactEmail =
+    process.env.NEXT_PUBLIC_CONTACT_EMAIL || "info@example.com";
+  const contactPhone =
+    process.env.NEXT_PUBLIC_CONTACT_PHONE || "+962-0000-0000";
   const facebookUrl = process.env.NEXT_PUBLIC_FACEBOOK_URL || "#";
   const linkedinUrl = process.env.NEXT_PUBLIC_LINKEDIN_URL || "#";
   const twitterUrl = process.env.NEXT_PUBLIC_TWITTER_URL || "#";
@@ -26,7 +34,10 @@ export default function Footer({ categories, trainingData, locale }: Props) {
   const nurembergUrl = process.env.NEXT_PUBLIC_NUREMBERG_URL || "#";
 
   return (
-    <div dir={isArabic ? "rtl" : "ltr"} className="relative mt-16 bg-[#125892] text-white z-40">
+    <div
+      dir={isArabic ? "rtl" : "ltr"}
+      className="relative mt-16 bg-[#125892] text-white z-40"
+    >
       {/* Wave SVG */}
       <svg
         className="absolute top-0 w-full h-6 -mt-5 sm:-mt-10 sm:h-16 text-[#125892]"
@@ -46,7 +57,9 @@ export default function Footer({ categories, trainingData, locale }: Props) {
           <div className="flex flex-col md:max-w-md">
             <Link href="/" className="inline-flex items-center mb-4">
               <Image src={Logo} alt="logo" width={40} height={40} />
-              <span className="ml-2 text-xl font-bold tracking-wide uppercase">Think Impact</span>
+              <span className="ml-2 text-xl font-bold tracking-wide uppercase">
+                Think Impact
+              </span>
             </Link>
             <p className="text-sm">
               {isArabic
@@ -54,13 +67,17 @@ export default function Footer({ categories, trainingData, locale }: Props) {
                 : "We uncover clarity within complexity—delivering trusted insights and tailored solutions to guide your path forward."}
             </p>
             <p className="mt-4 text-sm">
-              {isArabic ? "رؤيتك وخبرتنا — معًا نصنع الأثر." : "Your vision, our expertise — together, we create impact."}
+              {isArabic
+                ? "رؤيتك وخبرتنا — معًا نصنع الأثر."
+                : "Your vision, our expertise — together, we create impact."}
             </p>
           </div>
 
           {/* 2. Consulting */}
           <div>
-            <p className="font-semibold tracking-wide text-white">{isArabic ? "الاستشارات" : "Consulting"}</p>
+            <p className="font-semibold tracking-wide text-white">
+              {isArabic ? "الاستشارات" : "Consulting"}
+            </p>
             <ul className="mt-2 space-y-2">
               {(categories || []).map((item) => (
                 <li key={item.slug}>
@@ -77,7 +94,9 @@ export default function Footer({ categories, trainingData, locale }: Props) {
 
           {/* 3. Training */}
           <div>
-            <p className="font-semibold tracking-wide text-white">{isArabic ? "التدريب" : "Training"}</p>
+            <p className="font-semibold tracking-wide text-white">
+              {isArabic ? "التدريب" : "Training"}
+            </p>
             <ul className="mt-2 space-y-2">
               {(trainingData || []).map((item) => (
                 <li key={item.id}>
@@ -94,36 +113,65 @@ export default function Footer({ categories, trainingData, locale }: Props) {
 
           {/* 4. Contact Us */}
           <div className="flex flex-col sm:mt-6">
-            <p className="font-semibold tracking-wide text-white">{isArabic ? "تواصل معنا" : "Contact Us"}</p>
+            <p className="font-semibold tracking-wide text-white">
+              {isArabic ? "تواصل معنا" : "Contact Us"}
+            </p>
             <ul className="mt-3 space-y-3 text-sm">
               <li className="flex items-center space-x-2 rtl:space-x-reverse break-words">
                 <Mail size={20} className="text-white flex-shrink-0" />
-                <a href={`mailto:${contactEmail}`} className="hover:text-gray-300 transition-colors">
+                <a
+                  href={`mailto:${contactEmail}`}
+                  className="hover:text-gray-300 transition-colors"
+                >
                   {contactEmail}
                 </a>
               </li>
 
               <li className="flex items-center gap-2 ">
                 <Phone size={20} />
-                <a dir="ltr" href={`tel:${contactPhone}`} className="hover:text-gray-300 transition-colors">
+                <a
+                  dir="ltr"
+                  href={`tel:${contactPhone}`}
+                  className="hover:text-gray-300 transition-colors"
+                >
                   {contactPhone}
                 </a>
               </li>
 
               <li className="flex items-center gap-3 mt-3 flex-wrap">
-                <Link href={facebookUrl} target="_blank" className="hover:text-gray-300 transition-colors">
+                <Link
+                  href={facebookUrl}
+                  target="_blank"
+                  className="hover:text-gray-300 transition-colors"
+                >
                   <SiFacebook size={27} />
                 </Link>
-                <Link href={instagramUrl} target="_blank" className="hover:text-gray-300 transition-colors">
+                <Link
+                  href={instagramUrl}
+                  target="_blank"
+                  className="hover:text-gray-300 transition-colors"
+                >
                   <SiInstagram size={27} />
                 </Link>
-                <Link href={linkedinUrl} target="_blank" className="hover:text-gray-300 transition-colors">
+                <Link
+                  href={linkedinUrl}
+                  target="_blank"
+                  className="hover:text-gray-300 transition-colors"
+                >
                   <SiLinkedin size={27} />
                 </Link>
-                <Link href={twitterUrl} target="_blank" className="hover:text-gray-300 transition-colors">
+                <Link
+                  href={twitterUrl}
+                  target="_blank"
+                  className="hover:text-gray-300 transition-colors"
+                >
                   <SiX size={27} />
                 </Link>
-                <Link href={youtubeUrl} target="_blank" className="hover:text-gray-300 transition-colors">
+                <Link
+                  href={youtubeUrl}
+                  target="_blank"
+                  className="hover:text-gray-300 transition-colors"
+                >
                   <SiYoutube size={27} />
                 </Link>
               </li>
@@ -137,7 +185,11 @@ export default function Footer({ categories, trainingData, locale }: Props) {
             {isArabic ? (
               <>
                 © 2025 Think Impact. جميع الحقوق محفوظة. تم الإنشاء بواسطة{" "}
-                <a href={nurembergUrl} target="_blank" className="underline hover:text-gray-300">
+                <a
+                  href={nurembergUrl}
+                  target="_blank"
+                  className="underline hover:text-gray-300"
+                >
                   Nuremberg Group
                 </a>
                 .
@@ -145,7 +197,11 @@ export default function Footer({ categories, trainingData, locale }: Props) {
             ) : (
               <>
                 © 2025 Think Impact. All rights reserved. Made by{" "}
-                <a href={nurembergUrl} target="_blank" className="underline hover:text-gray-300">
+                <a
+                  href={nurembergUrl}
+                  target="_blank"
+                  className="underline hover:text-gray-300"
+                >
                   Nuremberg Group
                 </a>
                 .

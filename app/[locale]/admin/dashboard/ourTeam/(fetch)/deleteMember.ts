@@ -26,8 +26,7 @@ export async function deleteMemberAction(memberId: string) {
 
   const res = await deleteMember(memberId);
 
-  revalidatePath("/dashboard/ourTeam");
-
+  revalidatePath("/admin/dashboard/ourTeam");
   return {
     message: res.message,
     success: res.success,

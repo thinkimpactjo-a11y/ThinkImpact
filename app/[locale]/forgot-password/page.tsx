@@ -93,7 +93,7 @@ function Page() {
         {/* Back to login */}
         <div className="text-center pt-4">
           <Link
-            href="/admin/login"
+            href="/login"
             className="text-sm text-[#00ADEE] hover:underline font-medium"
           >
             Back To Login

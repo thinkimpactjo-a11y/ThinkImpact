@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import React, { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { categorySchema } from "@/types/zod/consultingSchema"; 
+import { categorySchema } from "@/types/zod/consultingSchema";
 import { signOut } from "next-auth/react";
 
 function getErrorMessage(error: unknown): string | null {
@@ -23,7 +23,9 @@ function getErrorMessage(error: unknown): string | null {
 }
 interface prop {
   category: newCategory;
-  action: (data: newCategory) => Promise<void>;
+  action: (
+    data: newCategory,
+  ) => Promise<{ message: string; success: boolean; status: number }>;
 }
 
 function EditCategoryForm({ category, action }: prop) {
@@ -40,31 +42,32 @@ function EditCategoryForm({ category, action }: prop) {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isPending, startTransition] = useTransition();
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
 
- const handleInputChange = (
-   e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
- ) => {
-   const { name, value } = e.target;
- 
-   setForm(prev => {
-     const updatedForm = { ...prev, [name]: value };
- 
-    
-     if (name === "category_name_en") {
-       updatedForm.slug = value
-         .toLowerCase()
-         .replace(/&/g, "and")
-         .replace(/[^a-z0-9]+/g, "-")
-         .replace(/^-+|-+$/g, "");
-     }
- 
-     return updatedForm;
-   });
- 
-   setErrors({ ...errors, [name]: "" });
- };
- 
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = e.target;
+
+    setForm((prev) => {
+      const updatedForm = { ...prev, [name]: value };
+
+      if (name === "category_name_en") {
+        updatedForm.slug = value
+          .toLowerCase()
+          .replace(/&/g, "and")
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, "");
+      }
+
+      return updatedForm;
+    });
+
+    setErrors({ ...errors, [name]: "" });
+  };
 
   const handleUploadComplete = (url: string) => {
     setForm({ ...form, category_logo: url });
@@ -81,48 +84,60 @@ function EditCategoryForm({ category, action }: prop) {
   };
 
   const handleFormSubmit = () => {
-    // ✅ Validate using Zod before submitting
     const result = categorySchema.safeParse(form);
-   if (!result.success) {
-  const fieldErrors: Record<string, string> = {};
-  
-  // use `issues` instead of `errors`
-  result.error.issues.forEach((err) => {
-    if (err.path[0]) fieldErrors[err.path[0] as string] = err.message;
-  });
 
-  setErrors(fieldErrors);
-  setToast({ message: "Please fix the errors and try again.", type: "error" });
-  setTimeout(() => setToast(null), 3000);
-  return;
-}
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
 
+      result.error.issues.forEach((err) => {
+        if (err.path[0]) fieldErrors[err.path[0] as string] = err.message;
+      });
 
-    // ✅ If validation passes
+      setErrors(fieldErrors);
+      setToast({
+        message: "Please fix the errors and try again.",
+        type: "error",
+      });
+      setTimeout(() => setToast(null), 3000);
+      return;
+    }
+
     startTransition(async () => {
       try {
-        await action(form);
-        setToast({ message: "Category updated successfully!", type: "success" });
+        const response = await action({
+          ...form,
+          id: category.id,
+        });
+
+        if (response?.status === 403 || response?.status === 401) {
+          setToast({ message: "Expired Session, Please Login", type: "error" });
+
+          setTimeout(() => {
+            signOut({ callbackUrl: "/login?reason=expired" });
+          }, 500);
+
+          return;
+        }
+
+        if (!response.success) {
+          setToast({ message: response.message, type: "error" });
+          return;
+        }
+
+        setToast({
+          message: "Category updated successfully!",
+          type: "success",
+        });
 
         setTimeout(() => {
           setToast(null);
           router.replace("/admin/dashboard/consulting");
         }, 1500);
       } catch (error) {
-              const message = getErrorMessage(error);
-              if (message === "SESSION_EXPIRED" || message === "UNAUTHENTICATED") {
-                setToast({ message: "Expired Session, Please Login", type: "error" });
-      
-                setTimeout(() => {
-                  signOut({ callbackUrl: "/login?reason=expired" });
-                }, 500);
-      
-                return;
-              }
-              console.error(error);
-              setToast({ message: "Failed to add category.", type: "error" });
-              setTimeout(() => setToast(null), 3000);
-            }
+        console.error(error);
+        setToast({ message: "Failed to update category.", type: "error" });
+        setTimeout(() => setToast(null), 3000);
+      }
     });
   };
 
@@ -149,7 +164,7 @@ function EditCategoryForm({ category, action }: prop) {
           </CardHeader>
 
           <CardContent className="flex flex-col items-start gap-5 mb-7">
-             <div className="flex flex-col">
+            <div className="flex flex-col">
               <label className="text-base text-black mb-1">
                 <span className="text-red-500 text-sm">*</span> Slug (Auto
                 Generated)
@@ -159,14 +174,15 @@ function EditCategoryForm({ category, action }: prop) {
                 name="slug"
                 value={form.slug}
                 onChange={handleInputChange}
-                
                 className="border px-2 py-1 rounded cursor-not-allowed border-black bg-gray-100 w-[80vw] md:w-[75vw] lg:w-[65vw] xl:w-[19vw] h-[5vh] text-black"
               />
             </div>
 
             <div className="flex flex-col lg:flex lg:flex-row lg:justify-start gap-7">
               <div className="flex flex-col">
-                <label className="text-base text-black mb-1">English Name</label>
+                <label className="text-base text-black mb-1">
+                  English Name
+                </label>
                 <input
                   type="text"
                   name="category_name_en"
@@ -175,7 +191,9 @@ function EditCategoryForm({ category, action }: prop) {
                   className="border px-2 py-1 rounded border-black bg-white w-[80vw] md:w-[75vw] lg:w-[55vw] xl:w-[20vw] h-[5vh] text-black"
                 />
                 {errors.category_name_en && (
-                  <p className="text-red-500 text-sm">{errors.category_name_en}</p>
+                  <p className="text-red-500 text-sm">
+                    {errors.category_name_en}
+                  </p>
                 )}
               </div>
 
@@ -189,13 +207,17 @@ function EditCategoryForm({ category, action }: prop) {
                   className="border px-2 py-1 rounded border-black bg-white w-[80vw] md:w-[75vw] lg:w-[55vw] xl:w-[20vw] h-[5vh] text-black"
                 />
                 {errors.category_name_ar && (
-                  <p className="text-red-500 text-sm">{errors.category_name_ar}</p>
+                  <p className="text-red-500 text-sm">
+                    {errors.category_name_ar}
+                  </p>
                 )}
               </div>
             </div>
 
             <div className="flex flex-col">
-              <label className="text-base text-black mb-1">English Description</label>
+              <label className="text-base text-black mb-1">
+                English Description
+              </label>
               <textarea
                 name="description_en"
                 value={form.description_en}
@@ -208,7 +230,9 @@ function EditCategoryForm({ category, action }: prop) {
             </div>
 
             <div className="flex flex-col">
-              <label className="text-base text-black mb-1">Arabic Description</label>
+              <label className="text-base text-black mb-1">
+                Arabic Description
+              </label>
               <textarea
                 name="description_ar"
                 value={form.description_ar}

@@ -28,7 +28,7 @@ export const register = async (newUser: newUser) => {
         newUser.last_name,
         newUser.email.toLowerCase(),
         await hashPassword(newUser.password),
-      ]
+      ],
     );
 
     return { message: "registered successfully", data: result.rows };
@@ -38,7 +38,7 @@ export const register = async (newUser: newUser) => {
 export const login = async (userInfo: userInfo) => {
   const result = await pool.query<DBUser>(
     "select * from users where users.email= $1",
-    [userInfo.email]
+    [userInfo.email],
   );
 
   const dbUser = result.rows[0];
@@ -48,7 +48,7 @@ export const login = async (userInfo: userInfo) => {
   } else {
     const isMatch = await checkPassword(
       userInfo.password,
-      result.rows[0].password
+      result.rows[0].password,
     );
 
     if (!isMatch) {
@@ -59,10 +59,9 @@ export const login = async (userInfo: userInfo) => {
           user_id: dbUser.id,
           role: dbUser.role,
           name: dbUser.first_name,
-         
         },
         process.env.NEXTAUTH_SECRET as Secret,
-        { expiresIn: "15d" }
+        { expiresIn: "15d" },
       );
       return {
         id: dbUser.id,
@@ -76,51 +75,97 @@ export const login = async (userInfo: userInfo) => {
   }
 };
 
-export const editUser = async (id: string, modifiedUser: modifiedUser) => {
-  const isVaild = await pool.query<modifiedUser>(
-    "select * from users where id=$1",
-    [id]
-  );
-
-  if (isVaild.rows.length === 0) {
-    return null;
-  } else {
-    const result = await pool.query<modifiedUser>(
-      "update users set role= coalesce($2,role) where id= $1 returning *",
-      [id, modifiedUser.role]
+export const editUser = async (id: string, newRole: string) => {
+  try {
+    const user = await pool.query<modifiedUser>(
+      "SELECT * FROM users WHERE id = $1",
+      [id],
     );
 
-    return result.rows;
+    if (user.rows.length === 0) {
+      return {
+        success: false,
+        message: "User not found",
+        statusCode: 404,
+        data: null,
+      };
+    }
+
+    const result = await pool.query<modifiedUser>(
+      `UPDATE users
+       SET role = COALESCE($2, role)
+       WHERE id = $1
+       RETURNING *`,
+      [id, newRole],
+    );
+
+    return {
+      success: true,
+      message: "User updated successfully",
+      statusCode: 200,
+      data: result.rows[0] ?? null,
+    };
+  } catch (error) {
+    console.error("Error updating user:", error);
+
+    return {
+      success: false,
+      message: "Failed to update user",
+      statusCode: 500,
+      data: null,
+    };
   }
 };
 
 export const removeUser = async (id: string) => {
-  const isVaild = await pool.query<modifiedUser>(
-    "select * from users where id=$1",
-    [id]
-  );
+  try {
+    const user = await pool.query<modifiedUser>(
+      "SELECT * FROM users WHERE id = $1",
+      [id],
+    );
 
-  if (isVaild.rows.length === 0) {
-    return null;
-  } else {
-    const result = await pool.query("delete from users where id=$1", [id]);
+    if (user.rows.length === 0) {
+      return {
+        success: false,
+        message: "User not found",
+        statusCode: 404,
+        data: null,
+      };
+    }
 
-    return result.rows;
+    const result = await pool.query<modifiedUser>(
+      "DELETE FROM users WHERE id = $1 RETURNING *",
+      [id],
+    );
+
+    return {
+      success: true,
+      message: "User deleted successfully",
+      statusCode: 200,
+      data: result.rows[0] ?? null,
+    };
+  } catch (error) {
+    console.error("Error deleting user:", error);
+
+    return {
+      success: false,
+      message: "Failed to delete user",
+      statusCode: 500,
+      data: null,
+    };
   }
 };
 
-export const getAllusers= async()=>{
-  const result= await pool.query<DBUser>(
-    "select * from users"
-  ) 
-  return result.rows
-}
+export const getAllusers = async () => {
+  const result = await pool.query<DBUser>("select * from users");
+  return result.rows;
+};
 
-export const getUserById= async (id:string)=>{
+export const getUserById = async (id: string) => {
+  const result = await pool.query<DBUser>(
+    "select * from users where users.id=$1",
+    [id],
+  );
 
-  const result =await pool.query<DBUser>(
-    "select * from users where users.id=$1",[id]
-  )
-
-  return result.rows
-}
+  return result.rows;
+};

@@ -10,14 +10,7 @@ import {
 } from "@/components/ui/select";
 
 import { signOut } from "next-auth/react";
-
-function getErrorMessage(error: unknown): string | null {
-  if (typeof error === "object" && error !== null && "message" in error) {
-    const msg = (error as { message?: unknown }).message;
-    return typeof msg === "string" ? msg : null;
-  }
-  return null;
-}
+import { useRouter } from "next/navigation";
 
 interface Props {
   userId: string;
@@ -33,6 +26,7 @@ export default function UpdateRoleForm({ userId, userRole, action }: Props) {
     message: string;
     type: "success" | "error";
   } | null>(null);
+  const router = useRouter();
 
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -68,7 +62,10 @@ export default function UpdateRoleForm({ userId, userRole, action }: Props) {
 
         setToast({ message: "Role Updated Successfully!", type: "success" });
 
-        setTimeout(() => setToast(null), 3000);
+        setTimeout(() => {
+          setToast(null);
+          router.replace("/admin/dashboard/users");
+        }, 1000);
       } catch (error) {
         console.error(error);
 

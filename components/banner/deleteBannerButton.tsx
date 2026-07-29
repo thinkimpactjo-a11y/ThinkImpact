@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Trash2 } from "lucide-react";
 import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 export default function DeleteBannerButton({
   bannerId,
   deleteAction,
@@ -27,6 +28,7 @@ export default function DeleteBannerButton({
 }) {
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const router = useRouter();
   const [toast, setToast] = useState<{
     message: string;
     type: "success" | "error";
@@ -36,11 +38,10 @@ export default function DeleteBannerButton({
       setLoading(true);
 
       const result = await deleteAction(bannerId);
+      console.log("result: ", result);
 
       // 🔐 AUTH HANDLING
-      if (
-       result?.status === 403 || result?.status === 401
-      ) {
+      if (result?.status === 403 || result?.status === 401) {
         setToast?.({
           message: "Expired Session, Please Login",
           type: "error",
@@ -69,6 +70,7 @@ export default function DeleteBannerButton({
         type: "success",
       });
 
+      router.refresh();
       setOpen(false);
     } catch (error) {
       console.error("Unexpected error:", error);

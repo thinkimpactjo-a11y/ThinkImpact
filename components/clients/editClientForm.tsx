@@ -20,13 +20,6 @@ interface Props {
   ) => Promise<{ message: string; success: boolean; status: number }>;
 }
 
-function getErrorMessage(error: unknown): string | null {
-  if (typeof error === "object" && error !== null && "message" in error) {
-    const msg = (error as { message?: unknown }).message;
-    return typeof msg === "string" ? msg : null;
-  }
-  return null;
-}
 
 export default function EditClientForm({ client, action }: Props) {
   const router = useRouter();

@@ -19,20 +19,17 @@ import {
 } from "@/components/ui/select";
 import { newServiceSchema } from "@/types/zod/serviceSchema";
 import { categorySchema } from "@/types/zod/consultingSchema";
-import { z } from "zod";
 
 import { signOut } from "next-auth/react";
 
-function getErrorMessage(error: unknown): string | null {
-  if (typeof error === "object" && error !== null && "message" in error) {
-    const msg = (error as { message?: unknown }).message;
-    return typeof msg === "string" ? msg : null;
-  }
-  return null;
-}
+
 
 interface Props {
-  action: (data: newService) => Promise<void>;
+  action: (data: newService) => Promise<{
+    message: string;
+    success: boolean;
+    status: number;
+  }>;
   categories: newCategory[];
 }
 
@@ -58,7 +55,7 @@ export default function CreateNewCategory({ action, categories }: Props) {
   } | null>(null);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     setFormErrors({ ...formErrors, [e.target.name]: "" });
@@ -76,61 +73,98 @@ export default function CreateNewCategory({ action, categories }: Props) {
   const handleImageDelete = () => setForm({ ...form, image: "" });
 
   const handleFormSubmit = () => {
-    startTransition(async () => {
-      try {
-        setFormErrors({});
+  startTransition(async () => {
+    setFormErrors({});
 
-        newServiceSchema.parse(form);
+    // Validate service form
+    const serviceValidation = newServiceSchema.safeParse(form);
 
-        const selectedCategory = categories.find(
-          (c) => c.id === form.category_id
-        );
-        if (!selectedCategory) throw new Error("Category not found");
-        categorySchema.parse(selectedCategory);
+    if (!serviceValidation.success) {
+      const fieldErrors: Partial<Record<keyof newService, string>> = {};
 
-        await action(form);
+      serviceValidation.error.issues.forEach((err) => {
+        const field = err.path[0] as keyof newService;
+        fieldErrors[field] = err.message;
+      });
 
-        setToast({ message: "Service added successfully!", type: "success" });
+      setFormErrors(fieldErrors);
+      setToast({
+        message: "Please fix the form errors.",
+        type: "error",
+      });
+
+      setTimeout(() => setToast(null), 3000);
+      return;
+    }
+
+    // Validate selected category
+    const selectedCategory = categories.find(
+      (c) => c.id === form.category_id,
+    );
+
+    if (!selectedCategory) {
+      setToast({
+        message: "Category not found.",
+        type: "error",
+      });
+      return;
+    }
+
+    const categoryValidation = categorySchema.safeParse(selectedCategory);
+
+    if (!categoryValidation.success) {
+      setToast({
+        message: "Invalid category.",
+        type: "error",
+      });
+      return;
+    }
+
+    try {
+      const result = await action(form);
+
+      if (result?.status === 401 || result?.status === 403) {
+        setToast({
+          message: "Expired Session, Please Login",
+          type: "error",
+        });
+
         setTimeout(() => {
-          setToast(null);
-          router.replace("/admin/dashboard/services");
-        }, 1500);
-      } catch (error: unknown) {
-         const message = getErrorMessage(error);
-                                if (message === "SESSION_EXPIRED" || message === "UNAUTHENTICATED") {
-                                  setToast({ message: "Expired Session, Please Login", type: "error" });
-                        
-                                  setTimeout(() => {
-                                    signOut({ callbackUrl: "/login?reason=expired" });
-                                  }, 500);
-                        
-                                  return;
-                                }
-        if (error instanceof z.ZodError) {
-          const fieldErrors: Partial<Record<keyof newService, string>> = {};
-          error.issues.forEach((err) => {
-            const field = err.path[0] as keyof newService;
-            fieldErrors[field] = err.message;
-          });
-          setFormErrors(fieldErrors);
-        } else if (error instanceof Error) {
-          console.error(error);
-          setToast({
-            message: error.message || "Failed to add Service.",
-            type: "error",
-          });
-          setTimeout(() => setToast(null), 3000);
-        } else {
-          console.error(error);
-          setToast({
-            message: "An unknown error occurred.",
-            type: "error",
-          });
-          setTimeout(() => setToast(null), 3000);
-        }
+          signOut({ callbackUrl: "/login?reason=expired" });
+        }, 500);
+
+        return;
       }
-    });
-  };
+
+      if (!result.success) {
+        setToast({
+          message: result.message,
+          type: "error",
+        });
+        return;
+      }
+
+      setToast({
+        message: "Service added successfully!",
+        type: "success",
+      });
+
+      setTimeout(() => {
+        setToast(null);
+        router.replace("/admin/dashboard/services");
+      }, 1500);
+    } catch (error) {
+      console.error(error);
+
+      setToast({
+        message: "Failed to add Service.",
+        type: "error",
+      });
+
+      setTimeout(() => setToast(null), 3000);
+    }
+  });
+};
 
   const renderError = (field: keyof newService) =>
     formErrors[field] ? (

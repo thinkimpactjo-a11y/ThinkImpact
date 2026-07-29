@@ -1,17 +1,11 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/models/db/authOptions";
+import { addNewBanner } from "@/app/models/db/lib/services/banners";
+import { newBanner } from "@/types";
 
-type BannerData = {
-  alt: string;
-  description_en: string;
-  description_ar: string;
-  image?: string | null;
-};
-
-export async function createBanner(data: BannerData) {
+export async function createBanner(data: newBanner) {
   const session = await getServerSession(authOptions);
 
   if (!session) {
@@ -30,30 +24,12 @@ export async function createBanner(data: BannerData) {
     };
   }
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_URL}/api/banners`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    }
-  );
+  const res = await addNewBanner(data);
 
-  if (!res.ok) {
-    return {
-      message: "Error Creating Banner",
-      success: false,
-      status: res.status,
-    };
-  }
-
-  revalidatePath("/admin/dashboard/banners");
 
   return {
-    message: "Banner Created Successfully",
-    success: true,
-    status: 201,
+    message: res.message,
+    success: res.success,
+    status: res.statusCode,
   };
 }

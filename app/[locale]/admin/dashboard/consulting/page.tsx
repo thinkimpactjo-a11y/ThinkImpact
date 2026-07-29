@@ -22,7 +22,7 @@ import DeleteCategoryButton from "@/components/consulting/deleteCategoryForm";
 import { deleteCategory } from "./(fetch)/deleteCategory";
 
 export default async function ConsultingTable() {
-  const categories = await getAllcategories();
+  const categories = (await getAllcategories()).data;
 
   return (
     <>
@@ -35,7 +35,7 @@ export default async function ConsultingTable() {
           </h2>
         </div>
 
-        {categories.length === 0 ? (
+        {!categories || categories.length === 0 ? (
           <div className="w-full text-center py-10 text-gray-500 text-lg min-w-[75vw]">
             No categories found. Please add a new category.
           </div>
@@ -46,7 +46,9 @@ export default async function ConsultingTable() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Name</TableHead>
-                    <TableHead className="hidden xl:table-cell">Description</TableHead>
+                    <TableHead className="hidden xl:table-cell">
+                      Description
+                    </TableHead>
                     <TableHead>Image</TableHead>
                     <TableHead></TableHead>
                   </TableRow>
@@ -77,7 +79,9 @@ export default async function ConsultingTable() {
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Link href={`/admin/dashboard/consulting/${category.id}`}>
+                                <Link
+                                  href={`/admin/dashboard/consulting/${category.id}`}
+                                >
                                   <SquarePen className="w-5 h-5 text-[#125892] cursor-pointer hover:text-[#0f4473]" />
                                 </Link>
                               </TooltipTrigger>

@@ -1,14 +1,26 @@
 import React from "react";
 import Link from "next/link";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { SquarePen, Plus } from "lucide-react";
 import DeleteSettingButton from "@/components/settings/deleteSetting";
 import { deleteSetting } from "./(fetch)/deleteSetting";
 import { getSettingsData } from "@/app/models/db/lib/services/settings";
 
 export default async function SettingsTable() {
-  const settings = await getSettingsData();
+  const settings = (await getSettingsData()).data;
 
   return (
     <>
@@ -22,7 +34,7 @@ export default async function SettingsTable() {
         </div>
 
         {/* If no Settings */}
-        {settings.length === 0 ? (
+        {!settings || settings.length === 0 ? (
           <div className="w-full text-center py-10 text-gray-500 text-lg min-w-[75vw]">
             No Settings found. Please add a new Setting.
           </div>
@@ -34,8 +46,10 @@ export default async function SettingsTable() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Setting Name</TableHead>
-                    <TableHead className="hidden xl:table-cell">Setting Value</TableHead>
-                    
+                    <TableHead className="hidden xl:table-cell">
+                      Setting Value
+                    </TableHead>
+
                     <TableHead></TableHead>
                   </TableRow>
                 </TableHeader>
@@ -43,7 +57,9 @@ export default async function SettingsTable() {
                   {settings.map((setting, i) => (
                     <TableRow key={i}>
                       {/* Setting Name */}
-                      <TableCell className="text-xs sm:text-base">{setting.key_name_en}</TableCell>
+                      <TableCell className="text-xs sm:text-base">
+                        {setting.key_name_en}
+                      </TableCell>
 
                       {/* Setting Value */}
                       <TableCell className="text-xs sm:text-base hidden xl:table-cell">
@@ -65,7 +81,9 @@ export default async function SettingsTable() {
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Link href={`/admin/dashboard/settings/${setting.id}`}>
+                                <Link
+                                  href={`/admin/dashboard/settings/${setting.id}`}
+                                >
                                   <SquarePen className="w-5 h-5 text-[#125892] cursor-pointer hover:text-[#0f4473]" />
                                 </Link>
                               </TooltipTrigger>

@@ -1,9 +1,9 @@
 "use server";
 
 import { getServerSession } from "next-auth";
-import { revalidatePath } from "next/cache";
 import { authOptions } from "@/app/models/db/authOptions";
 import { newClient } from "@/types";
+import { addNewClient } from "@/app/models/db/lib/services/clients";
 
 export async function createClient(data: newClient) {
   const session = await getServerSession(authOptions);
@@ -24,30 +24,11 @@ export async function createClient(data: newClient) {
     };
   }
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_URL}/api/clients`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    }
-  );
-
-  if (!res.ok) {
-    return {
-      message: "Error Creating Client",
-      success: false,
-      status: res.status,
-    };
-  }
-
-  revalidatePath("/dashboard/clients");
+  const res = await addNewClient(data);
 
   return {
-    message: "Client Created Successfully",
-    success: true,
-    status: 201,
+    message: res.message,
+    success: res.success,
+    status: res.statusCode,
   };
 }

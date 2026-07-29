@@ -3,6 +3,7 @@
 import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
 import { authOptions } from "@/app/models/db/authOptions";
+import { editClients } from "@/app/models/db/lib/services/clients";
 import { newClient } from "@/types";
 
 export async function editClient(data: newClient) {
@@ -15,7 +16,6 @@ export async function editClient(data: newClient) {
       status: 401,
     };
   }
-  
 
   if (session.user.role !== "admin") {
     return {
@@ -25,30 +25,14 @@ export async function editClient(data: newClient) {
     };
   }
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_URL}/api/clients/${data.id}`,
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    }
-  );
-
-  if (!res.ok) {
-    return {
-      message: "Error Updating Client",
-      success: false,
-      status: res.status,
-    };
-  }
+  const result = await editClients(String(data.id), data);
 
   revalidatePath("/dashboard/clients");
 
   return {
-    message: "Client Updated Successfully",
-    success: true,
-    status: 200,
+    message: result.message,
+    success: result.success,
+    status: result.statusCode,
+    
   };
 }

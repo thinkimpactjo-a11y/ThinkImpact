@@ -1,41 +1,31 @@
 "use server";
 import { getServerSession } from "next-auth";
-import { revalidatePath } from "next/cache";
 import { authOptions } from "@/app/models/db/authOptions";
 import { newSetting } from "@/types";
-const EXPIRE_SECONDS = 15 * 24 * 60 * 60; // 15 days in seconds
-
-
+import { addNewSetting } from "@/app/models/db/lib/services/settings";
 
 export async function createSettings(data: newSetting) {
   const session = await getServerSession(authOptions);
-   if (!session) {
-    throw new Error("UNAUTHENTICATED");
+  if (!session) {
+    return {
+      message: "UNAUTHENTICATED",
+      success: false,
+      status: 401,
+    };
   }
- const nowSec = Math.floor(Date.now() / 1000);
-const loginAtSec = session.user.loginAt
-  ? Math.floor(new Date(session.user.loginAt).getTime() / 1000)
-  : null;
 
-  if (!loginAtSec || nowSec - loginAtSec > EXPIRE_SECONDS) {
-  throw new Error("SESSION_EXPIRED");
-}
-  const token = session?.user.token;
- 
-  const result = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_URL}/api/settings`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(data)
-    }
-  );
+  if (session.user.role !== "admin") {
+    return {
+      message: "UNAUTHORIZED",
+      success: false,
+      status: 403,
+    };
+  }
 
-  if (!result.ok) throw new Error("Failed to Create Setting");
-
-  revalidatePath(`/dashboard/settings`);
-  return await result.json();
+  const result = await addNewSetting(data);
+  return {
+    message: result.message,
+    success: result.success,
+    status: result.statusCode,
+  };
 }

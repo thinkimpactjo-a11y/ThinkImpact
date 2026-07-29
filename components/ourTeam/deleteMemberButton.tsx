@@ -24,7 +24,7 @@ export default function DeleteMemberButton({
 }: {
   memberId: string;
   deleteAction: (
-    id: string
+    id: string,
   ) => Promise<{ message: string; success: boolean; status: number }>;
 }) {
   const [open, setOpen] = useState(false);
@@ -35,15 +35,14 @@ export default function DeleteMemberButton({
       setLoading(true);
 
       const result = await deleteAction(memberId);
+      console.log("result: ", result);
 
       if (result.success) {
         setOpen(false);
         return;
       }
 
-      if (
-       result?.status === 403 || result?.status === 401
-      ) {
+      if (result?.status === 403 || result?.status === 401) {
         setTimeout(() => {
           signOut({ callbackUrl: "/login?reason=expired" });
         }, 800);

@@ -19,28 +19,24 @@ import {
 import { Plus, Trash2 } from "lucide-react";
 import ImageUploader from "@/components/imageUpload";
 import { signOut } from "next-auth/react";
-function getErrorMessage(error: unknown): string | null {
-  if (typeof error === "object" && error !== null && "message" in error) {
-    const msg = (error as { message?: unknown }).message;
-    return typeof msg === "string" ? msg : null;
-  }
-  return null;
-}
-
 
 interface Props {
   course: editCourse;
   training: newTraining[];
-  action: (data: editCourse) => Promise<void>;
+  action: (data: editCourse) => Promise<{
+    message: string;
+    success: boolean;
+    status: number;
+  }>;
 }
 
 export default function EditServiceForm({ course, training, action }: Props) {
   const router = useRouter();
   const [form, setForm] = useState<editCourse>({
     id: course.id ?? "",
-    training_name_en: course.training_name_en ,
-    description_en: course.description_en ,
-    description_ar: course.description_ar ,
+    training_name_en: course.training_name_en,
+    description_en: course.description_en,
+    description_ar: course.description_ar,
     title_en: course.title_en,
     title_ar: course.title_ar,
     training_id: course.training_id,
@@ -50,7 +46,7 @@ export default function EditServiceForm({ course, training, action }: Props) {
     delivery_method_ar: course.delivery_method_ar,
     duration_en: course.duration_en,
     duration_ar: course.duration_ar,
-    image:course.image
+    image: course.image,
   });
 
   const [isPending, startTransition] = useTransition();
@@ -61,7 +57,7 @@ export default function EditServiceForm({ course, training, action }: Props) {
 
   // 🔹 Normal input handler
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -70,7 +66,7 @@ export default function EditServiceForm({ course, training, action }: Props) {
   const handleArrayChange = (
     field: keyof editCourse,
     index: number,
-    value: string
+    value: string,
   ) => {
     const currentArray = Array.isArray(form[field]) ? form[field] : [];
     const newArray = [...currentArray];
@@ -88,7 +84,6 @@ export default function EditServiceForm({ course, training, action }: Props) {
     const newArray = currentArray.filter((_, i) => i !== index);
     setForm({ ...form, [field]: newArray });
   };
-
 
   /* upload image functions*/
   const handleUploadComplete = (url: string) => {
@@ -108,30 +103,31 @@ export default function EditServiceForm({ course, training, action }: Props) {
   const handleFormSubmit = () => {
     startTransition(async () => {
       try {
-        await action(form);
+        const result = await action(form);
+        if (result?.status === 401 || result?.status === 403) {
+          setToast({ message: "Expired Session, Please Login", type: "error" });
+          setTimeout(() => {
+            signOut({ callbackUrl: "/login?reason=expired" });
+          }, 500);
+          return;
+        }
+        if (!result.success) {
+          setToast({ message: result.message, type: "error" });
+          setTimeout(() => setToast(null), 3000);
+          return;
+        }
         setToast({ message: "Course updated successfully!", type: "success" });
         setTimeout(() => {
           setToast(null);
           router.replace("/admin/dashboard/courses");
-        }, 1500);
+        }, 500);
       } catch (error) {
-         const message = getErrorMessage(error);
-                if (message === "SESSION_EXPIRED" || message === "UNAUTHENTICATED") {
-                  setToast({ message: "Expired Session, Please Login", type: "error" });
-        
-                  setTimeout(() => {
-                    signOut({ callbackUrl: "/login?reason=expired" });
-                  }, 500);
-        
-                  return;
-                }
         console.error(error);
         setToast({ message: "Failed to update Course.", type: "error" });
         setTimeout(() => setToast(null), 3000);
       }
     });
   };
-
   return (
     <main className="ml-3 xl:ml-7 mb-7">
       <div className="flex flex-col justify-start items-start border-b border-gray-500 w-[70vw] mb-7">
@@ -253,7 +249,7 @@ export default function EditServiceForm({ course, training, action }: Props) {
                         handleArrayChange(
                           "target_audience_en",
                           index,
-                          e.target.value
+                          e.target.value,
                         )
                       }
                       className="border px-2 py-1 rounded border-black bg-white w-[80vw] md:w-[75vw] lg:w-[55vw] xl:w-[15vw] h-[5vh] text-black"
@@ -295,7 +291,7 @@ export default function EditServiceForm({ course, training, action }: Props) {
                         handleArrayChange(
                           "target_audience_ar",
                           index,
-                          e.target.value
+                          e.target.value,
                         )
                       }
                       className="border px-2 py-1 rounded border-black bg-white w-[80vw] md:w-[75vw] lg:w-[55vw] xl:w-[15vw] h-[5vh] text-black"
@@ -340,7 +336,7 @@ export default function EditServiceForm({ course, training, action }: Props) {
                         handleArrayChange(
                           "delivery_method_en",
                           index,
-                          e.target.value
+                          e.target.value,
                         )
                       }
                       className="border px-2 py-1 rounded border-black bg-white w-[80vw] md:w-[75vw] lg:w-[55vw] xl:w-[15vw] h-[5vh] text-black"
@@ -382,7 +378,7 @@ export default function EditServiceForm({ course, training, action }: Props) {
                         handleArrayChange(
                           "delivery_method_ar",
                           index,
-                          e.target.value
+                          e.target.value,
                         )
                       }
                       className="border px-2 py-1 rounded border-black bg-white w-[80vw] md:w-[75vw] lg:w-[55vw] xl:w-[15vw] h-[5vh] text-black"
@@ -443,17 +439,16 @@ export default function EditServiceForm({ course, training, action }: Props) {
               </div>
             </div>
 
-              <div className="flex flex-col w-full max-w-sm">
-                          <label className="text-base text-black mb-1">Course Image</label>
-                          <ImageUploader
-                            endpoint="courses"
-                            initialImageUrl={form.image}
-                            onUploadComplete={handleUploadComplete}
-                            onUploadError={handleUploadError}
-                            onDelete={handleImageDelete}
-                          />
-                        </div>
-            
+            <div className="flex flex-col w-full max-w-sm">
+              <label className="text-base text-black mb-1">Course Image</label>
+              <ImageUploader
+                endpoint="courses"
+                initialImageUrl={form.image}
+                onUploadComplete={handleUploadComplete}
+                onUploadError={handleUploadError}
+                onDelete={handleImageDelete}
+              />
+            </div>
 
             {/* Buttons */}
             <div className="w-full flex justify-center mt-5">

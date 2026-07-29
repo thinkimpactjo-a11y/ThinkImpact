@@ -18,12 +18,12 @@ import {
 
 import ModeToggle from "@/components/header/modetoggle";
 import FontSwitcher from "@/components/fontswitcher/FontSwitcher";
-import LanguageSwitcher from "@/components/header/languageSwitcher"; 
+import LanguageSwitcher from "@/components/header/languageSwitcher";
 import type { newCategory, newTraining } from "@/types";
 
 type Props = {
-  categories: newCategory[];
-  trainingData: newTraining[];
+  categories: newCategory[] | [];
+  trainingData: newTraining[] | [];
   locale: string;
 };
 
@@ -39,10 +39,12 @@ export default function Menu({ categories, trainingData, locale }: Props) {
   const router = useRouter();
 
   const getCategoryName = (item: newCategory) =>
-    isArabic ? item.category_name_ar ?? item.category_name_en : item.category_name_en;
+    isArabic
+      ? (item.category_name_ar ?? item.category_name_en)
+      : item.category_name_en;
 
   const getTrainingName = (item: newTraining) =>
-    isArabic ? item.name_ar ?? item.name_en : item.name_en;
+    isArabic ? (item.name_ar ?? item.name_en) : item.name_en;
 
   const navigate = (href: string) => {
     setOpen(false);
@@ -75,7 +77,6 @@ export default function Menu({ categories, trainingData, locale }: Props) {
 
               {/* القوائم */}
               <nav className="flex flex-col space-y-4">
-
                 {/* الصفحة الرئيسية */}
                 <button
                   onClick={() => navigate("/")}
@@ -86,7 +87,9 @@ export default function Menu({ categories, trainingData, locale }: Props) {
 
                 {/* قائمة الاستشارات */}
                 <div>
-                  <div className={`font-semibold ${isArabic ? "text-right" : "text-left"}`}>
+                  <div
+                    className={`font-semibold ${isArabic ? "text-right" : "text-left"}`}
+                  >
                     {t("consulting")}
                   </div>
                   <div className="mt-2 flex flex-col space-y-2">
@@ -104,7 +107,9 @@ export default function Menu({ categories, trainingData, locale }: Props) {
 
                 {/* قائمة التدريب */}
                 <div>
-                  <div className={`font-semibold ${isArabic ? "text-right" : "text-left"}`}>
+                  <div
+                    className={`font-semibold ${isArabic ? "text-right" : "text-left"}`}
+                  >
                     {t("training")}
                   </div>
                   <div className="mt-2 flex flex-col space-y-2">
@@ -145,7 +150,9 @@ export default function Menu({ categories, trainingData, locale }: Props) {
                 {/* حساب المستخدم */}
                 {isLoggedIn && (
                   <div>
-                    <div className={`font-semibold ${isArabic ? "text-right" : "text-left"}`}>
+                    <div
+                      className={`font-semibold ${isArabic ? "text-right" : "text-left"}`}
+                    >
                       {t("myAccount")}
                     </div>
                     <div className="mt-2 flex flex-col space-y-2">
@@ -164,7 +171,10 @@ export default function Menu({ categories, trainingData, locale }: Props) {
                         {t("changePassword")}
                       </button>
                       <button
-                        onClick={() => { signOut(); setOpen(false); }}
+                        onClick={() => {
+                          signOut();
+                          setOpen(false);
+                        }}
                         className={`text-sm text-gray-600 hover:text-gray-800 transition cursor-pointer ${isArabic ? "pr-6 text-right" : "pl-6 text-left"}`}
                       >
                         {t("logout")}
@@ -174,7 +184,9 @@ export default function Menu({ categories, trainingData, locale }: Props) {
                 )}
               </nav>
 
-              <SheetDescription className="mt-6">{t("menuDescription")}</SheetDescription>
+              <SheetDescription className="mt-6">
+                {t("menuDescription")}
+              </SheetDescription>
             </SheetHeader>
           </FontSwitcher>
         </SheetContent>

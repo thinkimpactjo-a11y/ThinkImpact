@@ -30,7 +30,11 @@ function getErrorMessage(error: unknown): string | null {
 
 
 interface Props {
-  action: (data: newCourse) => Promise<void>;
+  action: (data: newCourse) => Promise<{
+    message: string;
+    success: boolean;
+    status: number;
+  }>;
   training: newTraining[];
 }
 

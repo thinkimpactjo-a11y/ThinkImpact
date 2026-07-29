@@ -11,20 +11,17 @@ import {
 } from "@/components/ui/card";
 import React, { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { categorySchema } from "@/types/zod/consultingSchema"; // ✅ imported schema
+import { categorySchema } from "@/types/zod/consultingSchema";
 import { signOut } from "next-auth/react";
 
 interface Props {
-  action: (data: newCategory) => Promise<void>;
+  action: (data: newCategory) => Promise<{
+    message: string;
+    success: boolean;
+    status: number;
+  }>;
 }
 
-function getErrorMessage(error: unknown): string | null {
-  if (typeof error === "object" && error !== null && "message" in error) {
-    const msg = (error as { message?: unknown }).message;
-    return typeof msg === "string" ? msg : null;
-  }
-  return null;
-}
 
 export default function CreateNewCategory({ action }: Props) {
   const router = useRouter();
@@ -46,7 +43,7 @@ export default function CreateNewCategory({ action }: Props) {
   } | null>(null);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
 
@@ -83,7 +80,6 @@ export default function CreateNewCategory({ action }: Props) {
 
   const handleFormSubmit = () => {
     startTransition(async () => {
-      // ✅ validate using imported Zod schema
       const validation = categorySchema.safeParse(form);
 
       if (!validation.success) {
@@ -98,15 +94,9 @@ export default function CreateNewCategory({ action }: Props) {
       }
 
       try {
-        await action({ ...form });
-        setToast({ message: "Category added successfully!", type: "success" });
-        setTimeout(() => {
-          setToast(null);
-          router.replace("/admin/dashboard/consulting");
-        }, 1500);
-      } catch (error) {
-        const message = getErrorMessage(error);
-        if (message === "SESSION_EXPIRED" || message === "UNAUTHENTICATED") {
+        const result = await action({ ...form });
+
+        if (result?.status === 403 || result?.status === 401) {
           setToast({ message: "Expired Session, Please Login", type: "error" });
 
           setTimeout(() => {
@@ -115,6 +105,18 @@ export default function CreateNewCategory({ action }: Props) {
 
           return;
         }
+
+        if (!result.success) {
+          setToast({ message: result.message, type: "error" });
+          return;
+        }
+
+        setToast({ message: "Category added successfully!", type: "success" });
+        setTimeout(() => {
+          setToast(null);
+          router.replace("/admin/dashboard/consulting");
+        }, 1500);
+      } catch (error) {
         console.error(error);
         setToast({ message: "Failed to add category.", type: "error" });
         setTimeout(() => setToast(null), 3000);

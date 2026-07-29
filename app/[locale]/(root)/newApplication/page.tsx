@@ -12,12 +12,6 @@ type Props = {
 async function page({ params }: Props) {
   const { locale } = await params;
 
-  // You can add translations here if needed
-  const title = locale === "ar" ? "تقديم طلب جديد - Think Impact" : "New Application - Think Impact";
-  const description =
-    locale === "ar"
-      ? "قدّم طلبك الآن للانضمام إلى فريق Think Impact والتطور المهني."
-      : "Submit your application now to join Think Impact and grow professionally.";
 
   return (
     <>

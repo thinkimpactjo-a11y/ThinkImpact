@@ -14,7 +14,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {  Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 
 import { signOut } from "next-auth/react";
 
@@ -30,35 +30,36 @@ export default function DeleteSettingButton({
   deleteAction,
 }: {
   settingId: string;
-  deleteAction: (id: string) => Promise<void>;
+  deleteAction: (id: string) => Promise<{
+    message: string;
+    success: boolean;
+    status: number;
+  }>;
 }) {
-    const [open, setOpen] = useState<boolean>(false)
- const [loading, setLoading] = useState<boolean>(false);
+  const [open, setOpen] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
- const handleConfirm= async ()=>{
-  try {
-     setLoading(true);
-    await deleteAction(settingId); 
-    setLoading(false);
-    setOpen(false);
-    
-  } catch (error) {
-     {
-                        const message = getErrorMessage(error);
-                        if (message === "SESSION_EXPIRED" || message === "UNAUTHENTICATED") {
-                         
-                          setTimeout(() => {
-                            signOut({ callbackUrl: "/login?reason=expired" });
-                          }, 500);
-                
-                          return;
-                        }
-                        console.error(error);
-                      }
-  }
-   
- }
-    
+  const handleConfirm = async () => {
+    try {
+      setLoading(true);
+      await deleteAction(settingId);
+      setLoading(false);
+      setOpen(false);
+    } catch (error) {
+      {
+        const message = getErrorMessage(error);
+        if (message === "SESSION_EXPIRED" || message === "UNAUTHENTICATED") {
+          setTimeout(() => {
+            signOut({ callbackUrl: "/login?reason=expired" });
+          }, 500);
+
+          return;
+        }
+        console.error(error);
+      }
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -84,19 +85,19 @@ export default function DeleteSettingButton({
         </DialogHeader>
         <div className="mt-4 flex justify-end gap-2">
           <DialogTrigger asChild>
-            <button className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300" onClick={() => setOpen(false)}>
+            <button
+              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+              onClick={() => setOpen(false)}
+            >
               Cancel
             </button>
           </DialogTrigger>
-          <form action={() => deleteAction(settingId)}>
             <button
-              type="submit"
               className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
               onClick={handleConfirm}
             >
-               {loading ? "Deleting..." : "Confirm"}
+              {loading ? "Deleting..." : "Confirm"}
             </button>
-          </form>
         </div>
       </DialogContent>
     </Dialog>
