@@ -1,9 +1,6 @@
 import { getCourseById } from "@/app/models/db/lib/services/courses";
 import { getTrainingBySlug } from "@/app/models/db/lib/services/training";
 import { notFound } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import CardsWrapper from "@/components/wrappers/card-wrapper";
-import Image from "next/image";
 import { generateDynamicMetadata } from "@/lib/constants/metadata";
 import TrainingCard from "@/components/trainingShowing/trainingCard";
 interface PageProps {
@@ -17,8 +14,8 @@ export async function generateMetadata({ params }: PageProps) {
     : resolvedParams.slug;
   if (!slug) return notFound();
 
-  const training = await getTrainingBySlug(slug);
-  const trainingData = training[0];
+  const training = (await getTrainingBySlug(slug)).data;
+  const trainingData = training;
   if (!trainingData) return notFound();
 
   const trainingName =
@@ -45,11 +42,11 @@ export default async function ProductPage({ params }: PageProps) {
     : resolvedParams.slug;
   const locale = resolvedParams.locale;
 
-  const training = await getTrainingBySlug(id);
-  const trainingData = training[0];
+  const training = (await getTrainingBySlug(id)).data;
+  const trainingData = training;
   if (!trainingData) notFound();
 
-  const courses = await getCourseById(training[0].id ?? "");
+  const courses = (await getCourseById(training.id ?? "")).data;
 
   const trainingName =
     locale === "ar" ? trainingData.name_ar : trainingData.name_en;
@@ -57,19 +54,17 @@ export default async function ProductPage({ params }: PageProps) {
     locale === "ar" ? trainingData.description_ar : trainingData.description_en;
 
   return (
-    <div
-      
-      dir={locale === "ar" ? "rtl" : "ltr"}
-    >
+    <div dir={locale === "ar" ? "rtl" : "ltr"}>
       <section className="w-full   flex flex-col items-center text-center mt-10">
-        <h1 className="text-3xl font-bold centert mb-4 mt-20 w-[75%]">{trainingName}</h1>
+        <h1 className="text-3xl font-bold centert mb-4 mt-20 w-[75%]">
+          {trainingName}
+        </h1>
         <p className="mb-6 text-gray-700  w-[75%] text-justify text-lg dark:text-gray-100">
           {trainingDesc}
         </p>
       </section>
 
-      <TrainingCard courses={courses}  />
-     
+      <TrainingCard courses={courses ?? []} />
     </div>
   );
 }

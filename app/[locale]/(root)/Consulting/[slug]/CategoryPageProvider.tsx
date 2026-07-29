@@ -9,13 +9,13 @@ import CategoryPage from "./CategoryPage";
 export type RouteParams = { slug: string; locale: string };
 
 export async function generateStaticParams(): Promise<RouteParams[]> {
-  const categories = await getAllcategories();
+  const categories = (await getAllcategories()).data;
   const locales = ["en", "ar"];
   const paths: RouteParams[] = [];
 
-  categories.forEach((cat) => {
+  (categories ?? []).forEach((cat) => {
     if (!cat?.slug) return;
-    locales.forEach((locale) => paths.push({ slug: cat.slug??"", locale }));
+    locales.forEach((locale) => paths.push({ slug: cat.slug ?? "", locale }));
   });
 
   return paths;
@@ -30,17 +30,17 @@ export default async function CategoryPageProvider({
 
   if (!slug) notFound();
 
-  const category = await getCaregoryByslug(slug);
-  const categoryData = category?.[0];
+  const category = (await getCaregoryByslug(slug)).data;
+  const categoryData = category;
   if (!categoryData) notFound();
 
-  const services = await getServiceByCategoryId(categoryData.id ?? "");
+  const services = (await getServiceByCategoryId(categoryData.id ?? "")).data;
 
   return (
     <CategoryPage
       locale={locale}
       categoryData={categoryData}
-      services={services}
+      services={services ?? []}
       slug={slug}
     />
   );
